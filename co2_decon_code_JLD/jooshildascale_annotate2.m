@@ -6,12 +6,17 @@ timeStepPerYear = 12; % number of data points/year
 start_year = 1800;
 end_year = 2010;
 Aoc = 3.62E14; % surface area of ocean, m^2, from Joos 1996
+%TODO: converts from which units to which?
 c = 1.722E17; % unit converter, umol m^3 ppm^-1 kg^-1, from Joos 1996
 h = 75; % mixed layer depth, m, from Joos 1996
 T = 18.2; % surface temperature, deg C, from Joos 1996
 kg = 1/9.06; % gas exchange rate, yr^-1, from Joos 1996
 
+%Note: timeStepPerYear used to be called ts (NOT dt)
+%[dtdelpCO2a,dpCO2a,year,dt,MLOSPOice_interp], which has more
+%elements than are defined in the following line
 [dtdelpCO2a,dpCO2a,year,dt] = MLOinterpolate_increment2(timeStepPerYear,start_year,end_year); % get atmospheric CO2 record
+%TODO: change name of MLOinterpolate_increment2 file to mergedCO2_getIncrement
 
 [fossilFuelData] = LoadFossilFuelData(timeStepPerYear); % get fossil fuel emissions
 
