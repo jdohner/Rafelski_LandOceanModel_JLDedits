@@ -3,6 +3,7 @@
 % brief Loads fossil fuel emissions data from BP Statistical Review of 
 % World Energy (BP, 2008)
 
+% data updates
 % 3/23/09: Change input file to BP_extrap_CDIAC_data_2007.xls
 % 1/10/11: Change input file to BP_extrap_CDIAC_data_2009.xls
 
@@ -16,44 +17,48 @@ function [ff1] = LoadFossilFuelData(timeStepPerYear)
 %% load fossil fuel data
 
 %Read in the data to be interpolated
-fossilFuel=xlsread('BP_extrap_CDIAC_data_2009.xls');
-fossilFuel_year = fossilFuel(:,1); %first column of .xls file is year
-fossilFuel_emission = fossilFuel(:,2); %second column of .xls file is emission data
+ff=xlsread('BP_extrap_CDIAC_data_2009.xls'); %fossil fuel data matrix
+ff_yr = ff(:,1); %year vector for fossil fuel data
+ff_emis = ff(:,2); %emission vector for fossil fuel data
 
 %Get rid of any NaN values
-fossilFuel_emission(isnan(fossilFuel_year)) = [];
-fossilFuel_year(isnan(fossilFuel_year)) = [];
+ff_emis(isnan(ff_yr)) = [];
+ff_yr(isnan(ff_yr)) = [];
 
 %Compute cumulative flux
-cumulativeFlux = 0;
-fossilFuel_emission_cumulative = fossilFuel_emission;
-yr1 = fossilFuel_year;
-for i = 1:length(fossilFuel_year) %Loop through emissions matrix to calculate the cumulative FF emissions for
-%each year
-    cumulativeFlux = cumulativeFlux + fossilFuel_emission(i);
-    fossilFuel_emission_cumulative(i) = cumulativeFlux;
-    yr1(i) = fossilFuel_year(i)+1;  %add 1 because integral is valid at the end of the calendar year
+cumFlux = 0; %cumulative flux counter
+ff_emis_cum = ff_emis; %initialize cumulative fossil fuel vector
+yr_cum = ff_yr; %initialize year vector for the eventual cumulative fossil fuel matrix
+
+for i = 1:length(ff_yr) %Loop through year matrix to calculate the cumulative FF emissions for each year
+    cumFlux = cumFlux + ff_emis(i);
+    ff_emis_cum(i) = cumFlux; %set element in cumulative emission array to computer cumulative flux
+    yr_cum(i) = ff_yr(i)+1;  %add 1 because integral is valid at the end of the calendar year
 end
 
-%Create new time array
-yr2 = fossilFuel_year(1):(1/timeStepPerYear):fossilFuel_year(end)+1;
+%Create new time array for interpolated data
+yr_interp = ff_yr(1):(1/timeStepPerYear):ff_yr(end)+1;
 
-%Do interpolation
-fos2 = interp1(yr1,fossilFuel_emission_cumulative,yr2,'spline');
+%Do interpolation, creating matrix ff_interp to hold interpolated data
+ff_interp = interp1(yr_cum,ff_emis_cum,yr_interp,'spline');
 
+%TODO: what is happening here?
 %Computed fluxes by taking discrete time derivative of integrated fluxes
-fos = fos2;  %creates dummy arrays
-yr = yr2;
-fos(length(yr2)) = [];
-yr(length(yr2)) = [];
-for i = 1:(length(yr2)-1),
-    fos(i) = timeStepPerYear.*(fos2(i+1)-fos2(i));
-    yr(i) = yr2(i);
+fos = ff_interp;  %creates dummy arrays
+yr = yr_interp;
+%fos(length(yr_interp)) = []; %setting last element to empty?
+%yr(length(yr_interp)) = []; %setting last element to empty?
+for i = 1:(length(fos)-1) %loop through 
+    fos(i) = timeStepPerYear.*(ff_interp(i+1)-ff_interp(i));
+    yr(i) = yr_interp(i);
 end
 
 % convert to ppm
 
 fosppm = fos/2.12;
 
-ff1(:,2) = fosppm(1,:);
+% TODO: rename these output matrices-- differnentiate from fos, ff_interp 
+% what are the differences between all of these matrices? Time deriv
+% integrated fluxes etc
+ff1(:,2) = fosppm(1,:); %what ils this doing?
 ff1(:,1) = yr(1,:);
