@@ -6,8 +6,8 @@
 % timeStepPerYear,start_year,end_year (which define a timestep and
 % boundaries), and uses merged CO2 data from Mauna Loa, South Pole
 % Observatory and Meure 
-% See Figure 1.(A) of Rafelski (2008) for result of interpolation, merging of
-% datasets.
+% See Figure 1.(A) of Rafelski (2008) for result of interpolation, merging 
+% of datasets.
 
 %% 3/13/08: changed CO2 dataset to spline fit with sigma =0.6 to capture
 %% 1940s plateau

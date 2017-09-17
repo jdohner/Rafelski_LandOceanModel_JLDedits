@@ -1,12 +1,13 @@
 %% January 10, 2011: extended data to 2010
 
-clear all
+%TODO: compare runtime of this code to original code
+
+clear all;
 
 timeStepPerYear = 12; % number of data points/year
 start_year = 1800;
 end_year = 2010;
 Aoc = 3.62E14; % surface area of ocean, m^2, from Joos 1996
-%TODO: converts from which units to which?
 c = 1.722E17; % unit converter, umol m^3 ppm^-1 kg^-1, from Joos 1996
 h = 75; % mixed layer depth, m, from Joos 1996
 T = 18.2; % surface temperature, deg C, from Joos 1996
@@ -20,6 +21,9 @@ kg = 1/9.06; % gas exchange rate, yr^-1, from Joos 1996
 
 [fossilFuelData] = LoadFossilFuelData(timeStepPerYear); % get fossil fuel emissions
 
+%allocating space for t and r matrices before for loop
+t = NaN(length(year), 1);
+r = NaN(length(year), 2);
 
 % Response function to calculate ocean uptake
 for n = 1:length(year)
@@ -29,9 +33,14 @@ for n = 1:length(year)
      if t(n,1) == 0
          r(n,2) = 1;
      elseif t(n,1) <= 2
+         % A.2.2. HILDA model for 0<t<=2 yr 
+         % (1/0.95873) multiplied in front
+         % TODO: why multiplied by this?
          r(n,2)= (1/0.95873)*(0.12935+0.21898*exp(-t(n,1)/0.034569)+0.17003*exp(-t(n,1)/0.26936)...
              +0.24071*exp(-t(n,1)/0.96083)+0.24093*exp(-t(n,1)/4.9792));
      else
+         % Joos (1996) A.2.2. HILDA model for 2 yr<t equation
+         % (1/0.95873) multiplied in front
          r(n,2) = (1/0.95873)*(0.022936+0.24278*exp(-t(n,1)/1.2679)+0.13963*exp(-t(n,1)/5.2528)...
                 +0.089318*exp(-t(n,1)/18.601)+0.037820*exp(-t(n,1)/68.736)...
                 +0.035549*exp(-t(n,1)/232.3));
@@ -42,8 +51,11 @@ end
 [fas,dpCO2s] = joos_general_fast_annotate2(year,dpCO2a,c,h,kg,T,Aoc,r,dt); 
 
 %% Calculate land flux using fossil fuel sources and ocean sink (ocean flux*area of ocean)
- 
-for p = 1:(length(year)-7);%1:(length(year)-1)
+
+%allocate space for landflux matrix
+landflux = NaN(length(year)-7, 2);
+
+for p = 1:(length(year)-7) %1:(length(year)-1) %TODO: was this commented out by Lauren?
     q = find(fossilFuelData(:,1) == year(1,p));
     landflux(p,1) = year(p);
     landflux(p,2) = dtdelpCO2a(p+((1800-1640)*timeStepPerYear),2) - fossilFuelData(q,2) + fas(p,2)*Aoc; 
