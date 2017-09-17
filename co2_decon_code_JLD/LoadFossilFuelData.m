@@ -10,9 +10,8 @@
 % TODO: Does Marland et al. (2006) appear anywhere in this?
 % Another option: give compact variable names, but be clear in defining
 % them at the beginning, and comment a lot
-% 9/16: last thing I did was line 38 (create new time vector)
 
-function [ff1] = LoadFossilFuelData(timeStepPerYear)
+function [fossilFuelData] = LoadFossilFuelData(timeStepPerYear)
 
 %% load fossil fuel data
 
@@ -37,28 +36,21 @@ for i = 1:length(ff_yr) %Loop through year matrix to calculate the cumulative FF
 end
 
 %Create new time array for interpolated data
-yr_interp = ff_yr(1):(1/timeStepPerYear):ff_yr(end)+1;
+yr_interp_intermed = ff_yr(1):(1/timeStepPerYear):ff_yr(end)+1;
 
 %Do interpolation, creating matrix ff_interp to hold interpolated data
-ff_interp = interp1(yr_cum,ff_emis_cum,yr_interp,'spline');
+ff_interp_intermed = interp1(yr_cum,ff_emis_cum,yr_interp_intermed,'spline');
 
-%TODO: what is happening here?
 %Computed fluxes by taking discrete time derivative of integrated fluxes
-fos = ff_interp;  %creates dummy arrays
-yr = yr_interp;
-%fos(length(yr_interp)) = []; %setting last element to empty?
-%yr(length(yr_interp)) = []; %setting last element to empty?
-for i = 1:(length(fos)-1) %loop through 
-    fos(i) = timeStepPerYear.*(ff_interp(i+1)-ff_interp(i));
-    yr(i) = yr_interp(i);
+ff_interp_flux = ff_interp_intermed;  %creates dummy arrays
+for i = 1:(length(ff_interp_flux)-1) %loop through to fill ff_inter_flux 
+    ff_interp_flux(i) = timeStepPerYear.*(ff_interp_intermed(i+1)-ff_interp_intermed(i));
 end
 
 % convert to ppm
+fosppm = ff_interp_flux/2.12;
 
-fosppm = fos/2.12;
-
-% TODO: rename these output matrices-- differnentiate from fos, ff_interp 
-% what are the differences between all of these matrices? Time deriv
-% integrated fluxes etc
-ff1(:,2) = fosppm(1,:); %what ils this doing?
-ff1(:,1) = yr(1,:);
+%Transpose year and emission values into columns 1 and 2 of output matrix,
+%respectively
+fossilFuelData(:,1) = yr_interp_intermed(1,:);
+fossilFuelData(:,2) = fosppm(1,:);
