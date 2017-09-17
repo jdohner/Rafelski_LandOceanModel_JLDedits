@@ -10,9 +10,10 @@
 %% 1/10/11: add updated CO2 dataset through 2010
 
 
-%TODO: ask Lauren what mlospo_meure, MLOSPOiceinterp, annincMLOSPO mean
-% make the for loop below way clearer (CO2 increment with monthly
+%TODO: -ask Lauren what mlospo_meure, MLOSPOiceinterp, annincMLOSPO mean
+% -make the for loop below way clearer (CO2 increment with monthly
 % resolution, in ppm/year)
+% -make all code fit onto 80 lines (linter for MATLAB?)
 
 function [annincMLOSPO,dpCO2a,year,dt,MLOSPOiceinterp] = MLOinterpolate_increment2(timeStepPerYear,start_year,end_year)
 
@@ -44,7 +45,10 @@ annincMLOSPO_numRows = length(((timeStepPerYear/2)+1):(length(years)-(timeStepPe
 annincMLOSPO = NaN(annincMLOSPO_numRows,2);
 
 for n = ((timeStepPerYear/2)+1):(length(years)-(timeStepPerYear/2))
+    %fill first column of annincMLOSPO with first column of MLOSPOiceinterp
     annincMLOSPO(n,1) = MLOSPOiceinterp(n,1); %annual increase Mauna Loa SPO?
+    %fill second column of annincMLOSPO with something complicated from
+    %MLOSPOiceinter
     annincMLOSPO(n,2) = MLOSPOiceinterp(n+(timeStepPerYear/2),2) - MLOSPOiceinterp(n-(timeStepPerYear/2),2);
 end
 
