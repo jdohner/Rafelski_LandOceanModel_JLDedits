@@ -1,12 +1,15 @@
 % file LoadFossilFuelData.m
+% formerly "load_fossil2.m"
+%
 % author Lauren Rafelski, modified by Julia Dohner
+%
 % brief Loads fossil fuel emissions data from BP Statistical Review of 
 % World Energy (BP, 2008)
-
-% data updates
+%
+% Changes by LR:
 % 3/23/09: Change input file to BP_extrap_CDIAC_data_2007.xls
 % 1/10/11: Change input file to BP_extrap_CDIAC_data_2009.xls
-
+%
 % TODO: Does Marland et al. (2006) appear anywhere in this?
 % Another option: give compact variable names, but be clear in defining
 % them at the beginning, and comment a lot
