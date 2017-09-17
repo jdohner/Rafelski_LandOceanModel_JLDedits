@@ -2,7 +2,7 @@
 
 clear all
 
-ts = 12; % number of data points/year
+timeStepPerYear = 12; % number of data points/year
 start_year = 1800;
 end_year = 2010;
 Aoc = 3.62E14; % surface area of ocean, m^2, from Joos 1996
@@ -11,9 +11,9 @@ h = 75; % mixed layer depth, m, from Joos 1996
 T = 18.2; % surface temperature, deg C, from Joos 1996
 kg = 1/9.06; % gas exchange rate, yr^-1, from Joos 1996
 
-[dtdelpCO2a,dpCO2a,year,dt] = MLOinterpolate_increment2(ts,start_year,end_year); % get atmospheric CO2 record
+[dtdelpCO2a,dpCO2a,year,dt] = MLOinterpolate_increment2(timeStepPerYear,start_year,end_year); % get atmospheric CO2 record
 
-[ff1] = load_fossil2(ts); % get fossil fuel emissions
+[ff1] = LoadFossilFuelData(timeStepPerYear); % get fossil fuel emissions
 
 
 % Response function to calculate ocean uptake
@@ -41,7 +41,7 @@ end
 for p = 1:(length(year)-7);%1:(length(year)-1)
     q = find(ff1(:,1) == year(1,p));
     landflux(p,1) = year(p);
-    landflux(p,2) = dtdelpCO2a(p+((1800-1640)*ts),2) - ff1(q,2) + fas(p,2)*Aoc; 
+    landflux(p,2) = dtdelpCO2a(p+((1800-1640)*timeStepPerYear),2) - ff1(q,2) + fas(p,2)*Aoc; 
 end
 
 
