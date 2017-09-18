@@ -1,10 +1,13 @@
-% Get relevant land use and Joos model results
+% file getsourcesink_scale3.m
 %
-% Updates
+% author Lauren Rafelski, modified by Julia Dohner
+% 
+% brief Get relevant land use and Joos model results
 %
-% 4/13/07 - Lauren Elmegreen - use land use change 
-% emissions that are extrapolated to the present by keeping values 
-% constant at the last value, instead of increasing by 1.4%
+% changes by LR
+% 4/13/07 - Lauren Elmegreen - use land use change emissions that are 
+% extrapolated to the present by keeping values constant at the last value,
+% instead of increasing by 1.4%
 % 10/25/12 - Lauren Rafelski - added annotations
 
 function [landusemo,ff1,fas,Aoc,extratrop_landmo] = getsourcesink_scale3;

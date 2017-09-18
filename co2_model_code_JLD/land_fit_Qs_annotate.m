@@ -45,7 +45,7 @@ year2 = year';
 delCdt(:,2) = -delCdt(:,2);
 
 %% 10-year moving boxcar average of model
-   [delC10] = l_boxcar(delCdt,10,12,1,length(delCdt),1,2);
+   [delC10] = BoxcarAverage(delCdt,10,12,1,length(delCdt),1,2);
 
 
 %% yhat is the term that is compared to the residual flux in nlinfit. 

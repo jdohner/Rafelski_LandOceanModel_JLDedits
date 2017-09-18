@@ -84,16 +84,16 @@ residual2(:,2) = dtdelpCO2a(2521:4436,2) - ff1(1189:3104,2)....
 %% record back to 1800 by using the mean temperature for the first year
 %% 
 %% do a moving boxcar average of the land temperature: 1 year average
-%% note: in this case the box length (1; second term in l_boxcar) is in
+%% note: in this case the box length (1, second term in BoxcarAverage) is in
 %% units of years. dt (12, third term) is the number of points per year
 %% first column of avg_temp gives the date, second column gives the moving
 %% average of the land temperature
-[avg_temp] = l_boxcar(tland4,1,12,1,2483,1,2); 
+[avg_temp] = BoxcarAverage(tland4,1,12,1,2483,1,2); 
 
 avg_temp(1:6,2) = avg_temp(7,2); % make the first 6 points 
 
 %% 10 year moving boxcar average of land temperature
-% [avg_temp] = l_boxcar(tland4,10,12,1,2483,1,2);
+% [avg_temp] = BoxcarAverage(tland4,10,12,1,2483,1,2);
 % 
 % avg_temp(1:60,2) = avg_temp(61,2);
 
@@ -147,15 +147,15 @@ X = temp_anom(:,:);
 %% don't use 10 year mean before 1957, because data are already smoothed
 %% (ice core)
 if(LU==1) %high land use
-%[residual10] = l_boxcar(residual,10,12,1,length(residual),1,2);
-[residual10a] = l_boxcar(residual,10,12,1225,length(residual),1,2);
+%[residual10] = BoxcarAverage(residual,10,12,1,length(residual),1,2);
+[residual10a] = BoxcarAverage(residual,10,12,1225,length(residual),1,2);
 residual10(1:1284,:) = residual(1:1284,:);
 residual10(1285:(length(residual10a)),:) = residual10a(1285:end,:);
 
 decon = residual;
 elseif(LU ==2) % low land use
-%[residual10] = l_boxcar(residual2,10,12,1,length(residual2),1,2);
-[residual10a] = l_boxcar(residual2,10,12,1225,length(residual2),1,2);
+%[residual10] = BoxcarAverage(residual2,10,12,1,length(residual2),1,2);
+[residual10a] = BoxcarAverage(residual2,10,12,1225,length(residual2),1,2);
 residual10(1:1284,:) = residual2(1:1284,:);
 residual10(1285:(length(residual10a)),:) = residual10a(1285:end,:);
 
@@ -213,7 +213,7 @@ year2 = year';
 delCdt(:,2) = -delCdt(:,2);
 
 %% 10 year moving boxcar average of model result
-[delC10] = l_boxcar(delCdt,10,12,1,length(delCdt),1,2);
+[delC10] = BoxcarAverage(delCdt,10,12,1,length(delCdt),1,2);
 
 %% Quantify how good the fit is using the mean squared error (MSE)       
 % Use filtered or unfiltered yhat
