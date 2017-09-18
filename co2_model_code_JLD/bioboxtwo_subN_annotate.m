@@ -1,3 +1,12 @@
+% file bioboxtwo_subN_annotate.m
+%
+% author Lauren Rafelski, modified by Julia Dohner
+%
+% brief This is probably the 
+% prob explained in left hand column of page 721 of Rafelski (2008)
+%
+% temp-dependent respiration: relax requirement that Q10 = 1
+%
 % 12/21/07 - change large box size to 1477 PgC
 % 1/1/08 - allow small box turnover time to change
 % 1/16/08 - change equations to allow for temperature dependent

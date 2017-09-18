@@ -12,6 +12,7 @@
 % 10/25/12 - Lauren Rafelski - added annotations
 %
 % TODO:
+% finish briefs
 % see if can rename  variables in joos_hilda_2011.m file to match my other 
 % changes i.e. ff1 -> fossilFuelData, fas -> airSeaFlux
 

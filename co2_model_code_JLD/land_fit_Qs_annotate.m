@@ -1,3 +1,14 @@
+% file land_fit_Qs_annotate.m
+%
+% author Lauren Rafelski, modified by Julia Dohner
+%
+% brief
+%
+% input
+%
+% output
+%
+% changes by LR
 % Things to check: end year defined correctly? line 12
 % beta variables defined correctly? lines 22-32
 % correct model chosen? lines 36-43

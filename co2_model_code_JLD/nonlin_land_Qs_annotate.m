@@ -1,23 +1,27 @@
-% nonlin_land_Qs_annotate.m
-% Author: Lauren Rafelski, modified by Julia Dohner
-
-% nonlin_land_Qs_annotate.m is the driver code for the land model.  
+% file nonlin_land_Qs_annotate.m
+%
+% author Lauren Rafelski, modified by Julia Dohner
+%
+% brief nonlin_land_Qs_annotate.m is the driver code for the land model.  
 % This code fits a model of land uptake to the residual land flux.  
 % The model includes CO2 fertilization or N fertilization, and 
 % temperature-dependent respiration.
-
-
-%% Modifications
-%% 11/27/2007: added NPP weighted land temperature datasets: npp_T.mat
-%% 11/27/2007: added land weighted land T datasets: landwt_T.mat
-%% 12/18/2007: added option to do fit with unfiltered data
-%% 3/13/2008: changed data filter so that only 1957 to present is filtered
-%% 4/2/2008: change index numbers for dtdelpCO2a to use with new dataset.
-%% change 2053 to 2521, change 3919 to 4387
-%% 3/31/2009: change index numbers to do run to 6/2007 for mode 1
-%% 1/10/2011: add in joos_hilda_2011.mat
-%% 8/23/2012: annotate code better
-
+%
+% input
+%
+% output
+%
+% changes by LR
+% 11/27/2007: added NPP weighted land temperature datasets: npp_T.mat
+% 11/27/2007: added land weighted land T datasets: landwt_T.mat
+% 12/18/2007: added option to do fit with unfiltered data
+% 3/13/2008: changed data filter so that only 1957 to present is filtered
+% 4/2/2008: change index numbers for dtdelpCO2a to use with new dataset.
+% change 2053 to 2521, change 3919 to 4387
+% 3/31/2009: change index numbers to do run to 6/2007 for mode 1
+% 1/10/2011: add in joos_hilda_2011.mat
+% 8/23/2012: annotate code better
+%
 % forward run model with temperature dependence in land
 
 clear all
