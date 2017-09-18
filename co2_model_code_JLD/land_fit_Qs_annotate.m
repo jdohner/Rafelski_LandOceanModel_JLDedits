@@ -13,7 +13,7 @@ end_year = 2009+(7/12);
 
 % Get parameters
 
-[dtdelpCO2a,dpCO2a,year,dt,CO2a] = MergedCO2_GetIncrement(ts,start_year,end_year);
+[dtdelpCO2a,dpCO2a,year,dt,CO2a] = GetIncrementMergedCO2(ts,start_year,end_year);
 
 [landusemo,ff1,fas,Aoc,extratrop_landmo] = getsourcesink_scale3;
 

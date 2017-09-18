@@ -57,7 +57,7 @@ end_year = 2009+(7/12);
 beta = [0.5;2]; % initial guesses for [epsilon (CO2 fertilization) or gamma
 % (N fertilization), and Q1] model fit (see land_fit_Qs_annotate)
 
-[dtdelpCO2a,dpCO2a,year,dt,CO2a] = MergedCO2_GetIncrement(ts,start_year,end_year); 
+[dtdelpCO2a,dpCO2a,year,dt,CO2a] = GetIncrementMergedCO2(ts,start_year,end_year); 
 
 % Extend land use record by making recent emissions equal to last
 % record
