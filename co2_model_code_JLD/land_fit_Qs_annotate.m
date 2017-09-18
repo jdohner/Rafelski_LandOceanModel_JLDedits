@@ -15,7 +15,7 @@ end_year = 2009+(7/12);
 
 [dtdelpCO2a,dpCO2a,year,dt,CO2a] = GetIncrementMergedCO2(ts,start_year,end_year);
 
-[landusemo,ff1,fas,Aoc,extratrop_landmo] = getsourcesink_scale3;
+[landusemo,ff1,fas,Aoc,extratrop_landmo] = GetSourceSink;
 
 %% To make temperature-independent: set Q1 and Q2 to 1
 
