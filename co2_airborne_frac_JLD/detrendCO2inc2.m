@@ -1,5 +1,20 @@
-%% Calculated airborne fraction by fitting fossil fuel emissions to 
-%% atmospheric CO2 from 1959-1979
+% file detrendCO2inc2.m
+%
+% author Lauren Rafelski, modified by Julia Dohner
+%
+% brief Calculate airborne fraction by fitting fossil fuel emissions to 
+% atmospheric CO2 from 1959-1979
+%
+% TODO: -Can Yassir make this run? I run into problems with forward_run_fit
+% -delete nonlin_land_Qs_annotate.m and MLOinterpolate_increment2.m, 
+% getsourcesink_scale3.m from
+% this file folder, replace the lines in which they're called with the new
+% file names from the other folders (LandModelUptake_Driver.m, 
+% GetIncrementMergedCO2.m, GetSourceSink.m, respectively)
+% is fossil.mat in here the same as the fossil.mat that appears in land
+% model file?
+% -maybe make one file folder with all the datasets in it?
+
 
 clear all
 
@@ -14,7 +29,7 @@ end_year = 2005.5;
 
 [dtdelpCO2a,dpCO2a,year,dt,CO2a] = MLOinterpolate_increment2(ts,start_year,end_year); % CO2 increment in ppm/year
 % dtdelpCO2a = annual increment in atmospheric CO2
-% dpCO2a = atmospheric CO2 minus initial value
+% dpCO2a = atmospheric COnonl2 minus initial value
 % year = timeseries of dates
 % dt = 1/ts
 % CO2a = atmospheric CO2 interpolated to monthly values
@@ -56,7 +71,7 @@ dm4(:,2) = G3*m3; % whole fossil fuel record used
 [co2i] = integrate_series_trap2(dtdelpCO2a,1,2,12); % integrate CO2 record
 
 %% Shift constant fraction of fossil fuel record so it's on the same scale
-%% as CO2 (i.e. add integration constant)
+% as CO2 (i.e. add integration constant)
 a = find(floor(100*CO2a(:,1)) == floor(100*(1958.5+(1/24))));
 b = CO2a(a,2);
 cc = find(ffi(:,1) == 1958.5);
@@ -67,12 +82,12 @@ co2i(:,2) = co2i(:,2) - co2i(e,2) + b; % add integration constant to integrated 
 
 
 %% Save the results of nonlin_land_Qs_annotate as a .mat file, and load
-%% here:
+% here:
 load co2_update_VHMV_11jan11.mat
 
 
 %% Fit to find integration constant to add to model results of atmospheric CO2
-%% to get agreement with data
+% to get agreement with data
 
 i = find(datm(:,2) == 0);
 datm(i,2) = NaN;

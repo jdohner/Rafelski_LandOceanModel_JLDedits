@@ -35,8 +35,7 @@ epsilon = beta(1);
 Q1 = beta(2);
 Q2 = 1;%beta(2);
 
-%% For N fertilization model. Set epsilon = 0 to not allow CO2
-%% fertilization
+%% For N fertilization model. Set epsilon = 0 to disallow CO2 fertilization
 % epsilon = 0;
 % gamma = beta(1);
 % Q1 = beta(2);
@@ -60,7 +59,7 @@ delCdt(:,2) = -delCdt(:,2);
 
 
 %% yhat is the term that is compared to the residual flux in nlinfit. 
-%% Change the index numbers here and in nonlin_land_Qs_annotate (e.g. line
-%% 158) to fit to a different time period
+% Change the index numbers here and in nonlin_land_Qs_annotate (e.g. line
+% 158) to fit to a different time period
 
 yhat = delC10(601:end,2);
