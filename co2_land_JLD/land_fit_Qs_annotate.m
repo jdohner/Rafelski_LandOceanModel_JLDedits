@@ -11,6 +11,9 @@
 %
 % output
 %
+% TODO: -rename file FitQ
+% -what is yhat?
+%
 % changes by LR
 % Things to check: end year defined correctly? line 12
 % beta variables defined correctly? lines 22-32
@@ -22,8 +25,8 @@ function yhat = land_fit_Qs_annotate(beta,X)
 % Initial conditions - set according to Joos et al
 
 ts = 12;
-start_year = 1850;
-end_year = 2009+(7/12);
+start_year = 1850; %can make this variable?
+end_year = 2009+(7/12); % can make this variable?
 
 % Get parameters
 
