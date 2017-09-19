@@ -5,15 +5,7 @@
 % brief Calculate airborne fraction by fitting fossil fuel emissions to 
 % atmospheric CO2 from 1959-1979
 %
-% TODO: -Can Yassir make this run? I run into problems with forward_run_fit
-% -delete nonlin_land_Qs_annotate.m and MLOinterpolate_increment2.m, 
-% getsourcesink_scale3.m from
-% this file folder, replace the lines in which they're called with the new
-% file names from the other folders (LandModelUptake_Driver.m, 
-% GetIncrementMergedCO2.m, GetSourceSink.m, respectively)
-% is fossil.mat in here the same as the fossil.mat that appears in land
-% model file?
-% -maybe make one file folder with all the datasets in it?
+% TODO:
 
 
 clear all
@@ -27,14 +19,14 @@ end_year = 2005.5;
 
 %% Load the variables
 
-[dtdelpCO2a,dpCO2a,year,dt,CO2a] = MLOinterpolate_increment2(ts,start_year,end_year); % CO2 increment in ppm/year
+[dtdelpCO2a,dpCO2a,year,dt,CO2a] = GetIncrementMergedCO2(ts,start_year,end_year); % CO2 increment in ppm/year
 % dtdelpCO2a = annual increment in atmospheric CO2
 % dpCO2a = atmospheric COnonl2 minus initial value
 % year = timeseries of dates
 % dt = 1/ts
-% CO2a = atmospheric CO2 interpolated to monthly values
+% CO2a = atmospheric CO2 interpolated to monGetthly values
 
-[landusemo,ff1,fas,Aoc,extratrop_landmo] = getsourcesink_scale3;
+[landusemo,ff1,fas,Aoc,extratrop_landmo] = GetSourceSink;
 
 %load land_temp.mat
 
@@ -66,9 +58,9 @@ dm4(:,2) = G3*m3; % whole fossil fuel record used
 
 %% Integrate scale fossil fuel record and atmospheric co2 increments
 
-[ffi] = integrate_series_trap2(dm4,1,2,12); % constant fraction of fossil fuel record
+[ffi] = IntegrateSeries(dm4,1,2,12); % constant fraction of fossil fuel record
 
-[co2i] = integrate_series_trap2(dtdelpCO2a,1,2,12); % integrate CO2 record
+[co2i] = IntegrateSeries(dtdelpCO2a,1,2,12); % integrate CO2 record
 
 %% Shift constant fraction of fossil fuel record so it's on the same scale
 % as CO2 (i.e. add integration constant)
@@ -81,7 +73,7 @@ e = find(floor(100*co2i(:,1)) == floor(100*(1958.5+(1/24))));
 co2i(:,2) = co2i(:,2) - co2i(e,2) + b; % add integration constant to integrated CO2 record
 
 
-%% Save the results of nonlin_land_Qs_annotate as a .mat file, and load
+%% Save the results of LandModelUptake_Driver as a .mat file, and load
 % here:
 load co2_update_VHMV_11jan11.mat
 
@@ -103,7 +95,7 @@ j13 = find(floor(100*co2i(:,1)) == floor(100*(1979+(1/24))));
 y6 = co2i(i13:j13,2);
 
 beta = 288;
-[betahat,resid,J] = nlinfit(X,y6,'forward_run_fit',beta);
+[betahat,resid,J] = nlinfit(X,y6,'ForwardFit',beta);
 
 datm(:,2) = datm(:,2) + betahat;
 

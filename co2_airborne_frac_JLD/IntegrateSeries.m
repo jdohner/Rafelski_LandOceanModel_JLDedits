@@ -9,7 +9,7 @@
 %
 % TODO: rename as IntegrateSeries.m
 
-function [func_int] = integrate_series_trap2(func,timecol,numcol,dt)
+function [func_int] = IntegrateSeries(func,timecol,numcol,dt)
 
 func_int = zeros(length(func),numcol);
 func_int(:,1) = func(:,timecol);

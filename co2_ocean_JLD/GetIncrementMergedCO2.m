@@ -67,7 +67,7 @@ MLOSPOice_interp(:,2) = CO2_interp; % fill second column with interpolated CO2 d
 %allocating space for annincMLOSPO matrix before for loop
 %TODO: if timestep = 12, annincMLOSPO is 4430 long
 dtdelpCO2a_numRows = length(((timeStepPerYear/2)+1):(length(years)-(timeStepPerYear/2)));
-dtdelpCO2a = NaN(dtdelpCO2a_numRows,2);
+dtdelpCO2a = zeros(dtdelpCO2a_numRows,2);
 
 
 %TODO: (ts=12, length(years) = 4442 -> "n = 7:(4442-6)")
