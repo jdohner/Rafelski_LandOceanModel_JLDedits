@@ -81,7 +81,7 @@ for p = 1:(length(year)-7) %1:(length(year)-1) %TODO: was this commented out by 
     landFlux(p,1) = year(p);
     landFlux(p,2) = dtdelpCO2a(p+((1800-1640)*timeStepPerYear),2) - fossilFuelData(q,2) + airSeaFlux(p,2)*Aoc; 
 end
-
+% calculating LU + B (total land flux) in loop above -RFK
 
 x = 0*year;
 
