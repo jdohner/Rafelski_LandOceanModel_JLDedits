@@ -5,7 +5,7 @@
 % 
 % note Be sure to run defaults.m in outer folder before running this code
 % 
-% brief OceanUptake.m is the main code that drives the subroutines.
+% brief OceanUptakeModel_Driver.m is the main code that drives the subroutines.
 % Together, these codes will calculate the ocean uptake of carbon dioxide
 % using a pulse-response function from Joos et al. (1996). Then, the codes
 % will calculate the residual land flux based on CO2 emissions, change in
