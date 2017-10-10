@@ -15,9 +15,6 @@
 % them at the beginning, and comment a lot
 
 function [fossilFuelData] = LoadFossilFuelData(timeStepPerYear)
-
-%% load fossil fuel data
-
 %Read in the data to be interpolated
 ff=xlsread('BP_extrap_CDIAC_data_2009.xls'); %fossil fuel data matrix
 ff_yr = ff(:,1); %year vector for fossil fuel data
@@ -53,7 +50,6 @@ end
 % convert to ppm
 fosppm = ff_interp_flux/2.12;
 
-%Transpose year and emission values into columns 1 and 2 of output matrix,
-%respectively
+%Copy year & emission values into cols 1 & 2 of output matrix,respectively
 fossilFuelData(:,1) = yr_interp_intermed(1,:);
 fossilFuelData(:,2) = fosppm(1,:);
