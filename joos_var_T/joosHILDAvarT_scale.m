@@ -1,5 +1,25 @@
+% file OceanUptakeModel_VariableSST_Driver.m
+% formerly "joosHILDAvarT_scale.m"
+% 
+% author Lauren Rafelski, modified by Julia Dohner
+% 
+% note Be sure to run defaults.m in outer folder before running this code
+% 
+% brief OceanUptakeModel_VariableSST_Driver.m is the main code that drives 
+% the variable SST subroutines. It is the variable SST version of
+% OceanUptakeModel_Driver.m.
+% Together, these codes will calculate the ocean uptake of carbon dioxide
+% using a pulse-response function from Joos et al. (1996). Then, the codes
+% will calculate the residual land flux based on CO2 emissions, change in
+% atmospheric CO2 concentration, and the ocean uptake.
+%
+% TODO: add necessary data to data folder, addpath to defaults.m
+% TODO: rename file
+%
+% Notes/changes by LR:
 % New subroutine friendly version of joosHILDA - variable temp
 % 1/29/08: changed temperature to new record
+
 
 clear all
 
