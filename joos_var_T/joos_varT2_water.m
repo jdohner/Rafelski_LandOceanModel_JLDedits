@@ -1,3 +1,19 @@
+% file joos_varT2_water.m
+% formerly 
+% 
+% author Lauren Rafelski, modified by Julia Dohner
+% 
+% brief Returns air-sea flux for inputs of year, change in atmospheric co2,
+% c, mixed layer depth, gas exchange constant, value for T (weird because
+% this is variable SST?), surface area ocean, r and dt
+%
+% TODO: add necessary data to data folder, addpath to defaults.m
+% TODO: rename file
+%
+% Notes/changes by LR:
+% New subroutine friendly version of joosHILDA - variable temp
+% 1/29/08: changed temperature to new record
+
 function [fas]= joos_varT2_water(year,dpCO2a,c,h,kg,T,Aoc,r,dt)
 
 dpCO2s = zeros(length(dpCO2a),2);
