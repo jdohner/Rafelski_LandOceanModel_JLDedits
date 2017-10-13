@@ -7,6 +7,8 @@
 % atmospheric CO2 and carbon emissions. For the temperature-independent
 % model, Q10 = 1, but 
 %
+% biobox calls appear here
+%
 % input
 %
 % output
@@ -60,7 +62,7 @@ year2 = year';
     
 delCdt(:,2) = -delCdt(:,2);
 
-%% 10-year moving boxcar average of model
+%% 10-year moving boxcar average of model (total flux into land)
    [delC10] = BoxcarAverage(delCdt,10,12,1,length(delCdt),1,2);
 
 
@@ -68,4 +70,4 @@ delCdt(:,2) = -delCdt(:,2);
 % Change the index numbers here and in nonlin_land_Qs_annotate (e.g. line
 % 158) to fit to a different time period
 
-yhat = delC10(601:end,2);
+yhat = delC10(601:end,2); % probably total flux into land

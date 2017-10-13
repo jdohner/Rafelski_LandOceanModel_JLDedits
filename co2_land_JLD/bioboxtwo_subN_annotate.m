@@ -2,7 +2,9 @@
 %
 % author Lauren Rafelski, modified by Julia Dohner
 %
-% brief This is probably the 
+% brief calculate land uptake using nitrogen fertilization
+% delCdt is total flux into land
+%
 % prob explained in left hand column of page 721 of Rafelski (2008)
 %
 % temp-dependent respiration: relax requirement that Q10 = 1
@@ -51,13 +53,13 @@ a = find(ff1(:,1) == year(1));
 for m = 1:length(year)-1
     
     
-    % fast box
+    % fast box (equation (2) in Rafelski 2009
     
     C1dt(m,2) = Ka1*Catm*(1 + eps*dpCO2a(m,2)/Catm + gamma*ff1(m+a-1,2)) - K1a*Q1a^((T(m,2)-T0)/10)*(C1 + delC1(m,2)); % temperature-dependent respiration
     
     % C1dt(m,2) = Ka1*Catm*(1 + eps*dpCO2a(m,2)/Catm + gamma*ff1(m+a-1,2))*(1 + Q1a*(T(m,2)-T0)) - K1a*(C1 + delC1(m,2)); % temperature-dependent photosynthesis
     
-    % slow box
+    % slow box (equation (2) in Rafelski 2009
     
     C2dt(m,2) = Ka2*Catm*(1 + eps*dpCO2a(m,2)/Catm + gamma*ff1(m+a-1,2)) - K2a*Q2a^((T(m,2)-T0)/10)*(C2 + delC2(m,2)); % temperature-dependent respiration
         

@@ -8,7 +8,11 @@
 % 
 % brief The function joos_general_fast_annotate2 is the ocean uptake 
 % pulse response model "r" from Joos (1996) defined in section A.2.2. 
-% (page 415) of the paper.
+% (page 415) of the paper. JLD 10/13/17: this isn't quite right, don't
+% think this is r
+%
+% Notes: mixed layer pulse response model (described in Joos)
+% takes in r from ocean model driver code
 % 
 % changes by LR
 % 7/15/09: add "dpCO2s" to output
@@ -28,6 +32,9 @@ integral = zeros(length(year),length(year));
 delDIC = zeros(length(year),2);
 
 % Calculate flux
+% this loop is the same as in bioboxtwo
+% needs to be the same as bioboxtwo loop in highe level code, call next
+% what's below for the forward model
 for m = 1:(length(year)-1)
     
    % airSeaFlux(m,1) = year(m); JLD
@@ -39,6 +46,7 @@ for m = 1:(length(year)-1)
    airSeaFlux(m,2) = (kg/Aoc)*(dpCO2a(m,2) - dpCO2s(m,2)); % air-sea flux of CO2
    
    % convolve the air-sea flux and the pulse response function, as in Joos 1996
+   % convolve = operation on two functions to procude a third function
    w = conv(airSeaFlux(1:m,2),r(1:m,2)); 
     
 
@@ -46,10 +54,13 @@ for m = 1:(length(year)-1)
    delDIC(m+1,1) = year(m+1);
    
    % Perhaps equation (3) from Joos (1996) page 401
+   % perturbation of DIC in surface ocean
    delDIC(m+1,2) = (c/h)*w(m)*dt; % change in DIC
 
    % Calculate dpCO2s from DIC
    % Equation (6b) in Joos (1996) page 402
+   % relationship between perturbation of DIC in surface ocean and partial
+   % pressure of surface ocean water
    dpCO2s(m+1,2) = (1.5568 - (1.3993E-2)*T)*delDIC(m+1,2) + (7.4706-0.20207*T)*10^(-3)*...
        (delDIC(m+1,2))^2 - (1.2748-0.12015*T)*10^(-5)*(delDIC(m+1,2))^3 + (2.4491-0.12639*T)...
        *10^(-7)*(delDIC(m+1,2))^4 - (1.5468-0.15326*T)*10^(-10)*(delDIC(m+1,2))^5;

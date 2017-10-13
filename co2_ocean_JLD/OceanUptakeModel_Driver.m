@@ -44,7 +44,9 @@ c = 1.722E17; % unit converter, umol m^3 ppm^-1 kg^-1, from Joos 1996
 t = NaN(length(year), 1); % tracer concentration (Joos 1996 A.1. pg 415)
 r = NaN(length(year), 2); % pulse response function (Joos 1996 A.1. pg 415)
 
-% Response function to calculate ocean uptake
+%% Response function to calculate ocean uptake (!!!)
+% HILDA model calculations, calculates r which is fed into
+% oceanpulseresponse
 for n = 1:length(year)
      t(n,1) = year(n) - year(1);
      r(n,1) = t(n,1);
@@ -75,7 +77,9 @@ end
 %allocate space for landFlux matrix
 landFlux = NaN(length(year)-7, 2);
 
+%% deconvolution to solve for land flux
 %TODO: finish commenting this
+% this calculates total land flux (LU - B)
 for p = 1:(length(year)-7) %1:(length(year)-1) %TODO: was this commented out by Lauren?
     q = find(fossilFuelData(:,1) == year(1,p));
     landFlux(p,1) = year(p);

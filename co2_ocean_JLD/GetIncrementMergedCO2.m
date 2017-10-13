@@ -12,6 +12,8 @@
 % given timestep, rate of change of CO2, a year matrix, dt, and the merged 
 % interpolated CO2 data. 
 %
+% Notes: RFK: could maybe replace this code with something offline?
+%
 % See Figure 1.(A) of Rafelski (2008) for result of interpolation, merging of
 % datasets.
 

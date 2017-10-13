@@ -20,7 +20,7 @@ function [landUse,fossilFuelData,airSeaFlux,Aoc,extratropLandUse] = GetSourceSin
 
 % Get relevant land use data and Joos model results
 load joos_hilda_2011.mat
-load fossil.mat
+load fossil.mat % this is where air-sea flux information appears
 
 % renaming outputs so match convention
 fossilFuelData = ff1; % retrieved from joos_hilda_2011.mat

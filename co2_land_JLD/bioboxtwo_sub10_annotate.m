@@ -1,3 +1,6 @@
+% calculate land uptake of co2 using co2 fertilization
+% delCdt is total flux into land
+%
 % 12/18/07 - put in new turnover times for 110 Pg box
 % 12/21/07 - change large box size to 1477 PgC, change corresponding atm
 % flux
@@ -37,22 +40,23 @@ C2dt(:,1) = year(:,1);
 delC1(length(year)+1,1) = year(length(year),1)+dt;
 delC2(length(year)+1,1) = year(length(year),1)+dt;
 
+% this loop is the same as in oceanpulseresponse- need to be the same as in
+% ocean pulse response in higher level code, then call next what's below
 for i = 1:length(year)
     
-    % fast box
-    
+    % fast box (equation (3) in Rafelski 2009
+    % calculate land uptake by fast box
     C1dt(i,2) = Ka1*(Catm + eps*dpCO2a(i,2)) - K1a*Q1a^((T(i,2)-T0)/10)*(C1 + delC1(i,2)); % temperature-dependent respiration
         
    % C1dt(i,2) = Ka1*(Catm + eps*dpCO2a(i,2))*(1 + Q1a*(T(i,2)-T0)) - K1a*(C1 + delC1(i,2)); % temperature-dependent photosynthesis
     
-    % slow box
-    
+    % slow box (equation (3) in Rafelski 2009
+    % calculate land uptake by slow box
     C2dt(i,2) = Ka2*(Catm + eps*dpCO2a(i,2)) - K2a*Q2a^((T(i,2)-T0)/10)*(C2 + delC2(i,2)); % temperature-dependent respiration
         
    % C2dt(i,2) = Ka2*(Catm + eps*dpCO2a(i,2))*(1 + Q2a*(T(i,2)-T0)) - K2a*(C2 + delC2(i,2)); % temperature dependent photosynthesis  
     
-    % box total change in concentrations
-    
+    % box total change in concentrations (of fast box, slow box, respectively)
     delC1(i+1,2) = sum(C1dt(:,2))*dt;
     delC2(i+1,2) = sum(C2dt(:,2))*dt;
     

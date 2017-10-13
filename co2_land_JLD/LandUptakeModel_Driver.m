@@ -34,7 +34,7 @@ clear all
 
 
 for n = 1
-%% define what kind of run you want to do
+%% define what kind of run you want to do - all the inputs
 
 LU = n; %1 = high land use scenario; 2 = low land use scenario
 
@@ -57,6 +57,7 @@ load landwt_T_2011.mat % land temperature anomaly
 %  Aoc: ocean surface area
 %  extratrop_landmo: extratropical land use emissions
 
+% ocean first appears here (outputs airSeaFlux)
 [landUse, fossilFuelData, airSeaFlux,Aoc,extratropLandUse] = GetSourceSink; 
 
  clear year start_year end_year ts
@@ -78,7 +79,7 @@ landUse(1874:1916,2) = landUse(1873,2);
 extratropLandUse(1802:1916,1) = landUse(1802:1916,1);
 extratropLandUse(1802:1916,2) = 0;
 
-%% Calculate residual land uptake
+%% Calculate residual land uptake - DECONVOLUTION (calculates B)
 % run to 8/2009 using high land use emissions
 residual(:,1) = year(1,1:1916);
 residual(:,2) = dtdelpCO2a(2521:4436,2) - fossilFuelData(1189:3104,2)....
@@ -98,6 +99,7 @@ residual2(:,2) = dtdelpCO2a(2521:4436,2) - fossilFuelData(1189:3104,2)....
 % first column of avg_temp gives the date, second column gives the moving
 % average of the land temperature
 
+% 1-yr boxcar average
 [avg_temp] = BoxcarAverage(tland4,1,12,1,2483,1,2); 
 
 avg_temp(1:6,2) = avg_temp(7,2); % make the first 6 points 
@@ -176,6 +178,10 @@ decon = residual2;
 end
 
 %% find model fit using a nonlinear regression
+% this section is where the core of the optimization occurs
+
+% runs biobox here in the land_fit_Qs_annotate (outputs total flux into
+% land)
 if(filter == 1) % fit to 10-year filtered record
 
     [betahat,resid,J] = nlinfit(X,residual10(601:end,2),'land_fit_Qs_annotate',beta); %change 601:end to 1081:1513; change 601 to 1297
@@ -202,6 +208,7 @@ end
 ci = nlparci(betahat,resid,J);
 
 %% Redefine values of epsilon, gamma and Q1
+% all output from model fit (nlinfit)
 if(nitrogen == 1)
 epsilon = 0;% betahat(2)
 gamma = betahat(1)
@@ -235,6 +242,8 @@ delCdt(:,2) = -delCdt(:,2);
 % Filtered
 %
 %------------------------------------------------
+
+% quantifying goodness of fit
 
 if(filter == 1)
 
