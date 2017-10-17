@@ -58,7 +58,7 @@ load landwt_T_2011.mat % land temperature anomaly
 %  extratrop_landmo: extratropical land use emissions
 
 % ocean first appears here (outputs airSeaFlux)
-[landUse, fossilFuelData, airSeaFlux,Aoc,extratropLandUse] = GetSourceSink; 
+[landusemo, ff1, fas,Aoc,extratrop_landmo] = GetSourceSink; 
 
  clear year start_year end_year ts
 
@@ -72,23 +72,23 @@ beta = [0.5;2]; % initial guesses for [epsilon (CO2 fertilization) or gamma
 [dtdelpCO2a,dpCO2a,year,dt,CO2a] = GetIncrementMergedCO2(ts,start_year,end_year); 
 
 % Extend land use record by making recent emissions equal to last record
-landUse(1874:1916,1) = year(1874:1916);
-landUse(1874:1916,2) = landUse(1873,2);
+landusemo(1874:1916,1) = year(1874:1916);
+landusemo(1874:1916,2) = landusemo(1873,2);
 
 %Extend extratropical emissions by assuming emissions are zero
-extratropLandUse(1802:1916,1) = landUse(1802:1916,1);
-extratropLandUse(1802:1916,2) = 0;
+extratrop_landmo(1802:1916,1) = landusemo(1802:1916,1);
+extratrop_landmo(1802:1916,2) = 0;
 
 %% Calculate residual land uptake - DECONVOLUTION (calculates B)
 % run to 8/2009 using high land use emissions
 residual(:,1) = year(1,1:1916);
-residual(:,2) = dtdelpCO2a(2521:4436,2) - fossilFuelData(1189:3104,2)....
-+ Aoc*airSeaFlux(601:2516,2) - landUse(1:1916,2);
+residual(:,2) = dtdelpCO2a(2521:4436,2) - ff1(1189:3104,2)....
++ Aoc*fas(601:2516,2) - landusemo(1:1916,2);
 
 % using extratropical emissions only
 residual2(:,1) = year(1,1:1916);
-residual2(:,2) = dtdelpCO2a(2521:4436,2) - fossilFuelData(1189:3104,2)....
-+ Aoc*airSeaFlux(601:2516,2) - extratropLandUse(1:1916,2);
+residual2(:,2) = dtdelpCO2a(2521:4436,2) - ff1(1189:3104,2)....
++ Aoc*fas(601:2516,2) - extratrop_landmo(1:1916,2);
 
 %% tland4: the temperature record started at 1880. tland4 extends the
 % record back to 1800 by using the mean temperature for the first year
@@ -332,12 +332,12 @@ end
 % CO2
 if(LU==1)
 newat(:,1) = year(1,1:1916);
-newat(:,2) =  fossilFuelData(1189:3104,2)....
-- Aoc*airSeaFlux(601:2516,2) + landUse(1:1916,2) + delCdt(:,2) ;
+newat(:,2) =  ff1(1189:3104,2)....
+- Aoc*fas(601:2516,2) + landusemo(1:1916,2) + delCdt(:,2) ;
 
 elseif(LU==2)
 newat(:,1) = year(1,1:1867);
-newat(:,2) =  fossilFuelData(1189:3055,2)....
-- Aoc*airSeaFlux(601:2467,2) + extratropLandUse(1:1867,2) + delCdt(:,2) ;
+newat(:,2) =  ff1(1189:3055,2)....
+- Aoc*fas(601:2467,2) + extratrop_landmo(1:1867,2) + delCdt(:,2) ;
 end
 

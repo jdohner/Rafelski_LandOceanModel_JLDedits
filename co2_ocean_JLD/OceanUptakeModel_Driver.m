@@ -20,7 +20,7 @@
 
 clear all;
 
-timeStepPerYear = 12; % number of data points/year
+ts = 12; % number of data points/year
 start_year = 1800;
 end_year = 2010;
 Aoc = 3.62E14; % surface area of ocean, m^2, from Joos 1996
@@ -35,10 +35,10 @@ c = 1.722E17; % unit converter, umol m^3 ppm^-1 kg^-1, from Joos 1996
 % Note: timeStepPerYear used to be called ts (NOT dt)
 % fewer outputs taken in following line than provided by function
 % get atmospheric CO2 record
-[dtdelpCO2a,dpCO2a,year,dt] = GetIncrementMergedCO2(timeStepPerYear,start_year,end_year); 
+[dtdelpCO2a,dpCO2a,year,dt] = GetIncrementMergedCO2(ts,start_year,end_year); 
 
 % get fossil fuel emissions
-[fossilFuelData] = LoadFossilFuelData(timeStepPerYear); 
+[ff1] = LoadFossilFuelData(ts); 
 
 % allocating space for t and r matrices before for loop
 t = NaN(length(year), 1); % tracer concentration (Joos 1996 A.1. pg 415)
@@ -70,27 +70,27 @@ end
 
 %% Calculate ocean uptake
 
-[airSeaFlux,dpCO2s] = OceanPulseResponse(year,dpCO2a,c,h,kg,T,Aoc,r,dt); 
+[fas,dpCO2s] = OceanPulseResponse(year,dpCO2a,c,h,kg,T,Aoc,r,dt); 
 
 %% Calculate land flux using fossil fuel sources and ocean sink (ocean flux*area of ocean)
 
 %allocate space for landFlux matrix
-landFlux = NaN(length(year)-7, 2);
+landflux = NaN(length(year)-7, 2);
 
 %% deconvolution to solve for land flux
 %TODO: finish commenting this
 % this calculates total land flux (LU - B)
 for p = 1:(length(year)-7) %1:(length(year)-1) %TODO: was this commented out by Lauren?
-    q = find(fossilFuelData(:,1) == year(1,p));
-    landFlux(p,1) = year(p);
-    landFlux(p,2) = dtdelpCO2a(p+((1800-1640)*timeStepPerYear),2) - fossilFuelData(q,2) + airSeaFlux(p,2)*Aoc; 
+    q = find(ff1(:,1) == year(1,p));
+    landflux(p,1) = year(p);
+    landflux(p,2) = dtdelpCO2a(p+((1800-1640)*ts),2) - ff1(q,2) + fas(p,2)*Aoc; 
 end
 % calculating LU + B (total land flux) in loop above -RFK
 
 x = 0*year;
 
 figure
-plot(fossilFuelData(:,1),fossilFuelData(:,2),'-k',dtdelpCO2a(:,1),dtdelpCO2a(:,2),'-r',airSeaFlux(:,1),-Aoc*airSeaFlux(:,2),'-b',landFlux(:,1),landFlux(:,2),'-g',year(1,:),x,'--k')
+plot(ff1(:,1),ff1(:,2),'-k',dtdelpCO2a(:,1),dtdelpCO2a(:,2),'-r',fas(:,1),-Aoc*fas(:,2),'-b',landflux(:,1),landflux(:,2),'-g',year(1,:),x,'--k')
 axis([1800 2010 -10 10])
 legend('fossil fuel','atmosphere','ocean','land','Location','SouthWest')
 title('Sources and sinks from Joos response function ')

@@ -31,7 +31,7 @@ function [avg_temp] = BoxcarAverage(landTempRecord,boxLength,pointsPerYear,start
 
 window = boxLength*pointsPerYear; % window of data within which taking average
 numRows = (endTime-(window/2)) - (startTime+(window/2));
-avg_temp = NaN(numRows, 2); % allocate space for avg_temp matrix before loop
+avg_temp = zeros(numRows, 2); % allocate space for avg_temp matrix before loop
 
 % taking average of point exactly in middle of window (hence +/- window/2)
 for i = (startTime+(window/2)):(endTime-(window/2))
