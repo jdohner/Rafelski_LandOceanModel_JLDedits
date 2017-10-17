@@ -8,11 +8,15 @@
 % 
 %
 % subroutines: 
-% HILDA response model r
-% Mixed layer ocean pulse response
-% biobox (land model)
+% HILDA response model r (calculates HILDA ocean uptake - A.2.2 in Joos 96)
+% MLPulseResponse (calculates mixed layer uptake - Eq. 3, 6b in Joos 1996)
+% biobox (Calculates co2 uptake of fast land box model (driven by co2
+% fertilization))
 
 clear all
+
+% give access to data files in co2_forward_data folder
+addpath(genpath('/Users/juliadohner/Documents/MATLAB/Rafelski_LandOceanModel_JLDedits/co2_forward/co2_forward_data'));
 
 LU = 1; %1 = high land use scenario; 2 = low land use scenario
 
