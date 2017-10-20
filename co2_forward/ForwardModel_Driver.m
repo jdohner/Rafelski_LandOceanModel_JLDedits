@@ -116,6 +116,8 @@ for i = start_year:dt:end_year
     %function [fas,dpCO2s]= MLPulseResponse(year,dpCO2a,c,h,kg,T,Aoc,r,dt)
     %function [C1dt,C2dt,delCdt,delC1,delC2] = BioBoxResponse(eps,Q1a,Q2a,ts,year,dpCO2a,T)
     %function [landusemo,ff1,fas,Aoc,extratrop_landmo] = getsourcesink_scale3;
+    
+    pco2a = pco2a + FF + LU - O - B; % updating pco2a
 end 
     
 

@@ -13,34 +13,44 @@
 
 function [C1dt,C2dt,delCdt,delC1,delC2] = BioBoxResponse(eps,Q1a,Q2a,ts,year,dpCO2a,T)
 
-T0 = T(1,2);
+T0 = T(1,2); % initial temperature
 
-dt = 1/ts;
+dt = 1/ts; % timestep
 
 % Define box sizes in ppm
 
 Catm = 600/2.12; % around 283 ppm (preindustrial)
 
-C1 = 110/2.12; % fast biosphere box, from old model
-C2 = 1477/2.12; % slow biosphere box, changed to be same as 1 box
+% fast biosphere box, from old model
+% fast pool contains 110 PgC
+C1 = 110/2.12; 
+% slow biosphere box, changed to be same as 1 box
+% slow pool contains 1477 PgC
+C2 = 1477/2.12; 
 
 
-% Rate constants
+% Rate constants - exchange in and out of fast box to atmosphere
  K1a = 1/2.5; 
  Ka1 = K1a*C1/Catm;
 
-K2a = 1/60; % slow box to atmosphere
+ % exchange constants in and out of slow box to atmosphere
+K2a = 1/60; 
 Ka2 = K2a*C2/Catm;
 
 % set up arrays
 
+% change in fast box
 delC1(:,1) = year(:,1);
 delC1(:,2) = zeros(size(year));
+% change in slow box
 delC2(:,1) = year(:,1);
 delC2(:,2) = zeros(size(year));
+% uptake by land?
 delCdt(:,1) = year(:,1);
+
 C1dt(:,1) = year(:,1);
 C2dt(:,1) = year(:,1);
+
 delC1(length(year)+1,1) = year(length(year),1)+dt;
 delC2(length(year)+1,1) = year(length(year),1)+dt;
 
