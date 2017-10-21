@@ -93,7 +93,7 @@ beta = [0.5;2]; % initial guesses for model fit
 
 %% THE MOTHERLOOP
 
-end_year_forward = end_year + 50; % how far forward we'll be projecting
+%end_year_forward = end_year + 50; % how far forward we'll be projecting
 
 
 % I might as well loop through all the past data to see if I can fit it
@@ -111,11 +111,59 @@ end_year_forward = end_year + 50; % how far forward we'll be projecting
 
 %[landusemo,ff1,fas,Aoc,extratrop_landmo] = getsourcesink_scale3; 
 
+[t,r]= HILDAResponse(year); % r is kernel/pulse response fx
+
 for i = start_year:dt:end_year
-    %function [t,r]= HILDAResponse(year)
+    
     %function [fas,dpCO2s]= MLPulseResponse(year,dpCO2a,c,h,kg,T,Aoc,r,dt)
     %function [C1dt,C2dt,delCdt,delC1,delC2] = BioBoxResponse(eps,Q1a,Q2a,ts,year,dpCO2a,T)
     %function [landusemo,ff1,fas,Aoc,extratrop_landmo] = getsourcesink_scale3;
+    
+    % ocean uptake
+     %Calculate flux 
+   fas(m,1) = year(m);
+   fas(m,2) = (kg/Aoc)*(dpCO2a(m,2) - dpCO2s(m,2)); % air-sea flux of CO2
+   
+    w = conv(fas(1:m,2),r(1:m,2)); % convolve the air-sea flux and the pulse response function, as in Joos 1996
+
+    % Calculate delDIC 
+    delDIC(m+1,1) = year(m+1);
+   
+    delDIC(m+1,2) = (c/h)*w(m)*dt; % change in DIC
+
+    %Calculate dpCO2s from DIC - from Joos 1996
+    dpCO2s(m+1,2) = (1.5568 - (1.3993E-2)*T)*delDIC(m+1,2) + (7.4706-0.20207*T)*10^(-3)*...
+        (delDIC(m+1,2))^2 - (1.2748-0.12015*T)*10^(-5)*(delDIC(m+1,2))^3 + (2.4491-0.12639*T)...
+        *10^(-7)*(delDIC(m+1,2))^4 - (1.5468-0.15326*T)*10^(-10)*(delDIC(m+1,2))^5;
+    
+    
+    
+    % land uptake (biobox10)
+    
+      % fast box
+    
+      %dpco2a = 
+      
+    C1dt(i,2) = Ka1*(Catm + eps*dpCO2a(i,2)) - K1a*Q1a^((T(i,2)-T0)/10)*(C1 + delC1(i,2)); % temperature-dependent respiration
+        
+   % C1dt(i,2) = Ka1*(Catm + eps*dpCO2a(i,2))*(1 + Q1a*(T(i,2)-T0)) - K1a*(C1 + delC1(i,2)); % temperature-dependent photosynthesis
+    
+    % slow box
+    
+    C2dt(i,2) = Ka2*(Catm + eps*dpCO2a(i,2)) - K2a*Q2a^((T(i,2)-T0)/10)*(C2 + delC2(i,2)); % temperature-dependent respiration
+        
+   % C2dt(i,2) = Ka2*(Catm + eps*dpCO2a(i,2))*(1 + Q2a*(T(i,2)-T0)) - K2a*(C2 + delC2(i,2)); % temperature dependent photosynthesis  
+    
+    % box total change in concentrations
+    
+    delC1(i+1,2) = sum(C1dt(:,2))*dt;
+    delC2(i+1,2) = sum(C2dt(:,2))*dt;
+    
+    % total flux into land
+    
+    delCdt(i,2) = C2dt(i,2) + C1dt(i,2);
+    
+    B = delCdt;
     
     pco2a = pco2a + FF + LU - O - B; % updating pco2a
 end 
