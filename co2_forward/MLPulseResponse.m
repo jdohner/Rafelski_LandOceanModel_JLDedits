@@ -10,7 +10,7 @@
 % code from jooshildascale_annotate2.m (aka OceanPulseResponse)
 
 
-function [fas,dpCO2s]= MLPulseResponse(year,dpCO2a,c,h,kg,T,Aoc,r,dt)
+function [fas,dpCO2s]= MLPulseResponse(year,dpCO2a,c,h,kg,T_const,Aoc,r,dt)
 
 dpCO2s = zeros(length(dpCO2a),2); % dissolved CO2
 dpCO2s(:,1) = dpCO2a(:,1);
@@ -31,9 +31,9 @@ for m = 1:(length(year)-1)
     delDIC(m+1,2) = (c/h)*w(m)*dt; % change in DIC
 
     %Calculate dpCO2s from DIC - from Joos 1996
-    dpCO2s(m+1,2) = (1.5568 - (1.3993E-2)*T)*delDIC(m+1,2) + (7.4706-0.20207*T)*10^(-3)*...
-        (delDIC(m+1,2))^2 - (1.2748-0.12015*T)*10^(-5)*(delDIC(m+1,2))^3 + (2.4491-0.12639*T)...
-        *10^(-7)*(delDIC(m+1,2))^4 - (1.5468-0.15326*T)*10^(-10)*(delDIC(m+1,2))^5;
+    dpCO2s(m+1,2) = (1.5568 - (1.3993E-2)*T_const)*delDIC(m+1,2) + (7.4706-0.20207*T_const)*10^(-3)*...
+        (delDIC(m+1,2))^2 - (1.2748-0.12015*T_const)*10^(-5)*(delDIC(m+1,2))^3 + (2.4491-0.12639*T_const)...
+        *10^(-7)*(delDIC(m+1,2))^4 - (1.5468-0.15326*T_const)*10^(-10)*(delDIC(m+1,2))^5;
     
 end
 

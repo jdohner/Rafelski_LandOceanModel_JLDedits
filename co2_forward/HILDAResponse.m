@@ -22,6 +22,7 @@ t = NaN(length(year), 1);
 r = NaN(length(year), 2); 
 
 % Response function to calculate ocean uptake
+% year comes from load_fossil2 here
 for i = 1:length(year)
     % each value in first column of t is the year at index i minus first
     % year
@@ -39,4 +40,7 @@ for i = 1:length(year)
                 +0.035549*exp(-t(i,1)/232.3));
      end
 end
+
+% at the end of all of this, isequal(r(:,1),t) == 1
+
 end

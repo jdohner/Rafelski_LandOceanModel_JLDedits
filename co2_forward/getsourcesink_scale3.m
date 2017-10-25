@@ -6,8 +6,9 @@
 % emissions that are extrapolated to the present by keeping values 
 % constant at the last value, instead of increasing by 1.4%
 % 10/25/12 - Lauren Rafelski - added annotations
+% Oct 24, 2017 - JLD removed Aoc from output
 
-function [landusemo,ff1,fas,Aoc,extratrop_landmo] = getsourcesink_scale3;
+function [landusemo,ff1,fas,extratrop_landmo] = getsourcesink_scale3;
 
 load joos_hilda_2011.mat
 load fossil.mat
