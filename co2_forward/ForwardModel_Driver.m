@@ -176,8 +176,22 @@ year2 = year';
 % Error in ForwardModel_Driver2 (line 173)
 %     fas(i,2) = (kg/Aoc)*(dpCO2a(i,2) - dpCO2s(i,2)); % air-sea flux of CO2
 
-% i loops through 1916 values
-for i = start_year_land:dt:end_year_land
+
+% everything below is just the loop contents from
+% bioboxtwo_sub10_annotate.m and joos_general_fast_annotate2, but lacks the
+% stuff from both of those functions that help set up the loop.
+
+% i loops through 2521 values
+
+% biobox_sub10 loop setup:
+
+
+
+
+
+
+
+for i = 1:length(year2);
     
     % ocean uptake - code from joos_general_fast_annotate2
     
