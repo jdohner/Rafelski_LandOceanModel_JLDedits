@@ -1,6 +1,6 @@
 % file ForwardModel_Driver2.m
 
-clear all;
+%clear all;
 
 % give access to data files in co2_forward_data folder
 addpath(genpath('/Users/juliadohner/Documents/MATLAB/Rafelski_LandOceanModel_JLDedits/co2_forward/co2_forward_data'));
@@ -132,9 +132,20 @@ avg_temp(1:6,2) = avg_temp(7,2); % make the first 6 points
 % 
 % ***Use these for various T tests***
 
+% first column of temp_anom is just time values
  temp_anom(1:6,1) =  avg_temp(601:606,1); %Jan 1850-May 1850
+ % want to figure out why put first value in landtglob as first 6 values in
+ % temp anom
  temp_anom(1:6,2) = landtglob(1,2); %355 instead of 1, 360 instead of 6
-  
+ 
+ % here she's dealing with the fact that landtglob starts at 1850.5,
+ % filling this back by 6 months
+ % Ralph: get rid of the lines of code dealing with first 6 months, instead
+ % fill it all the way back to 1800 (in landtglob), so don't mess with here
+ % update T0 to be intiial values from 1800 to 1850, but make sure not same
+ % value that she used for T0
+% update: change her code so it fills all the way back to 1850, have
+% 50*12=726 additional values
  temp_anom(7:1916,1) = landtglob(1:1910,1); % Starts at the year 1850.5. 
  temp_anom(7:1916,2) = landtglob(1:1910,2); % 
  
