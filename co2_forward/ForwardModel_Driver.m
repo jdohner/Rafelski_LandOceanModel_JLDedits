@@ -37,7 +37,7 @@ year_ocean = start_year_ocean:dt:end_year_ocean;
 % dpCO2a is initialized in MLOinterp, but we need it for its dimensions to
 % initialize dpCO2s
 % dpCO2a as outputted from MLOinterp is a 2522x2 double
-dpCO2a = [1:2522,2];
+dpCO2a = zeros(2521,2); %[1:2522,2];
 % these dimensions are set by the length of the record in mlospo_meure and
 % by the timestep ts
 
@@ -316,6 +316,12 @@ for i = 1:length(year_ocean2);
     %Calculate flux 
     fas(i,1) = year_ocean(i);
     fas(i,2) = (kg/Aoc)*(dpCO2a(i,2) - dpCO2s(i,2)); % air-sea flux of CO2
+    %TODO: need to transpose dimensions of dpco2a - not sure where went
+    %wrong, check LR code
+    % dpco2a comes out of MLOinterp as 2522x2 double
+    % for some reason, initializing dpco2a = [1:2522,1] gives me the
+    % opposite dimensions I'd expect (I wanted 2521x1, got 1x2521)
+
    
     w = conv(fas(1:i,2),r(1:i,2)); % convolve the air-sea flux and the pulse response function, as in Joos 1996
 

@@ -41,6 +41,6 @@ for i = 1:length(year)
      end
 end
 
-% at the end of all of this, isequal(r(:,1),t) == 1
-
+% cool, at the end of all of this, t and r are equal to the t and r that
+% are produced in the original LR ocean model code
 end
