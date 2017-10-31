@@ -94,6 +94,7 @@ beta = [0.5;2]; % initial guesses for model fit
 % called in landusemo calls
 year_land = start_year_land:dt:end_year_land;
 
+
 % TODO: the following (extending records) can all happen in getsourcesink_scale3, but wait to
 % change until can get the code running and working
 

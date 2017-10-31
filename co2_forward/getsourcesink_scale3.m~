@@ -15,9 +15,7 @@ load fossil.mat
 
 % interpolate land use changes to monthly resolution
 
-%month = 1850:(1/12):2006; %old code
-month = 1800:(1/12):2010; % JLD on Oct 31, 2017 to extend land data to match time frame of ocean
-
+month = 1850:(1/12):2006;
 %landnowppm begins as a 157x12 vector, gets interpolated to 
 %landnowppm(:,1) contains the sample points
 %landnowppm(:,12) contains the corresponding values
@@ -26,7 +24,6 @@ month = 1800:(1/12):2010; % JLD on Oct 31, 2017 to extend land data to match tim
 landmonth = interp1(landnowppm(:,1),landnowppm(:,12),month);
 
 %month2 = 1850:(1/12):2000; % old code
-month2 = 1800:(1/12):2010 % JLD on Oct 31, 2017
 extralandmonth = interp1(extratrop_landppm(:,1),extratrop_landppm(:,2),month2);
 
 landusemo(:,1) = month;
