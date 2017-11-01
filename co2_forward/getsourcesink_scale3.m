@@ -26,7 +26,7 @@ month = 1800:(1/12):2010; % JLD on Oct 31, 2017 to extend land data to match tim
 landmonth = interp1(landnowppm(:,1),landnowppm(:,12),month);
 
 %month2 = 1850:(1/12):2000; % old code
-month2 = 1800:(1/12):2010 % JLD on Oct 31, 2017
+month2 = 1800:(1/12):2010; % JLD on Oct 31, 2017
 extralandmonth = interp1(extratrop_landppm(:,1),extratrop_landppm(:,2),month2);
 
 landusemo(:,1) = month;

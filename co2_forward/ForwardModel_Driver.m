@@ -1,6 +1,6 @@
 % file ForwardModel_Driver2.m
 
-%clear all;
+clear all;
 
 % give access to data files in co2_forward_data folder
 addpath(genpath('/Users/juliadohner/Documents/MATLAB/Rafelski_LandOceanModel_JLDedits/co2_forward/co2_forward_data'));
@@ -94,7 +94,6 @@ beta = [0.5;2]; % initial guesses for model fit
 % called in landusemo calls
 year_land = start_year_land:dt:end_year_land;
 
-
 % TODO: the following (extending records) can all happen in getsourcesink_scale3, but wait to
 % change until can get the code running and working
 
@@ -120,6 +119,7 @@ extratrop_landmo(1802:1916,2) = 0;
 [avg_temp] = l_boxcar(tland4,1,12,1,2483,1,2); 
 
 avg_temp(1:6,2) = avg_temp(7,2); % make the first 6 points 
+% Question: why does avg_temp has zeros for first 6 time points?
 
 % 10 year moving boxcar average of land temperature
 % [avg_temp] = l_boxcar(tland4,10,12,1,2483,1,2);
@@ -131,6 +131,23 @@ avg_temp(1:6,2) = avg_temp(7,2); % make the first 6 points
 %----------------------------------------------------------------------%%
 % 
 % ***Use these for various T tests***
+
+% JLD code
+% 
+% % values for year 1800 to 1850.5 in temp_anom should all be the first value
+% % of the avg_temp vector
+% % 50*12 = 600 + 6 (for the half year) = first 606 values
+% tacking 600 points onto all these calculations
+temp_anom(1:606,1) = avg_temp(1:606,1); % fill time column of temp_anom
+temp_anom(1:606,2) = landtglob(1,2);
+% % TODO: what about filling entire time column?
+% % temp_anom(:,1) = avg_temp(:,1); % filling entire time column
+% % landtglob starts at year 1850.5
+temp_anom(607:2516,1) = landtglob(1:1910,1);
+temp_anom(607:2516,2) = landtglob(1:1910,1);
+
+
+%%%%%% LR code %%%%%%
 
 % first column of temp_anom is just time values
  temp_anom(1:6,1) =  avg_temp(601:606,1); %Jan 1850-May 1850
