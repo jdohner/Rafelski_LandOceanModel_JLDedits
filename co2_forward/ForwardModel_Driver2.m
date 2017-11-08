@@ -12,7 +12,7 @@ addpath(genpath('/Users/juliadohner/Documents/MATLAB/Rafelski_LandOceanModel_JLD
 
 ts = 12; % number of data points/year, 12 in both land and ocean
 start_year_ocean = 1800;
-end_year_ocean = 2006;
+end_year_ocean = 2006+10/12; % this is the end of tland
 Aoc = 3.62E14; % surface area of ocean, m^2, from Joos 1996
 c = 1.722E17; % unit converter, umol m^3 ppm^-1 kg^-1, from Joos 1996
 h = 75; % mixed layer depth, m, from Joos 1996
@@ -29,18 +29,20 @@ year_ocean = start_year_ocean:dt:end_year_ocean;
 % back to jooshildascale_annotate2.m
 
 % Response function to calculate ocean uptake
-[t,r] = HILDAResponse(year_ocean);
+%[t,r] = HILDAResponse(year_ocean);
 
 % in the original code, would call joos_general_fast_annotate2 here, but
 % I'm putting part of that function into the motherloop, so here I'm just
 % calling the prep lines from that function (pre-loop)
 
+%%%%%%% next step:
+
 % dpCO2a is initialized in MLOinterp, but we need it for its dimensions to
 % initialize dpCO2s
 % dpCO2a as outputted from MLOinterp is a 2522x2 double
-dpCO2a = zeros(2521,2); %[1:2522,2];
-% these dimensions are set by the length of the record in mlospo_meure and
-% by the timestep ts
+% (just startyear:1/12:end year)
+%dpCO2a = zeros(2521,2); %[1:2522,2];
+dpCO2a = zeros(length(year_ocean),2); %[1:2483,2];
 
 dpCO2s = zeros(length(dpCO2a),2); % dissolved CO2
 dpCO2s(:,1) = dpCO2a(:,1);
@@ -77,11 +79,14 @@ load landwt_T_2011.mat % land temperature anomaly
 % Aoc: ocean surface area
 % extratrop_landmo: extratropical land use emissions
 
-[landusemo,ff1,fas,extratrop_landmo] = getsourcesink_scale3; 
+[landusemo,ff1,fas,extratrop_landmo] = getsourcesink_scale4; % changed from gss3 to gss4 
 
 %ts = 12; % took out because already defined in ocean
-start_year_land = 1850; % change to start_year_land
-end_year_land = 2009+(7/12); % change to end_year_land
+%start_year_land = 1850; % change to start_year_land
+%end_year_land = 2009+(7/12); % change to end_year_land
+start_year_land = start_year_ocean; % change to start_year_land
+end_year_land = end_year_ocean; % change to end_year_land
+
 
 beta = [0.5;2]; % initial guesses for model fit
 % leaving out the betahat stuff because that's just output from the model
@@ -100,14 +105,31 @@ year_land = start_year_land:dt:end_year_land;
 
 % Extend land use record by making recent emissions equal to last
 % record
-landusemo(1874:1916,1) = year_land(1874:1916); % TODO: this is calling on land_year vector, but right now calls ocean_year
-landusemo(1874:1916,2) = landusemo(1873,2);
+% Question: where do these indices come from???
+% if this is counting from 1850, then the index 1874 corresponds to year 2006.2
+% if this is counting from 1850, then the index 1916 corresponds to year 2009.7
+% if this is counting from 1850, then the index 1873 corresponds to year 2006.1
+
+% if this is counting from 1800, then the index 1916 corresponds to year 1959.7
+% if this is counting from 1800, then the index 1874 corresponds to year 1956.2
+% if this is counting from 1800, then the index 1916 corresponds to year 1956.1
+% most probable: counting from 1850, so tacking on values for 2006.2 onto 2009.7
+% so this is dealing with stuff after 2006, and seems unnecessary
+% landusemo(1874:1916,1) = year_land(1874:1916); % TODO: this is calling on land_year vector, but right now calls ocean_year
+% landusemo(1874:1916,2) = landusemo(1873,2);
+
+% Question: why didn't LR just extend the interpolation for landusemo and
+% extratop? Rather than what she did where she set the recent values equal
+% to something
+
 % % 
 %Extend extratropical emissions by assuming emissions are zero
-extratrop_landmo(1802:1916,1) = landusemo(1802:1916,1);
-extratrop_landmo(1802:1916,2) = 0;
+% extratrop_landmo(1802:1916,1) = landusemo(1802:1916,1);
+% extratrop_landmo(1802:1916,2) = 0;
 
 % left out: Calculate residual land uptake section
+
+%%%%%%%%% Nov 8 stopping here %%%%%%%%%
 
 % tland4: the temperature record started at 1880. tland4 extends the
 % record back to 1800 by using the mean temperature for the first year
