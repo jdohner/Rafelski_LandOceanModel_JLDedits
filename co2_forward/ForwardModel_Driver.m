@@ -142,29 +142,29 @@ temp_anom(1:606,1) = avg_temp(1:606,1); % fill time column of temp_anom
 temp_anom(1:606,2) = landtglob(1,2);
 % % TODO: what about filling entire time column?
 % % temp_anom(:,1) = avg_temp(:,1); % filling entire time column
-% % landtglob starts at year 1850.5
+% % landtglob starts at year 1850.5, goes until 2010 + 5/12
 temp_anom(607:2516,1) = landtglob(1:1910,1);
 temp_anom(607:2516,2) = landtglob(1:1910,1);
 
 
 %%%%%% LR code %%%%%%
 
-% first column of temp_anom is just time values
- temp_anom(1:6,1) =  avg_temp(601:606,1); %Jan 1850-May 1850
- % want to figure out why put first value in landtglob as first 6 values in
- % temp anom
- temp_anom(1:6,2) = landtglob(1,2); %355 instead of 1, 360 instead of 6
- 
- % here she's dealing with the fact that landtglob starts at 1850.5,
- % filling this back by 6 months
- % Ralph: get rid of the lines of code dealing with first 6 months, instead
- % fill it all the way back to 1800 (in landtglob), so don't mess with here
- % update T0 to be intiial values from 1800 to 1850, but make sure not same
- % value that she used for T0
-% update: change her code so it fills all the way back to 1850, have
-% 50*12=726 additional values
- temp_anom(7:1916,1) = landtglob(1:1910,1); % Starts at the year 1850.5. 
- temp_anom(7:1916,2) = landtglob(1:1910,2); % 
+% % first column of temp_anom is just time values
+%  temp_anom(1:6,1) =  avg_temp(601:606,1); %Jan 1850-May 1850
+%  % want to figure out why put first value in landtglob as first 6 values in
+%  % temp anom
+%  temp_anom(1:6,2) = landtglob(1,2); %355 instead of 1, 360 instead of 6
+%  
+%  % here she's dealing with the fact that landtglob starts at 1850.5,
+%  % filling this back by 6 months
+%  % Ralph: get rid of the lines of code dealing with first 6 months, instead
+%  % fill it all the way back to 1800 (in landtglob), so don't mess with here
+%  % update T0 to be intiial values from 1800 to 1850, but make sure not same
+%  % value that she used for T0
+% % update: change her code so it fills all the way back to 1850, have
+% % 50*12=726 additional values
+%  temp_anom(7:1916,1) = landtglob(1:1910,1); % Starts at the year 1850.5. 
+%  temp_anom(7:1916,2) = landtglob(1:1910,2); % 
  
 %  temp_anom(1:6,1) =  avg_temp(601:606,1);
 %  temp_anom(1:6,2) = npptglob(1,2); %355 instead of 1, 360 instead of 6
