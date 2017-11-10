@@ -29,7 +29,7 @@ year_ocean = start_year_ocean:dt:end_year_ocean;
 % back to jooshildascale_annotate2.m
 
 % Response function to calculate ocean uptake
-%[t,r] = HILDAResponse(year_ocean);
+[t,r] = HILDAResponse(year_ocean);
 
 % in the original code, would call joos_general_fast_annotate2 here, but
 % I'm putting part of that function into the motherloop, so here I'm just
@@ -143,6 +143,7 @@ year_land = start_year_land:dt:end_year_land;
 
 avg_temp(1:6,2) = avg_temp(7,2); % make the first 6 points 
 % Question: why does avg_temp has zeros for first 6 time points?
+% do these time points just not get called? only the corresponding values?
 
 % 10 year moving boxcar average of land temperature
 % [avg_temp] = l_boxcar(tland4,10,12,1,2483,1,2);
@@ -162,10 +163,12 @@ avg_temp(1:6,2) = avg_temp(7,2); % make the first 6 points
 % % 50*12 = 600 + 6 (for the half year) = first 606 values
 % tacking 600 points onto all these calculations
 temp_anom(1:606,1) = avg_temp(1:606,1); % fill time column of temp_anom
-temp_anom(1:606,2) = landtglob(1,2);
+temp_anom(1:606,2) = landtglob(1,2); %landtglob are temp anomalies
 % % TODO: what about filling entire time column?
 % % temp_anom(:,1) = avg_temp(:,1); % filling entire time column
 % % landtglob starts at year 1850.5, goes until 2010 + 5/12
+% accounted for landtglob starting at 1850.5 (rather than 1850) by filling
+% in temp_anom starting at 607, rather than 601
 temp_anom(607:2516,1) = landtglob(1:1910,1);
 temp_anom(607:2516,2) = landtglob(1:1910,1);
 
@@ -361,7 +364,7 @@ C2dt(:,1) = year_land_trans(:,1);
 delC1(length(year_land_trans)+1,1) = year(length(year_land_trans),1)+dt;
 delC2(length(year_land_trans)+1,1) = year(length(year_land_trans),1)+dt;
 
-for i = 1:length(year_ocean2);
+for i = 1:length(year_ocean2)-1; % changed this to -1 -- any adverse effects?
     
     % ocean uptake - code from joos_general_fast_annotate2
     
@@ -378,8 +381,14 @@ for i = 1:length(year_ocean2);
     w = conv(fas(1:i,2),r(1:i,2)); % convolve the air-sea flux and the pulse response function, as in Joos 1996
 
     % Calculate delDIC 
+    %note: line below throws error that exceeds matrix dims
+    % Question: how to address making this stop when it gets to the last
+    % point, like how do you treat the last point since they're functions
+    % of the points one before? 
+    %if i <= length(year_ocean2-1)
     delDIC(i+1,1) = year_ocean(i+1); % filling time column for delDIC
     delDIC(i+1,2) = (c/h)*w(i)*dt; % change in DIC
+    %end
 
     %Calculate dpCO2s from DIC - from Joos 1996
     dpCO2s(i+1,2) = (1.5568 - (1.3993E-2)*T_const)*delDIC(i+1,2) + (7.4706-0.20207*T_const)*10^(-3)*...
@@ -416,6 +425,8 @@ for i = 1:length(year_ocean2);
         % land uptake (biobox10)
         % fast box
         % dpco2a = 
+        % note: line below throws error "index exceeds matrix dims" in OG
+        % driver
         C1dt(i,2) = Ka1*(Catm + eps*dpCO2a(i,2)) - K1a*Q1a^((temp_anom(i,2)-T0)/10)*(C1 + delC1(i,2)); % temperature-dependent respiration 
         % C1dt(i,2) = Ka1*(Catm + eps*dpCO2a(i,2))*(1 + Q1a*(temp_anom(i,2)-T0)) - K1a*(C1 + delC1(i,2)); % temperature-dependent photosynthesis
 

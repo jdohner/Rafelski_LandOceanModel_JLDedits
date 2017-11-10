@@ -355,7 +355,7 @@ for i = 1:length(year_ocean2);
     w = conv(fas(1:i,2),r(1:i,2)); % convolve the air-sea flux and the pulse response function, as in Joos 1996
 
     % Calculate delDIC 
-    delDIC(i+1,1) = year_ocean(i+1); % filling time column for delDIC
+    delDIC(i+1,1) = year_ocean(i+1); % filling time column for delDIC %note: this is where index exceeds matrix dims bug occurs in driver2
     delDIC(i+1,2) = (c/h)*w(i)*dt; % change in DIC
 
     %Calculate dpCO2s from DIC - from Joos 1996
@@ -393,6 +393,7 @@ for i = 1:length(year_ocean2);
         % land uptake (biobox10)
         % fast box
         % dpco2a = 
+        % note: line below throws error "index exceeds matrix dims"
         C1dt(i,2) = Ka1*(Catm + eps*dpCO2a(i,2)) - K1a*Q1a^((temp_anom(i,2)-T0)/10)*(C1 + delC1(i,2)); % temperature-dependent respiration 
         % C1dt(i,2) = Ka1*(Catm + eps*dpCO2a(i,2))*(1 + Q1a*(temp_anom(i,2)-T0)) - K1a*(C1 + delC1(i,2)); % temperature-dependent photosynthesis
 
