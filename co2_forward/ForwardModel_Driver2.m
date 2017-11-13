@@ -1,7 +1,7 @@
 % file ForwardModel_Driver2.m
 % version where data starts at 1850, ends at 2006 across all files
 
-clear all;
+%clear all;
 
 % give access to data files in co2_forward_data folder
 addpath(genpath('/Users/juliadohner/Documents/MATLAB/Rafelski_LandOceanModel_JLDedits/co2_forward/co2_forward_data'));
@@ -370,6 +370,8 @@ for i = 1:length(year_ocean2)-1; % changed this to -1 -- any adverse effects?
     
     %Calculate flux 
     fas(i,1) = year_ocean(i);
+    % bug: note here fas is just being filled with zeros bc dpco2a and
+    % dpco2s are both just full of zeros
     fas(i,2) = (kg/Aoc)*(dpCO2a(i,2) - dpCO2s(i,2)); % air-sea flux of CO2
     %TODO: need to transpose dimensions of dpco2a - not sure where went
     %wrong, check LR code
@@ -427,6 +429,7 @@ for i = 1:length(year_ocean2)-1; % changed this to -1 -- any adverse effects?
         % dpco2a = 
         % note: line below throws error "index exceeds matrix dims" in OG
         % driver
+        % this leaves C1dt with all zeros - why?
         C1dt(i,2) = Ka1*(Catm + eps*dpCO2a(i,2)) - K1a*Q1a^((temp_anom(i,2)-T0)/10)*(C1 + delC1(i,2)); % temperature-dependent respiration 
         % C1dt(i,2) = Ka1*(Catm + eps*dpCO2a(i,2))*(1 + Q1a*(temp_anom(i,2)-T0)) - K1a*(C1 + delC1(i,2)); % temperature-dependent photosynthesis
 
