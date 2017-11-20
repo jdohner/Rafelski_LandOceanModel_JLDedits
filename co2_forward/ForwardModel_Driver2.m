@@ -1,7 +1,7 @@
 % file ForwardModel_Driver2.m
 % version where data starts at 1850, ends at 2006 across all files
 
-%clear all;
+clear all;
 
 % give access to data files in co2_forward_data folder
 addpath(genpath('/Users/juliadohner/Documents/MATLAB/Rafelski_LandOceanModel_JLDedits/co2_forward/co2_forward_data'));
@@ -17,7 +17,7 @@ Aoc = 3.62E14; % surface area of ocean, m^2, from Joos 1996
 c = 1.722E17; % unit converter, umol m^3 ppm^-1 kg^-1, from Joos 1996
 h = 75; % mixed layer depth, m, from Joos 1996
 T_const = 18.2; % surface temperature, deg C, from Joos 1996
-kg = 1/9.06; % gas exchange rate, yr^-1, from Joos 1996
+kg = 1/9.06; % gas ex?change rate, yr^-1, from Joos 1996
 
 % don't get atmospheric co2 record from MLOinterp
 [ff1] = load_fossil2(ts); % get fossil fuel emissions
@@ -144,7 +144,7 @@ year_land = start_year_land:dt:end_year_land;
 % extratrop_landmo(1802:1916,1) = landusemo(1802:1916,1);
 % extratrop_landmo(1802:1916,2) = 0;
 
-% left out: Calculate residual land uptake section
+% left out: Calculate residual land uptake section, fine to leave out
 
 %%%%%%%%% Nov 8 stopping here %%%%%%%%%
 
@@ -386,6 +386,7 @@ for i = 1:length(year_ocean2)-1; % changed this to -1 -- any adverse effects?
     % ocean uptake - code from joos_general_fast_annotate2
     
     %Calculate flux 
+    % figure out what the fas units are
     fas(i,1) = year_ocean(i);
     % bug: note here fas is just being filled with zeros bc dpco2a and
     % dpco2s are both just full of zeros
@@ -467,7 +468,8 @@ for i = 1:length(year_ocean2)-1; % changed this to -1 -- any adverse effects?
     B = delCdt;
     
     % I'm here now!
-    %pco2a = pco2a + FF + LU - O - B; % updating pco2a
+    %pco2a(i+1,2) = pco2a(i,2) + FF + LU - O - B; % updating pco2a, careful
+    %with units, if everyting in ppm, make sure fluxes in ppm/yr
 end 
 
 % post-loop code from joos_general_fast_annotate2.m
