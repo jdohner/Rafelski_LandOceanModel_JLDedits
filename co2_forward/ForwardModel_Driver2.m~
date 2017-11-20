@@ -55,9 +55,7 @@ year_ocean = start_year_ocean:dt:end_year_ocean;
 % CO2 data start = 1640
 % end = 2010.1
 % only use data from 1850 onwards, thus 1922 long
-% but we have data from before 1850- in fact, all the way back to 1640
-% maybe use 1640 to 1800 data as starter values for dpco2a using same
-% interpolation method as MLO interp
+% but we have da
 
 dpCO2a = zeros(length(year_ocean),2); %[1:2483,2];
 
@@ -395,7 +393,6 @@ for i = 1:length(year_ocean2)-1; % changed this to -1 -- any adverse effects?
     % dpco2a comes out of MLOinterp as 2522x2 double
     % for some reason, initializing dpco2a = [1:2522,1] gives me the
     % opposite dimensions I'd expect (I wanted 2521x1, got 1x2521)
-    % TODO: multiplying by dpCO2a, but it's just zero at the moment
 
    
     w = conv(fas(1:i,2),r(1:i,2)); % convolve the air-sea flux and the pulse response function, as in Joos 1996
