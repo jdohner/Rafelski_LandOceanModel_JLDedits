@@ -60,9 +60,26 @@ year_ocean = start_year_ocean:dt:end_year_ocean;
 % interpolation method as MLO interp
 
 dpCO2a = zeros(length(year_ocean),2); %[1:2483,2];
+%dpCO2a(1,2) = 280; % setting initial value for dpco2a in ppm
+% sigh, I forgot that this is the change, not absolute value of pco2a
+% this is tricky because in LR land code, the intiial value is set to 0, then
+% increases, but this is fed in. Also the intiial value is at 1850, not
+% 1800. And 0 at 1800 for dpco2a in ocean code. I'll start by using first
+% two values?
+
+% atmosphere from LR ocean code:
+%[1800.04163000000,0;
+%1800.12496333333,0.00912065556019570]
+% seawater from LR ocean code:
+% [1800.04163000000,NaN;
+%     1800.12496333333,NaN;
+%     1800.20829666667,0.000692841790236098;
+%     1800.29163000000,0.00189175322087753]
+
 
 dpCO2s = zeros(length(dpCO2a),2); % dissolved CO2
 dpCO2s(:,1) = dpCO2a(:,1);
+% dpCO2s(1,2) = 280; % setting initial value (in ppm)
 %fas = zeros(length(year),2); % removed because is output by get source
 %sink
 integral = zeros(length(year_ocean),length(year_ocean));
@@ -468,8 +485,16 @@ for i = 1:length(year_ocean2)-1; % changed this to -1 -- any adverse effects?
     B = delCdt;
     
     % I'm here now!
-    %pco2a(i+1,2) = pco2a(i,2) + FF + LU - O - B; % updating pco2a, careful
+    %dpco2a(i+1,2) = dpco2a(i,2) + FF + LU - O - B; % updating pco2a, careful
+    %dpco2s(i+1,2) = 
     %with units, if everyting in ppm, make sure fluxes in ppm/yr
+    % find where LR integrates dpco2a etc to get absolute atmospheric co2
+    % levels - in her vector CO2a, comes from MLOinterp, just from
+    % mlospo_meure vector. Only fiddles with dpco2a etc because ocean and
+    % land uptake is a function of atmospheric change, not total
+    % concentration
+    % I can just integrate my change from preinductrial atmospheric co2
+    % concentration plus all the changes in dpco2
 end 
 
 % post-loop code from joos_general_fast_annotate2.m
