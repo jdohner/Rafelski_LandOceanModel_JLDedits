@@ -70,16 +70,7 @@ dpCO2a(2,2) = 0.00912065556019570; % taken from dpco2a from LR code- is the time
 % 1800. And 0 at 1800 for dpco2a in ocean code. I'll start by using first
 % two values?
 %t_diff_LR for dpco2a in LR:
-%for dpco2a in JD:
-t_diff_JLD = diff(year_ocean);
-t_diff_mean = mean(t_diff_JLD);
-% t_diff_mean is 0.0833 for both code
-% but LR code seems to start at +1/24
-% I can linearly interpolate between values for the first two to fill
-% columns since the times don't align perfectly
-% dpco2
-%month = 1850:(1/12):2006;
-%landmonth = interp1(landnowppm(:,1),landnowppm(:,12),month);
+t_diff_JLD = %for dpco2a in JD:
 
 % atmosphere from LR ocean code:
 %[1800.04163000000,0;
@@ -89,7 +80,6 @@ t_diff_mean = mean(t_diff_JLD);
 %     1800.12496333333,NaN;
 %     1800.20829666667,0.000692841790236098;
 %     1800.29163000000,0.00189175322087753]
-
 
 
 dpCO2s = zeros(length(dpCO2a),2); % dissolved CO2
