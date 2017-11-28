@@ -1,7 +1,7 @@
 % file ForwardModel_Driver2.m
 % version where data starts at 1850, ends at 2006 across all files
 
-clear all;
+%clear all;
 
 % give access to data files in co2_forward_data folder
 addpath(genpath('/Users/juliadohner/Documents/MATLAB/Rafelski_LandOceanModel_JLDedits/co2_forward/co2_forward_data'));
@@ -11,7 +11,7 @@ addpath(genpath('/Users/juliadohner/Documents/MATLAB/Rafelski_LandOceanModel_JLD
 % ~~~~~~~copying from jooshildascale_annotate2.m from here down~~~~~~~
 
 ts = 12; % number of data points/year, 12 in both land and ocean
-start_year_ocean = 1800;
+start_year_ocean = 1800+(5/12);
 end_year_ocean = 2006+10/12; % this is the end of tland
 Aoc = 3.62E14; % surface area of ocean, m^2, from Joos 1996
 c = 1.722E17; % unit converter, umol m^3 ppm^-1 kg^-1, from Joos 1996
@@ -25,6 +25,8 @@ kg = 1/9.06; % gas ex?change rate, yr^-1, from Joos 1996
 % initializing year vector (from MLOinterpolate_increment2.m)
 dt = 1/ts;
 year_ocean = start_year_ocean:dt:end_year_ocean;
+year_ocean = year_ocean - 0.375;
+% adjusting year vector to match year vector from LR ocean code
 
 % back to jooshildascale_annotate2.m
 
@@ -61,14 +63,23 @@ year_ocean = start_year_ocean:dt:end_year_ocean;
 
 dpCO2a = zeros(length(year_ocean),2); %[1:2483,2];
 dpCO2a(:,1) = year_ocean; % fill the time column
-dpCO2a(1,2) = 0;
-dpCO2a(2,2) = 0.00912065556019570; % taken from dpco2a from LR code- is the time right?
+
+dpCO2a_LRdata = load('dpCO2a_LRocean.mat');
+dpCO2s_LRdata = load('dpCO2s_LRocean.mat');
+dpCO2a_LRocean = dpCO2a_LRdata.dpCO2a;
+dpCO2s_LRocean = dpCO2s_LRdata.dpCO2s;
+
+dpCO2a(1:10,2) = dpCO2a_LRocean(1:10,2);
+
+%dpCO2a(1,2) = 0;
+%dpCO2a(2,2) = 0.00912065556019570; % taken from dpco2a from LR code- is the time right?
 %dpCO2a(1,2) = 280; % setting initial value for dpco2a in ppm
 % sigh, I forgot that this is the change, not absolute value of pco2a
 % this is tricky because in LR land code, the intiial value is set to 0, then
 % increases, but this is fed in. Also the intiial value is at 1850, not
 % 1800. And 0 at 1800 for dpco2a in ocean code. I'll start by using first
-% two values?
+% two values? Update: going to use data from whole first year (1800 to
+% 1801)
 %t_diff_LR for dpco2a in LR:
 %for dpco2a in JD:
 t_diff_JLD = diff(year_ocean);
@@ -90,6 +101,20 @@ t_diff_mean = mean(t_diff_JLD);
 %     1800.20829666667,0.000692841790236098;
 %     1800.29163000000,0.00189175322087753]
 
+% do the values match when I linearly interpolate around the start dates
+% for both land and ocean? Don't have data before 1850 for land. Skipping
+% this step because the linear interpolation would have to be between
+% differences from one value of dpco2a to the next, would have to create
+% another loop to create new vector of just change in differences (as
+% opposed to original dpco2a vectors which are cumulative)
+
+% linearly interpolating the dpco2a and dpco2s from the ocean code so that
+% it boh aligns exactly with 1800 (currently at just a little after 1800)
+% they both start at 1800 and 5 months (question: is 0.4996 months close enough to
+% 5 months?)
+
+% linearly interpolate, change start value for ocean output to be 0 at 1800
+% rather than at 1800.5
 
 
 dpCO2s = zeros(length(dpCO2a),2); % dissolved CO2
@@ -499,10 +524,16 @@ for i = 1:length(year_ocean2)-1; % changed this to -1 -- any adverse effects?
     
     B = delCdt;
     
+    % this needs work: is it actually a cumulative thing? or we're just
+    % adding the change to the previous value or something
+       if i > 1
+        dpCO2a(i+1,2) = dpCO2a(i,2)+dpCO2a(i-1,2); % + dpCO2a(i-1,2);
+        end
+    
     % I'm here now!
-    %dpco2a(i+1,2) = dpco2a(i,2) + FF + LU - O - B; % updating pco2a, careful
-    %dpco2s(i+1,2) = 
-    %with units, if everyting in ppm, make sure fluxes in ppm/yr
+    % dpco2a(i+1,2) = dpco2a(i,2) + FF + LU - O - B; % updating pco2a, careful
+    % dpco2s(i+1,2) = 
+    % with units, if everyting in ppm, make sure fluxes in ppm/yr
     % find where LR integrates dpco2a etc to get absolute atmospheric co2
     % levels - in her vector CO2a, comes from MLOinterp, just from
     % mlospo_meure vector. Only fiddles with dpco2a etc because ocean and
@@ -517,12 +548,12 @@ end
 fas(length(year_ocean),1) = year_ocean(length(year_ocean));
 fas(length(year_ocean),2) = (kg/Aoc)*(dpCO2a(length(year_ocean),2) - dpCO2s(length(year_ocean),2));
 
-zero1 = find(delDIC(:,1) == 0);
-delDIC(zero1,2) = NaN;
-delDIC(zero1,1) = NaN;
-
-zero2 = find(dpCO2s(:,2) == 0);
-dpCO2s(zero2,2)  = NaN;
+% zero1 = find(delDIC(:,1) == 0);
+% delDIC(zero1,2) = NaN;
+% delDIC(zero1,1) = NaN;
+% 
+% zero2 = find(dpCO2s(:,2) == 0);
+% dpCO2s(zero2,2)  = NaN;
 
 
 %% Misc from nonlin_land_Qs_annotate.m
