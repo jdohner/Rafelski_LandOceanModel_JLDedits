@@ -6,6 +6,12 @@
 % give access to data files in co2_forward_data folder
 addpath(genpath('/Users/juliadohner/Documents/MATLAB/Rafelski_LandOceanModel_JLDedits/co2_forward/co2_forward_data'));
 
+% predict = 1 --> prognostic, calculating dpCO2a in motherloop
+% predict = 0 --> diagnostic (single deconvolution), feeding dpCO2a from
+% MLOinterp, calculating residual land uptake in motherloop
+predict = 1;
+
+
 %% set up ocean
 
 % ~~~~~~~copying from jooshildascale_annotate2.m from here down~~~~~~~
@@ -330,6 +336,10 @@ temp_anom(607:2516,2) = landtglob(1:1910,1);
 % gamma and Q1 based on the results. I'll instead use the values of
 % epsilon, gamma and Q1 from Table 2 of her paper.
 
+%% OBSERVATION DIAGNOSTIC DEBUGGING SECTION
+
+[dtdelpCO2a_obs,dpCO2a_obs,year_obs,dt_obs,CO2a_obs] = MLOinterpolate_increment2(ts,start_year_ocean,end_year_ocean); 
+
 
 
 %% probably time for THE MOTHERLOOP
@@ -438,6 +448,16 @@ C2dt(:,1) = year_land_trans(:,1);
 delC1(length(year_land_trans)+1,1) = year(length(year_land_trans),1)+dt;
 delC2(length(year_land_trans)+1,1) = year(length(year_land_trans),1)+dt;
 
+
+
+% this is just the same as B or delCdt (total uptake by land), this
+% variable is used in the diagnostic (single deconv) version of this model
+residualLandUptake = [];
+residualLandUptake(:,1) = year_ocean2;
+dpCO2a_dt = [];
+
+
+
 for i = 1:length(year_ocean2)-1; % changed this to -1 -- any adverse effects?
     
     % ocean uptake - code from joos_general_fast_annotate2
@@ -522,17 +542,45 @@ for i = 1:length(year_ocean2)-1; % changed this to -1 -- any adverse effects?
         
     end
     
-    B = delCdt;
+    B = delCdt; %
     
     % this needs work: is it actually a cumulative thing? or we're just
     % adding the change to the previous value or something
-       if i > 1
-        dpCO2a(i+1,2) = dpCO2a(i,2)+dpCO2a(i-1,2); % + dpCO2a(i-1,2);
-        end
+%        if i > 1
+%         dpCO2a(i+1,2) = dpCO2a(i,2)+dpCO2a(i-1,2); % + dpCO2a(i-1,2);
+%         end
     
     % I'm here now!
     % dpco2a(i+1,2) = dpco2a(i,2) + FF + LU - O - B; % updating pco2a, careful
     % dpco2s(i+1,2) = 
+    
+    %dpCO2a(i+1,2) = 
+%     residual(:,2) = dtdelpCO2a(2521:4436,2) - ff1(1189:3104,2)....
+% + Aoc*fas(601:2516,2) - landusemo(1:1916,2);
+
+% could make this a vector or just a variable that gets updated each
+% iteration
+
+if predict == 0 % prognostic case
+    dpCO2a_dt(i,2) =  ff1(i,2) + landusemo(i,2) - Aoc*fas(i,2) - B(i,2); %time derivative, not overall increase since preindustrial
+    dpCO2a(i+1,2) = dpCO2a(i,2) + dpCO2a_dt(i,2)/12;
+else
+    residualLandUptake(i,2) = dtdelpCO2a_obs(i,2) - ff1(i,2) + Aoc*fas(1,2) - landusemo(1,2);
+    dpCO2a(i+1,2) = dtdelpCO2a_obs(i+1,2);  
+end
+
+    
+
+    
+    
+    %%%%%%%dpco2a_dt(i,2) =  ff1 + landuse - aoc*fas - modeled land sink %time derivative, not overall increase since preindustrial
+% annual increase in ppm/yr (check), calculated monthly (at monthly
+% resolution) - therefore increment at current timestep is 1/12 of this -
+% RFK
+
+%%%%%%%dpCO2a(i+1,2) = dpCO2a(i,2) + dpCO2a_dt/12;
+
+
     % with units, if everyting in ppm, make sure fluxes in ppm/yr
     % find where LR integrates dpco2a etc to get absolute atmospheric co2
     % levels - in her vector CO2a, comes from MLOinterp, just from
@@ -584,3 +632,7 @@ fas(length(year_ocean),2) = (kg/Aoc)*(dpCO2a(length(year_ocean),2) - dpCO2s(leng
 % newat(:,2) =  ff1(1189:3055,2)....
 % - Aoc*fas(601:2467,2) + extratrop_landmo(1:1867,2) + delCdt(:,2) ;
 % end
+
+
+
+
