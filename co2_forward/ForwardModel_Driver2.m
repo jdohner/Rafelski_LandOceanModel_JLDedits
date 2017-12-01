@@ -1,7 +1,7 @@
 % file ForwardModel_Driver2.m
 % version where data starts at 1850, ends at 2006 across all files
 
-%clear all;
+clear all;
 
 % give access to data files in co2_forward_data folder
 addpath(genpath('/Users/juliadohner/Documents/MATLAB/Rafelski_LandOceanModel_JLDedits/co2_forward/co2_forward_data'));
@@ -9,7 +9,7 @@ addpath(genpath('/Users/juliadohner/Documents/MATLAB/Rafelski_LandOceanModel_JLD
 % predict = 1 --> prognostic, calculating dpCO2a in motherloop
 % predict = 0 --> diagnostic (single deconvolution), feeding dpCO2a from
 % MLOinterp, calculating residual land uptake in motherloop
-predict = 1;
+predict = 0;
 
 
 %% set up ocean
@@ -17,8 +17,8 @@ predict = 1;
 % ~~~~~~~copying from jooshildascale_annotate2.m from here down~~~~~~~
 
 ts = 12; % number of data points/year, 12 in both land and ocean
-start_year_ocean = 1800+(5/12);
-end_year_ocean = 2006+10/12; % this is the end of tland
+start_year_ocean = 1800;
+end_year_ocean = 2006; % this is the end of landusemo (tland ends at 2006+10/12, extratrop ends at 2000)
 Aoc = 3.62E14; % surface area of ocean, m^2, from Joos 1996
 c = 1.722E17; % unit converter, umol m^3 ppm^-1 kg^-1, from Joos 1996
 h = 75; % mixed layer depth, m, from Joos 1996
@@ -563,7 +563,7 @@ for i = 1:length(year_ocean2)-1; % changed this to -1 -- any adverse effects?
 
 if predict == 0 % prognostic case
     dpCO2a_dt(i,2) =  ff1(i,2) + landusemo(i,2) - Aoc*fas(i,2) - B(i,2); %time derivative, not overall increase since preindustrial
-    dpCO2a(i+1,2) = dpCO2a(i,2) + dpCO2a_dt(i,2)/12;
+    dpCO2a(i+1,2) = dpCO2a(i,2) + dpCO2a_dt(i,2)/12; % new overall increase since preindustrial = previous value + change (dt)
 else
     residualLandUptake(i,2) = dtdelpCO2a_obs(i,2) - ff1(i,2) + Aoc*fas(1,2) - landusemo(1,2);
     dpCO2a(i+1,2) = dtdelpCO2a_obs(i+1,2);  
@@ -595,6 +595,8 @@ end
 % calculate the flux for the last time point
 fas(length(year_ocean),1) = year_ocean(length(year_ocean));
 fas(length(year_ocean),2) = (kg/Aoc)*(dpCO2a(length(year_ocean),2) - dpCO2s(length(year_ocean),2));
+
+plot(dpCO2s(:,1),dpCO2s(:,2));
 
 % zero1 = find(delDIC(:,1) == 0);
 % delDIC(zero1,2) = NaN;

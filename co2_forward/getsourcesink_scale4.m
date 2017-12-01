@@ -22,7 +22,7 @@ extratrop_landppm_JLD = csvread('extratrop_landppm_JLD.csv');
 
 %month = 1850:(1/12):2006; %old code
 %month = 1800:(1/12):2010; % JLD on Oct 31, 2017 to extend land data to match time frame of ocean
-month = 1800:(1/12):(2006+10/12);
+month = 1800:(1/12):2006;
 
 %landnowppm begins as a 157x12 vector, gets interpolated to 
 %landnowppm(:,1) contains the sample points
@@ -34,7 +34,7 @@ landmonth = interp1(landnowppm_JLD(:,1),landnowppm_JLD(:,12),month);
 
 %month2 = 1850:(1/12):2000; % old code
 %month2 = 1800:(1/12):2010; % JLD on Oct 31, 2017
-month2 = 1800:(1/12):(2006+10/12);
+month2 = 1800:(1/12):2000; % extratrop record ends in 2000, will extend with 0's same way LR did
 extralandmonth = interp1(extratrop_landppm_JLD(:,1),extratrop_landppm_JLD(:,2),month2);
 
 landusemo(:,1) = month;
@@ -42,5 +42,13 @@ landusemo(:,2) = landmonth; % value in ppm
 
 extratrop_landmo(:,1) = month2;
 extratrop_landmo(:,2) = extralandmonth; % value in ppm
+
+last_ind_2006 = length(month);
+last_ind_2000 = length(month2);
+
+%Extend extratropical emissions by assuming emissions are zero
+%extratrop_landmo(:,1) = landusemo(:,1); % extend time column
+extratrop_landmo(last_ind_2000+1:last_ind_2006,1) = landusemo(last_ind_2000+1:last_ind_2006,1);
+extratrop_landmo(last_ind_2000+1:last_ind_2006,2) = 0;
 
 % other variables should just be loaded and passed
