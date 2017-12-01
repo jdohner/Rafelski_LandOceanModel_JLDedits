@@ -561,15 +561,14 @@ for i = 1:length(year_ocean2)-1; % changed this to -1 -- any adverse effects?
 % could make this a vector or just a variable that gets updated each
 % iteration
 
-if predict == 0 % prognostic case
+if predict == 1 % prognostic case, running forward model
     dpCO2a_dt(i,2) =  ff1(i,2) + landusemo(i,2) - Aoc*fas(i,2) - B(i,2); %time derivative, not overall increase since preindustrial
     dpCO2a(i+1,2) = dpCO2a(i,2) + dpCO2a_dt(i,2)/12; % new overall increase since preindustrial = previous value + change (dt)
-else
-    residualLandUptake(i,2) = dtdelpCO2a_obs(i,2) - ff1(i,2) + Aoc*fas(1,2) - landusemo(1,2);
-    dpCO2a(i+1,2) = dtdelpCO2a_obs(i+1,2);  
+else % predict == 0
+    residualLandUptake(i,2) = dtdelpCO2a_obs(i,2) - ff1(i,2) + Aoc*fas(1,2) - landusemo(1,2); % budget, in ppm/yr
+    dpCO2a(i+1,2) = dpCO2a_obs(i+1,2); % in ppm
 end
 
-    
 
     
     
@@ -591,12 +590,27 @@ end
     % concentration plus all the changes in dpco2
 end 
 
+% debug plots
+% include LR plots
+% code to always pull up graphs from both
+figure('name','residualLandUptake plus components JLD')
+plot(residualLandUptake(:,1),residualLandUptake(:,2),'g',ff1(:,1),ff1(:,2),'k',dtdelpCO2a_obs(:,1),dtdelpCO2a_obs(:,2),'r',fas(:,1),-Aoc*fas(:,2),'b');
+axis([1800 2010 -10 10])
+legend('residualLandUptake','fossil fuel','atmosphere','ocean','Location','SouthWest')
+title('residualLandUptake plus components JLD ')
+xlabel('Year ')
+ylabel('ppm/year  Positive = source, negative = sink ')
+%ff1(:,1),ff1(:,2),'-k',dtdelpCO2a(:,1),dtdelpCO2a(:,2),'-r',fas(:,1),-Aoc*fas(:,2),'-b',landflux(:,1),landflux(:,2),'-g',year(1,:),x,'--k')
+
+%residualLandUptake(i,2) = dtdelpCO2a_obs(i,2) - ff1(i,2) + Aoc*fas(1,2) - landusemo(1,2); % budget, in ppm/yr
+%plot(ff1(:,1),ff1(:,2),'-k',dtdelpCO2a(:,1),dtdelpCO2a(:,2),'-r',fas(:,1),-Aoc*fas(:,2),'-b',landflux(:,1),landflux(:,2),'-g',year(1,:),x,'--k')
+
 % post-loop code from joos_general_fast_annotate2.m
 % calculate the flux for the last time point
 fas(length(year_ocean),1) = year_ocean(length(year_ocean));
 fas(length(year_ocean),2) = (kg/Aoc)*(dpCO2a(length(year_ocean),2) - dpCO2s(length(year_ocean),2));
 
-plot(dpCO2s(:,1),dpCO2s(:,2));
+%plot(dpCO2s(:,1),dpCO2s(:,2));
 
 % zero1 = find(delDIC(:,1) == 0);
 % delDIC(zero1,2) = NaN;
