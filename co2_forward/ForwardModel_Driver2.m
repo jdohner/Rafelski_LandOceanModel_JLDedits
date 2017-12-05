@@ -1,7 +1,7 @@
 % file ForwardModel_Driver2.m
 % version where data starts at 1850, ends at 2006 across all files
 
-clear all;
+clear all; close all;
 
 % give access to data files in co2_forward_data folder
 addpath(genpath('/Users/juliadohner/Documents/MATLAB/Rafelski_LandOceanModel_JLDedits/co2_forward/co2_forward_data'));
@@ -67,6 +67,7 @@ year_ocean = year_ocean - 0.375;
 % maybe use 1640 to 1800 data as starter values for dpco2a using same
 % interpolation method as MLO interp
 
+% dpCO2a is the change in atmospheric CO2 from preindustrial value
 dpCO2a = zeros(length(year_ocean),2); %[1:2483,2];
 dpCO2a(:,1) = year_ocean; % fill the time column
 
@@ -77,50 +78,8 @@ dpCO2s_LRocean = dpCO2s_LRdata.dpCO2s;
 
 dpCO2a(1:10,2) = dpCO2a_LRocean(1:10,2);
 
-%dpCO2a(1,2) = 0;
-%dpCO2a(2,2) = 0.00912065556019570; % taken from dpco2a from LR code- is the time right?
-%dpCO2a(1,2) = 280; % setting initial value for dpco2a in ppm
-% sigh, I forgot that this is the change, not absolute value of pco2a
-% this is tricky because in LR land code, the intiial value is set to 0, then
-% increases, but this is fed in. Also the intiial value is at 1850, not
-% 1800. And 0 at 1800 for dpco2a in ocean code. I'll start by using first
-% two values? Update: going to use data from whole first year (1800 to
-% 1801)
-%t_diff_LR for dpco2a in LR:
-%for dpco2a in JD:
-t_diff_JLD = diff(year_ocean);
-t_diff_mean = mean(t_diff_JLD);
-% t_diff_mean is 0.0833 for both code
-% but LR code seems to start at +1/24
-% I can linearly interpolate between values for the first two to fill
-% columns since the times don't align perfectly
-% dpco2
-%month = 1850:(1/12):2006;
-%landmonth = interp1(landnowppm(:,1),landnowppm(:,12),month);
-
-% atmosphere from LR ocean code:
-%[1800.04163000000,0;
-%1800.12496333333,0.00912065556019570]
-% seawater from LR ocean code:
-% [1800.04163000000,NaN;
-%     1800.12496333333,NaN;
-%     1800.20829666667,0.000692841790236098;
-%     1800.29163000000,0.00189175322087753]
-
-% do the values match when I linearly interpolate around the start dates
-% for both land and ocean? Don't have data before 1850 for land. Skipping
-% this step because the linear interpolation would have to be between
-% differences from one value of dpco2a to the next, would have to create
-% another loop to create new vector of just change in differences (as
-% opposed to original dpco2a vectors which are cumulative)
-
-% linearly interpolating the dpco2a and dpco2s from the ocean code so that
-% it boh aligns exactly with 1800 (currently at just a little after 1800)
-% they both start at 1800 and 5 months (question: is 0.4996 months close enough to
-% 5 months?)
-
-% linearly interpolate, change start value for ocean output to be 0 at 1800
-% rather than at 1800.5
+% Dec 5 2017: deleted all the interpolation stuff when trying to figure out a starter
+% value
 
 
 dpCO2s = zeros(length(dpCO2a),2); % dissolved CO2
@@ -338,6 +297,7 @@ temp_anom(607:2516,2) = landtglob(1:1910,1);
 
 %% OBSERVATION DIAGNOSTIC DEBUGGING SECTION
 
+% MLOinterp isn't called anywhere else in the code
 [dtdelpCO2a_obs,dpCO2a_obs,year_obs,dt_obs,CO2a_obs] = MLOinterpolate_increment2(ts,start_year_ocean,end_year_ocean); 
 
 
@@ -346,31 +306,6 @@ temp_anom(607:2516,2) = landtglob(1:1910,1);
 
 %before this call, year is a 1x2521 double vector (one row vector)
 year_ocean2 = year_ocean';
-
-
-% Question/TODO: Issue: the loop boundaries for ocean and land uptake
-% (biobox, joos_general_fast_annotate2.m)
-%
-% at the moment, the ocean year vector is longer than the land year vector.
-%
-% for biobox, year vector is (defined in nonlin_land_Qs_annotate.m):
-% ts = 12; % timesteps per year
-% start_year = 1850;
-% end_year = 2009+(7/12); 
-% year = start_year:dt:end_year; (MLOinterp)
-%
-% for ocean (joos_general), year vector is:
-% start_year = 1800;
-% end_year = 2010;
-% dt = 1/ts (MLOinterp)
-% year = start_year:dt:end_year; (MLOinterp)
-
-% note: fas goes from 1800 to 2010
-
-% Index exceeds matrix dimensions.
-% 
-% Error in ForwardModel_Driver2 (line 173)
-%     fas(i,2) = (kg/Aoc)*(dpCO2a(i,2) - dpCO2s(i,2)); % air-sea flux of CO2
 
 
 % everything below is just the loop contents from
@@ -413,29 +348,6 @@ else % For CO2 fertilization model
 end
 
 
-% TODO: set up arrays
-
-% delC1(:,1) = year_land(:,1);
-% delC1(:,2) = zeros(length(year_land),1); %delC1(:,2) = zeros(size(year_land)); 
-% % line above changed because threw error "assignment more non-singleton rhs
-% % dims than non-singleton subscrips (even though this error doesn't seem to
-% % happen in the LR CO2 code) hm. Same change below.
-% % want this to be a vector of 1916x1 dims of all zeros
-% % update: this didn't throw an error in LR code because likely at the time
-% % of the call, year was dims 1916 x 1, so zeros produced a matrix of
-% % dimensions 1916 x 1 of all zeros, which fits into the first column of
-% % delC1 and therefore doesn't produce an error. I'm sidestepping this by
-% % forcing the dimensions of the zeros matrix to be length(year_land),1
-% % (instead of transposing the year vector at some point to get it to work).
-% delC2(:,1) = year_land(:,1);
-% delC2(:,2) = zeros(length(year_land),1); %delC2(:,2) = zeros(size(year_land));
-% delCdt(:,1) = year_land(:,1);
-% C1dt(:,1) = year_land(:,1);
-% C2dt(:,1) = year_land(:,1);
-% delC1(length(year_land)+1,1) = year_land(length(year_land),1)+dt;
-% delC2(length(year_land)+1,1) = year_land(length(year_land),1)+dt;
-
-% not working. trying something else to get rid of non-singleton dim error:
 
 year_land_trans = year_land';
 delC1(:,1) = year_land_trans(:,1);
@@ -454,7 +366,7 @@ delC2(length(year_land_trans)+1,1) = year(length(year_land_trans),1)+dt;
 % variable is used in the diagnostic (single deconv) version of this model
 residualLandUptake = [];
 residualLandUptake(:,1) = year_ocean2;
-dpCO2a_dt = [];
+dtdeldpCO2a = []; %
 
 
 
@@ -479,11 +391,6 @@ for i = 1:length(year_ocean2)-1; % changed this to -1 -- any adverse effects?
     w = conv(fas(1:i,2),r(1:i,2)); % convolve the air-sea flux and the pulse response function, as in Joos 1996
 
     % Calculate delDIC 
-    %note: line below throws error that exceeds matrix dims
-    % Question: how to address making this stop when it gets to the last
-    % point, like how do you treat the last point since they're functions
-    % of the points one before? 
-    %if i <= length(year_ocean2-1)
     delDIC(i+1,1) = year_ocean(i+1); % filling time column for delDIC
     delDIC(i+1,2) = (c/h)*w(i)*dt; % change in DIC
     %end
@@ -542,35 +449,25 @@ for i = 1:length(year_ocean2)-1; % changed this to -1 -- any adverse effects?
         
     end
     
-    B = delCdt; %
-    
-    % this needs work: is it actually a cumulative thing? or we're just
-    % adding the change to the previous value or something
-%        if i > 1
-%         dpCO2a(i+1,2) = dpCO2a(i,2)+dpCO2a(i-1,2); % + dpCO2a(i-1,2);
-%         end
-    
-    % I'm here now!
-    % dpco2a(i+1,2) = dpco2a(i,2) + FF + LU - O - B; % updating pco2a, careful
-    % dpco2s(i+1,2) = 
-    
-    %dpCO2a(i+1,2) = 
-%     residual(:,2) = dtdelpCO2a(2521:4436,2) - ff1(1189:3104,2)....
-% + Aoc*fas(601:2516,2) - landusemo(1:1916,2);
+    B = delCdt; 
 
-% could make this a vector or just a variable that gets updated each
-% iteration
 
 if predict == 1 % prognostic case, running forward model
-    dpCO2a_dt(i,2) =  ff1(i,2) + landusemo(i,2) - Aoc*fas(i,2) - B(i,2); %time derivative, not overall increase since preindustrial
-    dpCO2a(i+1,2) = dpCO2a(i,2) + dpCO2a_dt(i,2)/12; % new overall increase since preindustrial = previous value + change (dt)
-else % predict == 0
-    residualLandUptake(i,2) = dtdelpCO2a_obs(i,2) - ff1(i,2) + Aoc*fas(1,2) - landusemo(1,2); % budget, in ppm/yr
-    dpCO2a(i+1,2) = dpCO2a_obs(i+1,2); % in ppm
-end
-
-
     
+    dtdeldpCO2a(i,2) =  ff1(i,2) + landusemo(i,2) - Aoc*fas(i,2) - B(i,2); %time derivative, not overall increase since preindustrial
+    dpCO2a(i+1,2) = dpCO2a(i,2) + dtdeldpCO2a(i,2)/12; % new overall increase since preindustrial = previous value + change (dt)
+
+else % predict == 0
+    
+    % deconvolution calculation (same as in LR code), should yield same
+    % result
+    residualLandUptake(i,2) = dtdelpCO2a_obs(i,2) - ff1(i,2) + Aoc*fas(i,2) - landusemo(i,2); % budget, in ppm/yr
+    % note: LR's dpco2a starts a little before 1800, so visdiff yields
+    % different vectors
+    % her dpco2a dates come from the find with mlomeure_spo in MLOinterp 
+    dpCO2a(i+1,2) = dpCO2a_obs(i+1,2); % in ppm
+
+end
     
     %%%%%%%dpco2a_dt(i,2) =  ff1 + landuse - aoc*fas - modeled land sink %time derivative, not overall increase since preindustrial
 % annual increase in ppm/yr (check), calculated monthly (at monthly
@@ -600,6 +497,7 @@ legend('residualLandUptake','fossil fuel','atmosphere','ocean','Location','South
 title('residualLandUptake plus components JLD ')
 xlabel('Year ')
 ylabel('ppm/year  Positive = source, negative = sink ')
+openfig('LR_plot.fig');
 %ff1(:,1),ff1(:,2),'-k',dtdelpCO2a(:,1),dtdelpCO2a(:,2),'-r',fas(:,1),-Aoc*fas(:,2),'-b',landflux(:,1),landflux(:,2),'-g',year(1,:),x,'--k')
 
 %residualLandUptake(i,2) = dtdelpCO2a_obs(i,2) - ff1(i,2) + Aoc*fas(1,2) - landusemo(1,2); % budget, in ppm/yr
