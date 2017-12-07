@@ -17,7 +17,7 @@ predict = 0;
 % ~~~~~~~copying from jooshildascale_annotate2.m from here down~~~~~~~
 
 ts = 12; % number of data points/year, 12 in both land and ocean
-start_year_ocean = 1800;
+start_year_ocean = 1800;%-0.1250;
 end_year_ocean = 2006; % this is the end of landusemo (tland ends at 2006+10/12, extratrop ends at 2000)
 Aoc = 3.62E14; % surface area of ocean, m^2, from Joos 1996
 c = 1.722E17; % unit converter, umol m^3 ppm^-1 kg^-1, from Joos 1996
