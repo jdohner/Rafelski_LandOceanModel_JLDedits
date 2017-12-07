@@ -1,7 +1,7 @@
 % file ForwardModel_Driver2.m
 % version where data starts at 1850, ends at 2006 across all files
 
-clear all; close all;
+clear all; %close all;
 
 % give access to data files in co2_forward_data folder
 addpath(genpath('/Users/juliadohner/Documents/MATLAB/Rafelski_LandOceanModel_JLDedits/co2_forward/co2_forward_data'));
@@ -300,6 +300,29 @@ temp_anom(607:2516,2) = landtglob(1:1910,1);
 % MLOinterp isn't called anywhere else in the code
 [dtdelpCO2a_obs,dpCO2a_obs,year_obs,dt_obs,CO2a_obs] = MLOinterpolate_increment2(ts,start_year_ocean,end_year_ocean); 
 
+% truncate obs output to match my timeframe
+%i = find(floor(100*MLOSPOiceinterp(:,1)) == floor(100*(start_year+(1/24))));
+% startIndex = find(floor(dtdelpCO2a_obs(:,1) == start_year_ocean);
+% endIndex = find(dtdelpCO2a_obs(:,1) == end_year_ocean);
+% dtdelpCO2a_obs = dtdelpCO2a_obs(startIndex:endIndex,:);
+% startIndex = 1919; % this is the closest date to 1800- it's actually halfway through december of 1799
+
+% this is bootleg, but it'll have to do for now:
+dtdelpCO2a_obs = dtdelpCO2a_obs(1919:4391,:); % indices of closest values to 1800 and 2006
+
+
+% % I want to interpolate this so that it matches my year vector....
+% years0 = dtdelpCO2a_obs(:,1);
+% years0 = years0(7:length(years0));
+% dtdelpCO2a_obsVals = dtdelpCO2a_obs(:,2);
+% dtdelpCO2a_obsVals = dtdelpCO2a_obsVals(7:length(dtdelpCO2a_obsVals));
+% % want to interpolate dtdelpCO2a_obs to match my year vector
+% dtdelpCO2a_interp = interp1(years0,dtdelpCO2a_obsVals,year_ocean,'spline');
+% 
+% dtdelpCO2a_obsInterp(:,1) = year_ocean;
+% dtdelpCO2a_obsInterp(:,2) = dtdelpCO2a_interp(:,1);
+
+
 
 
 %% probably time for THE MOTHERLOOP
@@ -461,7 +484,9 @@ else % predict == 0
     
     % deconvolution calculation (same as in LR code), should yield same
     % result
-    residualLandUptake(i,2) = dtdelpCO2a_obs(i,2) - ff1(i,2) + Aoc*fas(i,2) - landusemo(i,2); % budget, in ppm/yr
+    
+    % 
+    residualLandUptake(i,2) = dtdelpCO2a_obs(i,2) + Aoc*fas(i,2) - ff1(i,2);%  - landusemo(i,2); % budget, in ppm/yr
     % note: LR's dpco2a starts a little before 1800, so visdiff yields
     % different vectors
     % her dpco2a dates come from the find with mlomeure_spo in MLOinterp 
@@ -491,6 +516,7 @@ end
 % include LR plots
 % code to always pull up graphs from both
 figure('name','residualLandUptake plus components JLD')
+
 plot(residualLandUptake(:,1),residualLandUptake(:,2),'g',ff1(:,1),ff1(:,2),'k',dtdelpCO2a_obs(:,1),dtdelpCO2a_obs(:,2),'r',fas(:,1),-Aoc*fas(:,2),'b');
 axis([1800 2010 -10 10])
 legend('residualLandUptake','fossil fuel','atmosphere','ocean','Location','SouthWest')
