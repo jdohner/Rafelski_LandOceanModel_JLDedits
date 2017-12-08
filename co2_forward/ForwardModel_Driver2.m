@@ -17,24 +17,21 @@ predict = 0;
 % ~~~~~~~copying from jooshildascale_annotate2.m from here down~~~~~~~
 
 ts = 12; % number of data points/year, 12 in both land and ocean
-start_year_ocean = 1800;%-0.1250;
-end_year_ocean = 2006; % this is the end of landusemo (tland ends at 2006+10/12, extratrop ends at 2000)
+start_year_ocean = 1800;
+end_year_ocean = 2009+(7/12); 
 Aoc = 3.62E14; % surface area of ocean, m^2, from Joos 1996
 c = 1.722E17; % unit converter, umol m^3 ppm^-1 kg^-1, from Joos 1996
 h = 75; % mixed layer depth, m, from Joos 1996
 T_const = 18.2; % surface temperature, deg C, from Joos 1996
-kg = 1/9.06; % gas ex?change rate, yr^-1, from Joos 1996
+kg = 1/9.06; % gas exchange rate, yr^-1, from Joos 1996
 
-% don't get atmospheric co2 record from MLOinterp
 [ff1] = load_fossil2(ts); % get fossil fuel emissions
 
-% initializing year vector (from MLOinterpolate_increment2.m)
 dt = 1/ts;
 year_ocean = start_year_ocean:dt:end_year_ocean;
-year_ocean = year_ocean - 0.375;
+year_ocean = year_ocean - 0.375; % TAKE ANOTHER LOOK AT THIS
 % adjusting year vector to match year vector from LR ocean code
 
-% back to jooshildascale_annotate2.m
 
 % Response function to calculate ocean uptake
 [t,r] = HILDAResponse(year_ocean);
@@ -78,10 +75,6 @@ dpCO2s_LRocean = dpCO2s_LRdata.dpCO2s;
 
 dpCO2a(1:10,2) = dpCO2a_LRocean(1:10,2);
 
-% Dec 5 2017: deleted all the interpolation stuff when trying to figure out a starter
-% value
-
-
 dpCO2s = zeros(length(dpCO2a),2); % dissolved CO2
 dpCO2s(:,1) = dpCO2a(:,1);
 % dpCO2s(1,2) = 280; % setting initial value (in ppm)
@@ -120,9 +113,6 @@ load landwt_T_2011.mat % land temperature anomaly
 
 [landusemo,ff1,fas,extratrop_landmo] = getsourcesink_scale4; % changed from gss3 to gss4 
 
-%ts = 12; % took out because already defined in ocean
-%start_year_land = 1850; % change to start_year_land
-%end_year_land = 2009+(7/12); % change to end_year_land
 start_year_land = start_year_ocean; % change to start_year_land
 end_year_land = end_year_ocean; % change to end_year_land
 
@@ -138,6 +128,24 @@ beta = [0.5;2]; % initial guesses for model fit
 % the land and ocean year vectors are diffferent, and land year vector is
 % called in landusemo calls
 year_land = start_year_land:dt:end_year_land;
+
+%%%%
+% getsourcesink outputs end at 2006
+% Extend land use record by making recent emissions equal to last
+% record
+j = length(landusemo);
+k = length(year_ocean);
+extendYears = year_ocean(1,j+1:k);
+%landusemo(:,1) = [landusemo(:,1), extendYears];
+
+landusemo(j+1:k,1) = year_ocean(1,j+1:k);
+landusemo(j+1:k,2) = landusemo(j,2);
+
+% % % 
+% %Extend extratropical emissions by assuming emissions are zero
+% extratrop_landmo(1802:1916,1) = landusemo(1802:1916,1);
+% extratrop_landmo(1802:1916,2) = 0;
+
 
 % TODO: the following (extending records) can all happen in getsourcesink_scale3, but wait to
 % change until can get the code running and working
@@ -308,7 +316,8 @@ temp_anom(607:2516,2) = landtglob(1:1910,1);
 % startIndex = 1919; % this is the closest date to 1800- it's actually halfway through december of 1799
 
 % this is bootleg, but it'll have to do for now:
-dtdelpCO2a_obs = dtdelpCO2a_obs(1919:4391,:); % indices of closest values to 1800 and 2006
+% ALWAYS BE WARY OF THIS WHEN DEBUGGING:
+dtdelpCO2a_obs = dtdelpCO2a_obs(1919:4434,:); % indices of closest values to 1800 and 2006
 
 
 % % I want to interpolate this so that it matches my year vector....
@@ -486,7 +495,7 @@ else % predict == 0
     % result
     
     % 
-    residualLandUptake(i,2) = dtdelpCO2a_obs(i,2) + Aoc*fas(i,2) - ff1(i,2);%  - landusemo(i,2); % budget, in ppm/yr
+    residualLandUptake(i,2) = dtdelpCO2a_obs(i,2) + Aoc*fas(i,2) - ff1(i,2)  - landusemo(i,2); % budget, in ppm/yr
     % note: LR's dpco2a starts a little before 1800, so visdiff yields
     % different vectors
     % her dpco2a dates come from the find with mlomeure_spo in MLOinterp 
@@ -512,18 +521,9 @@ end
     % concentration plus all the changes in dpco2
 end 
 
-% debug plots
-% include LR plots
-% code to always pull up graphs from both
-figure('name','residualLandUptake plus components JLD')
 
-plot(residualLandUptake(:,1),residualLandUptake(:,2),'g',ff1(:,1),ff1(:,2),'k',dtdelpCO2a_obs(:,1),dtdelpCO2a_obs(:,2),'r',fas(:,1),-Aoc*fas(:,2),'b');
-axis([1800 2010 -10 10])
-legend('residualLandUptake','fossil fuel','atmosphere','ocean','Location','SouthWest')
-title('residualLandUptake plus components JLD ')
-xlabel('Year ')
-ylabel('ppm/year  Positive = source, negative = sink ')
-openfig('LR_plot.fig');
+
+
 %ff1(:,1),ff1(:,2),'-k',dtdelpCO2a(:,1),dtdelpCO2a(:,2),'-r',fas(:,1),-Aoc*fas(:,2),'-b',landflux(:,1),landflux(:,2),'-g',year(1,:),x,'--k')
 
 %residualLandUptake(i,2) = dtdelpCO2a_obs(i,2) - ff1(i,2) + Aoc*fas(1,2) - landusemo(1,2); % budget, in ppm/yr
@@ -534,7 +534,45 @@ openfig('LR_plot.fig');
 fas(length(year_ocean),1) = year_ocean(length(year_ocean));
 fas(length(year_ocean),2) = (kg/Aoc)*(dpCO2a(length(year_ocean),2) - dpCO2s(length(year_ocean),2));
 
-%plot(dpCO2s(:,1),dpCO2s(:,2));
+% 10-year smoothing on residualLandUptake
+% don't use 10 year mean before 1957, because data are already smoothed
+% are start time and end time on l_boxcar indices or years? seems like
+% indices, but LR start time of 1225 equates to 1952, not 1957
+% somehow this works for LR
+i = find(residualLandUptake(:,1) == 1957);
+%[residual10a] = l_boxcar(residualLandUptake,10,12,i,length(residualLandUptake),1,2);
+
+%% plot
+
+ss = get(0,'screensize'); %The screen size
+width = ss(3);
+height = ss(4);
+
+H = figure('name','residualLandUptake plus components JLD');
+% to create a plot similar to LR ocean output:
+%plot(residualLandUptake(:,1),residualLandUptake(:,2),'g',ff1(:,1),ff1(:,2),'k',dtdelpCO2a_obs(:,1),dtdelpCO2a_obs(:,2),'r',fas(:,1),-Aoc*fas(:,2),'b');
+% plot just the residual land uptake (similar to LR land plot):
+plot(residualLandUptake(:,1),residualLandUptake(:,2),'g');
+axis([1800 2010 -2 2])
+legend('residualLandUptake','fossil fuel','atmosphere','ocean','Location','SouthWest')
+title('residualLandUptake plus components JLD ')
+xlabel('Year ')
+ylabel('ppm/year  Positive = source, negative = sink ')
+
+
+%Let's say we want it to take up 300 by 600 region of the screen:
+vert = 300; %300 vertical pixels
+horz = 600; %600 horizontal pixels
+
+%This will place the figure in the top-right corner
+set(H,'Position',[(3*width/4)-horz/2, (height/2)-vert/2, horz, vert]);
+
+I = openfig('LR_plot.fig');
+
+%You can now move it to the middle of the screen if you like:
+set(I,'Position',[(width/4)-horz/2, (height/2)-vert/2, horz, vert]);
+
+
 
 % zero1 = find(delDIC(:,1) == 0);
 % delDIC(zero1,2) = NaN;
