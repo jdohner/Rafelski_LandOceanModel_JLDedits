@@ -29,7 +29,7 @@ kg = 1/9.06; % gas exchange rate, yr^-1, from Joos 1996
 
 dt = 1/ts;
 year_ocean = start_year_ocean:dt:end_year_ocean;
-year_ocean = year_ocean - 0.375; % TAKE ANOTHER LOOK AT THIS
+year_ocean = year_ocean;% - 0.375; % TAKE ANOTHER LOOK AT THIS
 % adjusting year vector to match year vector from LR ocean code
 
 
@@ -495,7 +495,8 @@ else % predict == 0
     % result
     
     % 
-    residualLandUptake(i,2) = dtdelpCO2a_obs(i,2) + Aoc*fas(i,2) - ff1(i,2)  - landusemo(i,2); % budget, in ppm/yr
+    % LR calculation: landflux(p,2) = dtdelpCO2a(p+((1800-1640)*ts),2) - ff1(q,2) + fas(p,2)*Aoc; 
+    residualLandUptake(i,2) = dtdelpCO2a_obs(i,2) + Aoc*fas(i,2) - ff1(i,2);% - landusemo(i,2); % budget, in ppm/yr
     % note: LR's dpco2a starts a little before 1800, so visdiff yields
     % different vectors
     % her dpco2a dates come from the find with mlomeure_spo in MLOinterp 
@@ -533,6 +534,9 @@ end
 % calculate the flux for the last time point
 fas(length(year_ocean),1) = year_ocean(length(year_ocean));
 fas(length(year_ocean),2) = (kg/Aoc)*(dpCO2a(length(year_ocean),2) - dpCO2s(length(year_ocean),2));
+% calculate residualLandUptake with updated value for fas at last point
+residualLandUptake(length(year_ocean),2) = dtdelpCO2a_obs(length(year_ocean),2) + Aoc*fas(length(year_ocean),2) - ff1(length(year_ocean),2);% - landusemo(i,2); % budget, in ppm/yr
+
 
 % 10-year smoothing on residualLandUptake
 % don't use 10 year mean before 1957, because data are already smoothed
@@ -552,9 +556,10 @@ H = figure('name','residualLandUptake plus components JLD');
 % to create a plot similar to LR ocean output:
 %plot(residualLandUptake(:,1),residualLandUptake(:,2),'g',ff1(:,1),ff1(:,2),'k',dtdelpCO2a_obs(:,1),dtdelpCO2a_obs(:,2),'r',fas(:,1),-Aoc*fas(:,2),'b');
 % plot just the residual land uptake (similar to LR land plot):
-plot(residualLandUptake(:,1),residualLandUptake(:,2),'g');
-axis([1800 2010 -2 2])
-legend('residualLandUptake','fossil fuel','atmosphere','ocean','Location','SouthWest')
+%residualLandUptake(i,2) = dtdelpCO2a_obs(i,2) + Aoc*fas(i,2) - ff1(i,2) - landusemo(i,2); % budget, in ppm/yr
+plot(residualLandUptake(:,1),residualLandUptake(:,2),'-g',ff1(:,1), ff1(:,2), '-k', dtdelpCO2a_obs(:,1),dtdelpCO2a_obs(:,2),'-r', fas(:,1),-Aoc*fas(:,2),'-b');
+axis([1800 2010 -10 10])
+legend('residualLandUptake','fossil fuel','atmosphere','ocean','landuse','Location','SouthWest')
 title('residualLandUptake plus components JLD ')
 xlabel('Year ')
 ylabel('ppm/year  Positive = source, negative = sink ')
