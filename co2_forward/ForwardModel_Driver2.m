@@ -25,7 +25,7 @@ h = 75; % mixed layer depth, m, from Joos 1996
 T_const = 18.2; % surface temperature, deg C, from Joos 1996
 kg = 1/9.06; % gas exchange rate, yr^-1, from Joos 1996
 
-[ff1] = load_fossil2(ts); % get fossil fuel emissions
+%[ff1] = load_fossil2(ts); % get fossil fuel emissions % happens later on
 
 dt = 1/ts;
 year_ocean = start_year_ocean:dt:end_year_ocean;
@@ -112,6 +112,8 @@ load landwt_T_2011.mat % land temperature anomaly
 % extratrop_landmo: extratropical land use emissions
 
 [landusemo,ff1,fas,extratrop_landmo] = getsourcesink_scale4; % changed from gss3 to gss4 
+
+
 
 start_year_land = start_year_ocean; % change to start_year_land
 end_year_land = end_year_ocean; % change to end_year_land
@@ -400,7 +402,13 @@ residualLandUptake = [];
 residualLandUptake(:,1) = year_ocean2;
 dtdeldpCO2a = []; %
 
-
+% shortening all data vectors to make the same length as year vector
+ff1_start = find(ff1(:,1) == start_year_ocean);
+ff1_end = find(ff1(:,1) == end_year_ocean);
+ff1 = ff1(ff1_start:ff1_end,:);
+fas_start = find(fas(:,1) == start_year_ocean);
+fas_end = find(fas(:,1) == end_year_ocean);
+fas = fas(fas_start:fas:end);
 
 for i = 1:length(year_ocean2)-1; % changed this to -1 -- any adverse effects?
     
@@ -496,6 +504,9 @@ else % predict == 0
     
     % 
     % LR calculation: landflux(p,2) = dtdelpCO2a(p+((1800-1640)*ts),2) - ff1(q,2) + fas(p,2)*Aoc; 
+    %%fas(i,2) = 0;
+    %dtdelpCO2a_obs(i,2) = 0;
+    %ff1(i,2) = 0;
     residualLandUptake(i,2) = dtdelpCO2a_obs(i,2) + Aoc*fas(i,2) - ff1(i,2);% - landusemo(i,2); % budget, in ppm/yr
     % note: LR's dpco2a starts a little before 1800, so visdiff yields
     % different vectors
@@ -552,17 +563,22 @@ ss = get(0,'screensize'); %The screen size
 width = ss(3);
 height = ss(4);
 
+
+
 H = figure('name','residualLandUptake plus components JLD');
 % to create a plot similar to LR ocean output:
 %plot(residualLandUptake(:,1),residualLandUptake(:,2),'g',ff1(:,1),ff1(:,2),'k',dtdelpCO2a_obs(:,1),dtdelpCO2a_obs(:,2),'r',fas(:,1),-Aoc*fas(:,2),'b');
 % plot just the residual land uptake (similar to LR land plot):
 %residualLandUptake(i,2) = dtdelpCO2a_obs(i,2) + Aoc*fas(i,2) - ff1(i,2) - landusemo(i,2); % budget, in ppm/yr
-plot(residualLandUptake(:,1),residualLandUptake(:,2),'-g',ff1(:,1), ff1(:,2), '-k', dtdelpCO2a_obs(:,1),dtdelpCO2a_obs(:,2),'-r', fas(:,1),-Aoc*fas(:,2),'-b');
+plot(residualLandUptake(:,1),residualLandUptake(:,2),'-g',ff1(:,1), ff1(:,2), ...
+    '-k', dtdelpCO2a_obs(:,1),dtdelpCO2a_obs(:,2),'-r', fas(:,1),-Aoc*fas(:,2),'-b');
 axis([1800 2010 -10 10])
 legend('residualLandUptake','fossil fuel','atmosphere','ocean','landuse','Location','SouthWest')
 title('residualLandUptake plus components JLD ')
 xlabel('Year ')
 ylabel('ppm/year  Positive = source, negative = sink ')
+
+
 
 
 %Let's say we want it to take up 300 by 600 region of the screen:
