@@ -39,8 +39,12 @@ dpCO2a(:,1) = year_ocean;
 
 dpCO2a_LRdata = load('dpCO2a_LRocean.mat');
 dpCO2s_LRdata = load('dpCO2s_LRocean.mat');
+delDIC_LRdata = load('delDIC_LRocean.mat');
+w_LRdata = load('w_LRocean.mat');
 dpCO2a_LRocean = dpCO2a_LRdata.dpCO2a;
 dpCO2s_LRocean = dpCO2s_LRdata.dpCO2s;
+delDIC_LRocean = delDIC_LRdata.delDIC;
+w_LRocean = w_LRdata.w;
 
 dpCO2a(1:10,2) = dpCO2a_LRocean(1:10,2);
 
@@ -62,6 +66,8 @@ nitrogen = 0; % 1 = yes, 0 = no; account for nitrogen fertilization?
 filter = 1; % filter the data? 1 = 10 year filter; 2 = unfiltered
 
 % loading temp data
+addpath(genpath('/Users/juliadohner/Documents/MATLAB/Rafelski_LandOceanModel_JLDedits/co2_forward/co2_forward_data'));
+
 load land_temp.mat % land temperature records
 load npp_T.mat % NPP-weighted temperature record
 load landwt_T_2011.mat % land temperature anomaly
@@ -336,6 +342,15 @@ end
     % I can just integrate my change from preinductrial atmospheric co2
     % concentration plus all the changes in dpco2
 end 
+
+% some wrap-up from LR's joos_general_fast_annotate2.m which makes it
+% easier to compare my variables to the LR variables
+zero1 = find(delDIC(:,1) == 0);
+delDIC(zero1,2) = NaN;
+delDIC(zero1,1) = NaN;
+
+zero2 = find(dpCO2s(:,2) == 0);
+dpCO2s(zero2,2)  = NaN;
 
 % calculate the flux for the last time point
 fas(length(year_ocean),1) = year_ocean(length(year_ocean));
