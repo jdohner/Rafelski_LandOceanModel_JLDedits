@@ -11,7 +11,7 @@ addpath(genpath(...
 % predict = 1 --> prognostic, calculating dpCO2a in motherloop
 % predict = 0 --> diagnostic (single deconvolution), feeding dpCO2a from
 % MLOinterp, calculating residual land uptake in motherloop
-predict = 1;
+predict = 0;
 
 
 %% set up ocean
@@ -205,7 +205,8 @@ delC2(length(year_land_trans)+1,1) = year(length(year_land_trans),1)+dt;
 % variable is used in the diagnostic (single deconv) version of this model
 residualLandUptake = [];
 residualLandUptake(:,1) = year_ocean2;
-dtdeldpCO2a = []; %
+dtdelpCO2a = []; %
+dtdelpCO2a(:,1) = year_ocean2;
 
 % shortening all data vectors to make the same length as year vector
 ff1_start = find(ff1(:,1) == start_year_ocean);
@@ -321,9 +322,9 @@ for i = 1:length(year_ocean2)-1; % changed this to -1 -- any adverse effects?
 if predict == 1 % prognostic case, running forward model
     
     % dtdelpCO2a: time derivative, not overall increase since preindustrial
-    dtdeldpCO2a(i,2) =  ff1(i,2) + landusemo(i,2) - Aoc*fas(i,2) - B(i,2); 
+    dtdelpCO2a(i,2) =  ff1(i,2) + landusemo(i,2) - Aoc*fas(i,2) - B(i,2); 
     % new overall increase since preindustrial = previous value + change (dt)
-    dpCO2a(i+1,2) = dpCO2a(i,2) + dtdeldpCO2a(i,2)/12; 
+    dpCO2a(i+1,2) = dpCO2a(i,2) + dtdelpCO2a(i,2)/12; 
 
 else % predict == 0
     
@@ -360,6 +361,11 @@ fas(length(year_ocean),2) = (kg/Aoc)*(dpCO2a(length(year_ocean),2)...
 residualLandUptake(length(year_ocean),2) = dtdelpCO2a_obs(length(year_ocean),2)...
     + Aoc*fas(length(year_ocean),2) - ff1(length(year_ocean),2);% - landusemo(i,2);
 
+sumCheck = [];
+sumCheck(:,1) = year_ocean2; 
+sumCheck(:,2) = ff1(:,2) + landusemo(:,2) - residualLandUptake(:,2) - Aoc*fas(:,2) - dtdelpCO2a_obs(:,2);
+
+
 
 % 10-year smoothing on residualLandUptake
 % don't use 10 year mean before 1957, because data are already smoothed
@@ -376,20 +382,41 @@ width = ss(3);
 height = ss(4);
 
 
+if predict == 1
+    H = figure('name','residualLandUptake plus components JLD - PREDICT');
+    plot(residualLandUptake(:,1),residualLandUptake(:,2),'-g',ff1(:,1), ff1(:,2), ...
+        '-k', dtdelpCO2a(:,1),dtdelpCO2a(:,2),'-r', fas(:,1),-Aoc*fas(:,2),'-b');
+    axis([1800 2010 -10 10])
+    legend('residualLandUptake','fossil fuel','atmosphere','ocean','landuse','Location','SouthWest')
+    title('residualLandUptake plus components JLD - PREDICT')
+    xlabel('Year ')
+    ylabel('ppm/year  Positive = source, negative = sink ')
 
-H = figure('name','residualLandUptake plus components JLD');
-plot(residualLandUptake(:,1),residualLandUptake(:,2),'-g',ff1(:,1), ff1(:,2), ...
-    '-k', dtdelpCO2a_obs(:,1),dtdelpCO2a_obs(:,2),'-r', fas(:,1),-Aoc*fas(:,2),'-b');
-axis([1800 2010 -10 10])
-legend('residualLandUptake','fossil fuel','atmosphere','ocean','landuse','Location','SouthWest')
-title('residualLandUptake plus components JLD ')
-xlabel('Year ')
-ylabel('ppm/year  Positive = source, negative = sink ')
+    % arranging location of figures
 
-% arranging location of figures
+    vert = 300; %300 vertical pixels
+    horz = 600; %600 horizontal pixels
+    set(H,'Position',[(3*width/4)-horz/2, (height/2)-vert/2, horz, vert]);
+    I = openfig('LR_plot.fig');
+    set(I,'Position',[(width/4)-horz/2, (height/2)-vert/2, horz, vert]);
+else % predict == 0
+    
+    H = figure('name','residualLandUptake plus components JLD');
+    plot(residualLandUptake(:,1),residualLandUptake(:,2),'-g',ff1(:,1), ff1(:,2), ...
+        '-k', dtdelpCO2a_obs(:,1),dtdelpCO2a_obs(:,2),'-r', fas(:,1),-Aoc*fas(:,2),'-b');
+    axis([1800 2010 -10 10])
+    legend('residualLandUptake','fossil fuel','atmosphere','ocean','landuse','Location','SouthWest')
+    title('residualLandUptake plus components JLD ')
+    xlabel('Year ')
+    ylabel('ppm/year  Positive = source, negative = sink ')
 
-vert = 300; %300 vertical pixels
-horz = 600; %600 horizontal pixels
-set(H,'Position',[(3*width/4)-horz/2, (height/2)-vert/2, horz, vert]);
-I = openfig('LR_plot.fig');
-set(I,'Position',[(width/4)-horz/2, (height/2)-vert/2, horz, vert]);
+    % arranging location of figures
+
+    vert = 300; %300 vertical pixels
+    horz = 600; %600 horizontal pixels
+    set(H,'Position',[(3*width/4)-horz/2, (height/2)-vert/2, horz, vert]);
+    I = openfig('LR_plot.fig');
+    set(I,'Position',[(width/4)-horz/2, (height/2)-vert/2, horz, vert]);
+    
+end
+
