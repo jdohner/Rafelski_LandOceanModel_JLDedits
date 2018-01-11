@@ -11,7 +11,7 @@ addpath(genpath(...
 % predict = 1 --> prognostic, calculating dpCO2a in motherloop
 % predict = 0 --> diagnostic (single deconvolution), feeding dpCO2a from
 % MLOinterp, calculating residual land uptake in motherloop
-predict = 0;
+predict = 1;
 
 
 %% set up ocean
