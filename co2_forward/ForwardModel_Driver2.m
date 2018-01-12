@@ -13,6 +13,11 @@ addpath(genpath(...
 % MLOinterp, calculating residual land uptake in motherloop
 predict = 0;
 
+% choose your sign convention
+% JLD = 1: JLD sign convention (fas is positive into atmosphere)
+% JLD = 0; LR sign convention (fas is positive into the ocean)
+JLD = 1; 
+
 
 %% set up ocean
 
@@ -74,6 +79,9 @@ load landwt_T_2011.mat % land temperature anomaly
 
 [landusemo,ff1,fas,extratrop_landmo] = getsourcesink_scale4; % ff1 load land
 % [ff1] = load_fossil2(ts); % ff1 load in LR ocean model
+
+
+
 
 % create year vector for land to be called in landusemo calls
 start_year_land = start_year_ocean; 
@@ -356,15 +364,12 @@ dpCO2s(zero2,2)  = NaN;
 % calculate the flux for the last time point
 fas(length(year_ocean),1) = year_ocean(length(year_ocean));
 fas(length(year_ocean),2) = (kg/Aoc)*(dpCO2a(length(year_ocean),2)...
-    - dpCO2s(length(year_ocean),2));
-% calculate residualLandUptake with updated value for fas at last point
-residualLandUptake(length(year_ocean),2) = dtdelpCO2a_obs(length(year_ocean),2)...
-    + Aoc*fas(length(year_ocean),2) - ff1(length(year_ocean),2);% - landusemo(i,2);
+   - dpCO2s(length(year_ocean),2));
 
-sumCheck = [];
-sumCheck(:,1) = year_ocean2; 
-sumCheck(:,2) = ff1(:,2) + landusemo(:,2) - residualLandUptake(:,2) - Aoc*fas(:,2) - dtdelpCO2a_obs(:,2);
-
+% % update sign convention
+% if JLD == 1
+%     fas(:,2) = -1*fas(:,2);
+% end
 
 
 % 10-year smoothing on residualLandUptake
@@ -375,7 +380,7 @@ sumCheck(:,2) = ff1(:,2) + landusemo(:,2) - residualLandUptake(:,2) - Aoc*fas(:,
 i = find(residualLandUptake(:,1) == 1957);
 %[residual10a] = l_boxcar(residualLandUptake,10,12,i,length(residualLandUptake),1,2);
 
-%% plot
+%% post-loop processsing and plotting
 
 ss = get(0,'screensize'); %The screen size
 width = ss(3);
@@ -383,6 +388,24 @@ height = ss(4);
 
 
 if predict == 1
+    
+    % calculate residualLandUptake with updated value for fas at last point
+    residualLandUptake(length(year_ocean),2) = dtdelpCO2a(length(year_ocean),2)...
+        + Aoc*fas(length(year_ocean),2) - ff1(length(year_ocean),2);% - landusemo(i,2);
+
+    % mass balance check
+    sumCheck = [];
+    sumCheck(:,1) = year_ocean2; 
+    % the logical version:
+    %sumCheck(:,2) = ff1(:,2) + landusemo(:,2) - residualLandUptake(:,2) - Aoc*fas(:,2) - dtdelpCO2a(:,2);
+    % LR version:
+    sumCheck(:,2) = dtdelpCO2a(:,2) - residualLandUptake(:,2) - ff1(:,2) + Aoc*fas(:,2);% - landusemo(:,2);
+    figure('name','sumCheck - PREDICT');
+    plot(sumCheck(:,1),sumCheck(:,2));
+    axis([1800 2010 -10 10])
+    title('sumCheck = atmos - land - ff + Aoc*fas')
+    xlabel('Year')
+    
     H = figure('name','residualLandUptake plus components JLD - PREDICT');
     plot(residualLandUptake(:,1),residualLandUptake(:,2),'-g',ff1(:,1), ff1(:,2), ...
         '-k', dtdelpCO2a(:,1),dtdelpCO2a(:,2),'-r', fas(:,1),-Aoc*fas(:,2),'-b');
@@ -392,23 +415,39 @@ if predict == 1
     xlabel('Year ')
     ylabel('ppm/year  Positive = source, negative = sink ')
 
-    % arranging location of figures
 
-    vert = 300; %300 vertical pixels
-    horz = 600; %600 horizontal pixels
-    set(H,'Position',[(3*width/4)-horz/2, (height/2)-vert/2, horz, vert]);
-    I = openfig('LR_plot.fig');
-    set(I,'Position',[(width/4)-horz/2, (height/2)-vert/2, horz, vert]);
 else % predict == 0
+
+    % calculate residualLandUptake with updated value for fas at last point
+    residualLandUptake(length(year_ocean),2) = dtdelpCO2a_obs(length(year_ocean),2)...
+        + Aoc*fas(length(year_ocean),2) - ff1(length(year_ocean),2);% - landusemo(i,2);
+
+    % mass balance check
+    sumCheck = [];
+    sumCheck(:,1) = year_ocean2; 
+    % the logical version:
+    %sumCheck(:,2) = ff1(:,2) + landusemo(:,2) - residualLandUptake(:,2) - Aoc*fas(:,2) - dtdelpCO2a_obs(:,2);
+    % LR version:
+    sumCheck(:,2) = dtdelpCO2a_obs(:,2) - residualLandUptake(:,2) - ff1(:,2) + Aoc*fas(:,2);% - landusemo(:,2);
+    figure('name','sumCheck - NO PREDICT');
+    plot(sumCheck(:,1),sumCheck(:,2));
+    axis([1800 2010 -10 10])
+    title('sumCheck = atmos - land - ff + Aoc*fas')
+    xlabel('Year')
+    % yields deviations from 0 on order of 10^-16
     
-    H = figure('name','residualLandUptake plus components JLD');
+    
+    % plot
+    H = figure('name','residualLandUptake plus components JLD - NO PREDICT');
     plot(residualLandUptake(:,1),residualLandUptake(:,2),'-g',ff1(:,1), ff1(:,2), ...
         '-k', dtdelpCO2a_obs(:,1),dtdelpCO2a_obs(:,2),'-r', fas(:,1),-Aoc*fas(:,2),'-b');
     axis([1800 2010 -10 10])
     legend('residualLandUptake','fossil fuel','atmosphere','ocean','landuse','Location','SouthWest')
-    title('residualLandUptake plus components JLD ')
-    xlabel('Year ')
-    ylabel('ppm/year  Positive = source, negative = sink ')
+    title('residualLandUptake plus components JLD - NO PREDICT')
+    xlabel('Year')
+    ylabel('ppm/year  Positive = source, negative = sink')
+
+end
 
     % arranging location of figures
 
@@ -417,6 +456,3 @@ else % predict == 0
     set(H,'Position',[(3*width/4)-horz/2, (height/2)-vert/2, horz, vert]);
     I = openfig('LR_plot.fig');
     set(I,'Position',[(width/4)-horz/2, (height/2)-vert/2, horz, vert]);
-    
-end
-
