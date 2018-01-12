@@ -11,7 +11,7 @@ addpath(genpath(...
 % predict = 1 --> prognostic, calculating dpCO2a in motherloop
 % predict = 0 --> diagnostic (single deconvolution), feeding dpCO2a from
 % MLOinterp, calculating residual land uptake in motherloop
-predict = 0;
+predict = 1;
 
 % choose your sign convention
 % JLD = 1: JLD sign convention (fas is positive into atmosphere)
@@ -131,7 +131,7 @@ avg_temp(1:6,2) = avg_temp(7,2); % make the first 6 points
 temp_anom(1:606,1) = avg_temp(1:606,1); % fill time column of temp_anom
 temp_anom(1:606,2) = landtglob(1,2); %landtglob are temp anomalies
 temp_anom(607:2516,1) = landtglob(1:1910,1);
-temp_anom(607:2516,2) = landtglob(1:1910,1);
+temp_anom(607:2516,2) = landtglob(1:1910,2);
 
 clear avg_temp;
 
@@ -204,8 +204,8 @@ delC2(:,2) = zeros(size(year_land_trans));
 delCdt(:,1) = year_land_trans(:,1);
 C1dt(:,1) = year_land_trans(:,1);
 C2dt(:,1) = year_land_trans(:,1);
-delC1(length(year_land_trans)+1,1) = year(length(year_land_trans),1)+dt;
-delC2(length(year_land_trans)+1,1) = year(length(year_land_trans),1)+dt;
+delC1(length(year_land_trans)+1,1) = year_land_trans(length(year_land_trans),1)+dt;
+delC2(length(year_land_trans)+1,1) = year_land_trans(length(year_land_trans),1)+dt;
 
 
 
@@ -222,7 +222,7 @@ ff1_end = find(ff1(:,1) == end_year_ocean);
 ff1 = ff1(ff1_start:ff1_end,:);
 fas_start = find(fas(:,1) == start_year_ocean);
 fas_end = find(fas(:,1) == end_year_ocean);
-fas = fas(fas_start:fas:end);
+fas = fas(fas_start:fas_end,:);
 
 for i = 1:length(year_ocean2)-1; % changed this to -1 -- any adverse effects?
     
@@ -329,16 +329,28 @@ for i = 1:length(year_ocean2)-1; % changed this to -1 -- any adverse effects?
 
 if predict == 1 % prognostic case, running forward model
     
+%     fas(i,2) = 0;
+%     dtdelpCO2a(i,2) = 0;
+%     ff1(i,2) = 0;
+%     landusemo(i,2) = 0;
+    %B(i,2) = 0;
+    
+     
+    
     % dtdelpCO2a: time derivative, not overall increase since preindustrial
     dtdelpCO2a(i,2) =  ff1(i,2) + landusemo(i,2) - Aoc*fas(i,2) - B(i,2); 
+    residualLandUptake(i,2) = dtdelpCO2a(i,2) + Aoc*fas(i,2) - ff1(i,2) - landusemo(i,2);
     % new overall increase since preindustrial = previous value + change (dt)
     dpCO2a(i+1,2) = dpCO2a(i,2) + dtdelpCO2a(i,2)/12; 
+    
+
 
 else % predict == 0
     
     % budget, in ppm/yr
     residualLandUptake(i,2) = dtdelpCO2a_obs(i,2) + Aoc*fas(i,2) - ff1(i,2);% - landusemo(i,2); 
     dpCO2a(i+1,2) = dpCO2a_obs(i+1,2); % in ppm
+    
 
 end
     
@@ -366,10 +378,10 @@ fas(length(year_ocean),1) = year_ocean(length(year_ocean));
 fas(length(year_ocean),2) = (kg/Aoc)*(dpCO2a(length(year_ocean),2)...
    - dpCO2s(length(year_ocean),2));
 
-% % update sign convention
-% if JLD == 1
-%     fas(:,2) = -1*fas(:,2);
-% end
+% update sign convention
+if JLD == 1
+    fas(:,2) = -1*fas(:,2);
+end
 
 
 % 10-year smoothing on residualLandUptake
@@ -396,10 +408,15 @@ if predict == 1
     % mass balance check
     sumCheck = [];
     sumCheck(:,1) = year_ocean2; 
-    % the logical version:
-    %sumCheck(:,2) = ff1(:,2) + landusemo(:,2) - residualLandUptake(:,2) - Aoc*fas(:,2) - dtdelpCO2a(:,2);
-    % LR version:
-    sumCheck(:,2) = dtdelpCO2a(:,2) - residualLandUptake(:,2) - ff1(:,2) + Aoc*fas(:,2);% - landusemo(:,2);
+    
+    if JLD == 1 % fas is positive into atmosphere
+        sumCheck(:,2) = ff1(:,2)  + Aoc*fas(:,2) + residualLandUptake(:,2)...
+            - dtdelpCO2a(:,2)+ landusemo(:,2)
+    else % fas is positive into ocean
+        sumCheck(:,2) = dtdelpCO2a(:,2) - residualLandUptake(:,2) - ff1(:,2)...
+            + Aoc*fas(:,2) - landusemo(:,2);
+    end
+    
     figure('name','sumCheck - PREDICT');
     plot(sumCheck(:,1),sumCheck(:,2));
     axis([1800 2010 -10 10])
@@ -407,10 +424,17 @@ if predict == 1
     xlabel('Year')
     
     H = figure('name','residualLandUptake plus components JLD - PREDICT');
+    if JLD == 1
     plot(residualLandUptake(:,1),residualLandUptake(:,2),'-g',ff1(:,1), ff1(:,2), ...
+        '-k', dtdelpCO2a(:,1),dtdelpCO2a(:,2),'-r', fas(:,1),Aoc*fas(:,2),'-b');
+%     plot(B(:,1),B(:,2),'-g',ff1(:,1), ff1(:,2), ...
+%         '-k', dtdelpCO2a(:,1),dtdelpCO2a(:,2),'-r', fas(:,1),Aoc*fas(:,2),'-b');
+    else
+        plot(residualLandUptake(:,1),residualLandUptake(:,2),'-g',ff1(:,1), ff1(:,2), ...
         '-k', dtdelpCO2a(:,1),dtdelpCO2a(:,2),'-r', fas(:,1),-Aoc*fas(:,2),'-b');
+    end
     axis([1800 2010 -10 10])
-    legend('residualLandUptake','fossil fuel','atmosphere','ocean','landuse','Location','SouthWest')
+    legend('residualLandUptake','fossil fuel','atmosphere','ocean','Location','SouthWest')
     title('residualLandUptake plus components JLD - PREDICT')
     xlabel('Year ')
     ylabel('ppm/year  Positive = source, negative = sink ')
@@ -427,8 +451,11 @@ else % predict == 0
     sumCheck(:,1) = year_ocean2; 
     % the logical version:
     %sumCheck(:,2) = ff1(:,2) + landusemo(:,2) - residualLandUptake(:,2) - Aoc*fas(:,2) - dtdelpCO2a_obs(:,2);
-    % LR version:
-    sumCheck(:,2) = dtdelpCO2a_obs(:,2) - residualLandUptake(:,2) - ff1(:,2) + Aoc*fas(:,2);% - landusemo(:,2);
+    if JLD == 1 % fas is positive into atmosphere
+        sumCheck(:,2) = ff1(:,2)  + Aoc*fas(:,2) + residualLandUptake(:,2) - dtdelpCO2a_obs(:,2); %+ landusemo(:,2)
+    else % fas is positive into ocean
+        sumCheck(:,2) = dtdelpCO2a_obs(:,2) - residualLandUptake(:,2) - ff1(:,2) + Aoc*fas(:,2);% - landusemo(:,2);
+    end
     figure('name','sumCheck - NO PREDICT');
     plot(sumCheck(:,1),sumCheck(:,2));
     axis([1800 2010 -10 10])
@@ -442,7 +469,7 @@ else % predict == 0
     plot(residualLandUptake(:,1),residualLandUptake(:,2),'-g',ff1(:,1), ff1(:,2), ...
         '-k', dtdelpCO2a_obs(:,1),dtdelpCO2a_obs(:,2),'-r', fas(:,1),-Aoc*fas(:,2),'-b');
     axis([1800 2010 -10 10])
-    legend('residualLandUptake','fossil fuel','atmosphere','ocean','landuse','Location','SouthWest')
+    legend('residualLandUptake','fossil fuel','atmosphere','ocean','Location','SouthWest')
     title('residualLandUptake plus components JLD - NO PREDICT')
     xlabel('Year')
     ylabel('ppm/year  Positive = source, negative = sink')
