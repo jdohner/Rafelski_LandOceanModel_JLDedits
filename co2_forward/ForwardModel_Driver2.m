@@ -6,7 +6,7 @@ clear all; %close all;
 
 % give access to data files in co2_forward_data folder
 addpath(genpath(...
-    '/Users/juliadohner/Documents/MATLAB/Rafelski_LandOceanModel..._JLDedits/co2_forward/co2_forward_data'));
+    '/Users/juliadohner/Documents/MATLAB/JLDedits_Rafelski_LandOceanModel/co2_forward/co2_forward_data'));
 
 % predict = 1 --> prognostic, calculating dpCO2a in motherloop
 % predict = 0 --> diagnostic (single deconvolution), feeding dpCO2a from
@@ -77,9 +77,7 @@ load land_temp.mat % land temperature records
 load npp_T.mat % NPP-weighted temperature record
 load landwt_T_2011.mat % land temperature anomaly
 
-[landusemo,ff1,fas,extratrop_landmo] = getsourcesink_scale4; % ff1 load land
-% [ff1] = load_fossil2(ts); % ff1 load in LR ocean model
-
+[ff1,landusemo,extratrop_landmo] = getsourcesink_scale4; % ff1 load land
 
 
 
@@ -104,10 +102,9 @@ extendYears = year_ocean(1,j+1:k);
 landusemo(j+1:k,1) = year_ocean(1,j+1:k);
 landusemo(j+1:k,2) = landusemo(j,2);
 
-% % % 
-% %Extend extratropical emissions by assuming emissions are zero
-% extratrop_landmo(1802:1916,1) = landusemo(1802:1916,1);
-% extratrop_landmo(1802:1916,2) = 0;
+%Extend extratropical emissions by assuming emissions are zero
+extratrop_landmo(j+1:k,1) = landusemo(j+1:k,1);
+extratrop_landmo(j+1:k,2) = 0;
 
 
 % TODO: the following (extending records) can all happen in 
@@ -220,9 +217,9 @@ dtdelpCO2a(:,1) = year_ocean2;
 ff1_start = find(ff1(:,1) == start_year_ocean);
 ff1_end = find(ff1(:,1) == end_year_ocean);
 ff1 = ff1(ff1_start:ff1_end,:);
-fas_start = find(fas(:,1) == start_year_ocean);
-fas_end = find(fas(:,1) == end_year_ocean);
-fas = fas(fas_start:fas_end,:);
+fas = zeros(2516,2);
+fas(:,1) = year_ocean2;
+
 
 for i = 1:length(year_ocean2)-1; % changed this to -1 -- any adverse effects?
     
@@ -411,7 +408,7 @@ if predict == 1
     
     if JLD == 1 % fas is positive into atmosphere
         sumCheck(:,2) = ff1(:,2)  + Aoc*fas(:,2) + residualLandUptake(:,2)...
-            - dtdelpCO2a(:,2)+ landusemo(:,2)
+            - dtdelpCO2a(:,2)+ landusemo(:,2);
     else % fas is positive into ocean
         sumCheck(:,2) = dtdelpCO2a(:,2) - residualLandUptake(:,2) - ff1(:,2)...
             + Aoc*fas(:,2) - landusemo(:,2);
