@@ -6,7 +6,7 @@ clear all; %close all;
 
 % give access to data files in co2_forward_data folder
 addpath(genpath(...
-    '/Users/juliadohner/Documents/MATLAB/JLDedits_Rafelski_LandOceanModel/co2_forward/co2_forward_data'));
+    '/Users/juliadohner/Documents/MATLAB/JLDedits_Rafelski_LandOceanModel/co2_forward/co2_forward_data_2016'));
 
 % predict = 1 --> prognostic, calculating dpCO2a in motherloop
 % predict = 0 --> diagnostic (single deconvolution), feeding dpCO2a from
@@ -77,14 +77,13 @@ load land_temp.mat % land temperature records
 load npp_T.mat % NPP-weighted temperature record
 load landwt_T_2011.mat % land temperature anomaly
 
-[ff1,landusemo,extratrop_landmo] = getsourcesink_scale4; % ff1 load land
-
-
-
 % create year vector for land to be called in landusemo calls
 start_year_land = start_year_ocean; 
 end_year_land = end_year_ocean; 
 year_land = start_year_land:dt:end_year_land;
+
+[ff1,landusemo,extratrop_landmo] = getsourcesink_scale4(predict,start_year_ocean,end_year_ocean,year_land); % ff1 load land
+
 
 
 beta = [0.5;2]; % initial guesses for model fit
@@ -213,10 +212,7 @@ residualLandUptake(:,1) = year_ocean2;
 dtdelpCO2a = []; %
 dtdelpCO2a(:,1) = year_ocean2;
 
-% shortening all data vectors to make the same length as year vector
-ff1_start = find(ff1(:,1) == start_year_ocean);
-ff1_end = find(ff1(:,1) == end_year_ocean);
-ff1 = ff1(ff1_start:ff1_end,:);
+
 fas = zeros(2516,2);
 fas(:,1) = year_ocean2;
 
