@@ -21,16 +21,16 @@ JLD = 1;
 
 %% set up ocean
 
-start_year_ocean = 1800; % start year from LR ocean model
+start_year = 1800; % start year from LR ocean model
 if predict == 1
-    end_year_ocean = 2009+(7/12)%2016;
+    end_year = 2009+(7/12)%2016;
 else
-    end_year_ocean = 2009+(7/12); % end year from LR land model
+    end_year = 2009+(7/12); % end year from LR land model
 end
 
 ts = 12; % number of data points/year, 12 in both land and ocean
 dt = 1/ts;
-year_ocean = start_year_ocean:dt:end_year_ocean;
+year = start_year:dt:end_year;
 
 
 % constants
@@ -41,11 +41,11 @@ T_const = 18.2; % surface temperature, deg C, from Joos 1996
 kg = 1/9.06; % gas exchange rate, yr^-1, from Joos 1996
 
 % Response function to calculate ocean uptake
-[t,r] = HILDAResponse(year_ocean);
+[t,r] = HILDAResponse(year);
 
 % dpCO2a is the change in atmospheric CO2 from preindustrial value
-dpCO2a = zeros(length(year_ocean),2); 
-dpCO2a(:,1) = year_ocean; 
+dpCO2a = zeros(length(year),2); 
+dpCO2a(:,1) = year; 
 
 dpCO2a_LRdata = load('dpCO2a_LRocean.mat');
 dpCO2s_LRdata = load('dpCO2s_LRocean.mat');
@@ -60,8 +60,8 @@ dpCO2a(1:10,2) = dpCO2a_LRocean(1:10,2);
 
 dpCO2s = zeros(length(dpCO2a),2); % dissolved CO2
 dpCO2s(:,1) = dpCO2a(:,1);
-integral = zeros(length(year_ocean),length(year_ocean));
-delDIC = zeros(length(year_ocean),2);
+integral = zeros(length(year),length(year));
+delDIC = zeros(length(year),2);
 
 % TODO: make sure include lines 31-40 from joos_general_fast_annotate2.m
 % after the motherloop
@@ -82,12 +82,8 @@ load land_temp.mat % land temperature records
 load npp_T.mat % NPP-weighted temperature record
 load landwt_T_2011.mat % land temperature anomaly
 
-% create year vector for land to be called in landusemo calls
-start_year_land = start_year_ocean; 
-end_year_land = end_year_ocean; 
-year_land = start_year_land:dt:end_year_land;
 
-%[ff,landuse,landuseExtra] = getsourcesink_scale4(predict,start_year_ocean,end_year_ocean,year_land); % ff1 load land
+%[ff,landuse,landuseExtra] = getsourcesink_scale4(predict,year); % ff1 load land
 
 [ff,landuse,landuseExtra] = getsourcesink_scale5;
 
@@ -99,11 +95,11 @@ beta = [0.5;2]; % initial guesses for model fit
 % Extend land use record by making recent emissions equal to last
 % record
 j = length(landuse);
-k = length(year_ocean);
-extendYears = year_ocean(1,j+1:k);
+k = length(year);
+extendYears = year(1,j+1:k);
 %landusemo(:,1) = [landusemo(:,1), extendYears];
 
-landuse(j+1:k,1) = year_ocean(1,j+1:k);
+landuse(j+1:k,1) = year(1,j+1:k);
 landuse(j+1:k,2) = landuse(j,2);
 
 %Extend extratropical emissions by assuming emissions are zero
@@ -150,7 +146,7 @@ clear avg_temp;
 
 % MLOinterp isn't called anywhere else in the code
 [dtdelpCO2a_obs,dpCO2a_obs,year_obs,dt_obs,CO2a_obs] = ... 
-    MLOinterpolate_increment2(ts,start_year_ocean,end_year_ocean); 
+    MLOinterpolate_increment2(ts,start_year,end_year); 
 
 % truncate obs output to match my timeframe
 %i = find(floor(100*MLOSPOiceinterp(:,1)) == floor(100*(start_year+(1/24))));
@@ -169,7 +165,7 @@ dtdelpCO2a_obs = dtdelpCO2a_obs(1919:4434,:); % indices of closest values
 %% probably time for THE MOTHERLOOP
 
 %before this call, year is a 1x2521 double vector (one row vector)
-year_ocean2 = year_ocean';
+year_ocean2 = year';
 
 % biobox_sub10 loop setup:
 
@@ -207,7 +203,7 @@ end
 
 
 
-year_land_trans = year_land';
+year_land_trans = year';
 delC1(:,1) = year_land_trans(:,1);
 delC1(:,2) = zeros(size(year_land_trans));
 delC2(:,1) = year_land_trans(:,1);
@@ -244,7 +240,7 @@ for i = 1:length(year_ocean2)-1; % changed this to -1 -- any adverse effects?
     
     %Calculate flux 
     % figure out what the fas units are
-    fas(i,1) = year_ocean(i);
+    fas(i,1) = year(i);
     % bug: note here fas is just being filled with zeros bc dpco2a and
     % dpco2s are both just full of zeros
     fas(i,2) = (kg/Aoc)*(dpCO2a(i,2) - dpCO2s(i,2)); % air-sea flux of CO2
@@ -260,7 +256,7 @@ for i = 1:length(year_ocean2)-1; % changed this to -1 -- any adverse effects?
 
     % Calculate delDIC 
     % units on this?
-    delDIC(i+1,1) = year_ocean(i+1); % filling time column for delDIC
+    delDIC(i+1,1) = year(i+1); % filling time column for delDIC
     delDIC(i+1,2) = (c/h)*w(i)*dt; % change in DIC
     %end
 
@@ -371,11 +367,13 @@ else % predict == 0
     
     
 end
+
+
     
 %integrationCheck(i,2) = sum(Aoc*fas(1:i,2)) - sum(B(1:i,2)) - sum(ff(1:i,2));
 integrationCheck(i,2) =  sum(ff(1:i,2)) + sum(landuse(1:i,2)) - sum(Aoc*fas(1:i,2)) - sum(B(1:i,2)); 
 
-atmosInteg(i,2) = sum(dtdelpCO2a(1:i,2));
+atmosInteg(i,2) = dpCO2a; %sum(dtdelpCO2a(1:i,2));
 
     % with units, if everyting in ppm, make sure fluxes in ppm/yr
     % find where LR integrates dpco2a etc to get absolute atmospheric co2
@@ -398,9 +396,9 @@ zero2 = find(dpCO2s(:,2) == 0);
 dpCO2s(zero2,2)  = NaN;
 
 % calculate the flux for the last time point
-fas(length(year_ocean),1) = year_ocean(length(year_ocean));
-fas(length(year_ocean),2) = (kg/Aoc)*(dpCO2a(length(year_ocean),2)...
-   - dpCO2s(length(year_ocean),2));
+fas(length(year),1) = year(length(year));
+fas(length(year),2) = (kg/Aoc)*(dpCO2a(length(year),2)...
+   - dpCO2s(length(year),2));
 
 % update sign convention
 if JLD == 1
@@ -426,8 +424,8 @@ height = ss(4);
 if predict == 1
     
     % calculate residualLandUptake with updated value for fas at last point
-    residualLandUptake(length(year_ocean),2) = dtdelpCO2a(length(year_ocean),2)...
-        + Aoc*fas(length(year_ocean),2) - ff(length(year_ocean),2);% - landusemo(i,2);
+    residualLandUptake(length(year),2) = dtdelpCO2a(length(year),2)...
+        + Aoc*fas(length(year),2) - ff(length(year),2);% - landusemo(i,2);
 
     % mass balance check
     sumCheck = [];
@@ -472,8 +470,8 @@ if predict == 1
 else % predict == 0
 
     % calculate residualLandUptake with updated value for fas at last point
-    residualLandUptake(length(year_ocean),2) = dtdelpCO2a_obs(length(year_ocean),2)...
-        + Aoc*fas(length(year_ocean),2) - ff(length(year_ocean),2);% - landusemo(i,2);
+    residualLandUptake(length(year),2) = dtdelpCO2a_obs(length(year),2)...
+        + Aoc*fas(length(year),2) - ff(length(year),2);% - landusemo(i,2);
 
     % mass balance check
     sumCheck = [];
