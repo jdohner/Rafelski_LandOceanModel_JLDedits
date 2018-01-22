@@ -23,7 +23,7 @@ JLD = 1;
 
 start_year = 1800; % start year from LR ocean model
 if predict == 1
-    end_year = 2009+(7/12)%2016;
+    end_year = 2009+(7/12); %2016;
 else
     end_year = 2009+(7/12); % end year from LR land model
 end
@@ -56,7 +56,7 @@ dpCO2s_LRocean = dpCO2s_LRdata.dpCO2s;
 delDIC_LRocean = delDIC_LRdata.delDIC;
 w_LRocean = w_LRdata.w;
 
-dpCO2a(1:10,2) = dpCO2a_LRocean(1:10,2);
+%dpCO2a(1:10,2) = dpCO2a_LRocean(1:10,2);
 
 dpCO2s = zeros(length(dpCO2a),2); % dissolved CO2
 dpCO2s(:,1) = dpCO2a(:,1);
@@ -165,7 +165,7 @@ dtdelpCO2a_obs = dtdelpCO2a_obs(1919:4434,:); % indices of closest values
 %% probably time for THE MOTHERLOOP
 
 %before this call, year is a 1x2521 double vector (one row vector)
-year_ocean2 = year';
+year2 = year';
 
 % biobox_sub10 loop setup:
 
@@ -203,60 +203,49 @@ end
 
 
 
-year_land_trans = year';
-delC1(:,1) = year_land_trans(:,1);
-delC1(:,2) = zeros(size(year_land_trans));
-delC2(:,1) = year_land_trans(:,1);
-delC2(:,2) = zeros(size(year_land_trans));
-delCdt(:,1) = year_land_trans(:,1);
-C1dt(:,1) = year_land_trans(:,1);
-C2dt(:,1) = year_land_trans(:,1);
-delC1(length(year_land_trans)+1,1) = year_land_trans(length(year_land_trans),1)+dt;
-delC2(length(year_land_trans)+1,1) = year_land_trans(length(year_land_trans),1)+dt;
+delC1(:,1) = year2(:,1);
+delC1(:,2) = zeros(size(year2));
+delC2(:,1) = year2(:,1);
+delC2(:,2) = zeros(size(year2));
+delCdt(:,1) = year2(:,1);
+C1dt(:,1) = year2(:,1);
+C2dt(:,1) = year2(:,1);
+delC1(length(year2)+1,1) = year2(length(year2),1)+dt;
+delC2(length(year2)+1,1) = year2(length(year2),1)+dt;
 
 
 
 % this is just the same as B or delCdt (total uptake by land), this
 % variable is used in the diagnostic (single deconv) version of this model
 residualLandUptake = [];
-residualLandUptake(:,1) = year_ocean2;
+residualLandUptake(:,1) = year2;
 dtdelpCO2a = []; %
-dtdelpCO2a(:,1) = year_ocean2;
+dtdelpCO2a(:,1) = year2;
 
 
-fas = zeros(length(year_ocean2),2);
-fas(:,1) = year_ocean2;
+fas = zeros(length(year2),2);
+fas(:,1) = year2;
 
-integrationCheck(:,1) = year_ocean2;
+integrationCheck(:,1) = year2;
 integrationCheck(:,2) = 0;
 
-atmosInteg(:,1) = year_ocean2;
+atmosInteg(:,1) = year2;
 atmosInteg(:,2) = 0;
 
 
-for i = 1:length(year_ocean2)-1; % changed this to -1 -- any adverse effects?
+for i = 1:length(year2)-1; % changed this to -1 -- any adverse effects?
     
     % ocean uptake - code from joos_general_fast_annotate2
     
     %Calculate flux 
-    % figure out what the fas units are
     fas(i,1) = year(i);
-    % bug: note here fas is just being filled with zeros bc dpco2a and
-    % dpco2s are both just full of zeros
     fas(i,2) = (kg/Aoc)*(dpCO2a(i,2) - dpCO2s(i,2)); % air-sea flux of CO2
-    %TODO: need to transpose dimensions of dpco2a - not sure where went
-    %wrong, check LR code
-    % dpco2a comes out of MLOinterp as 2522x2 double
-    % for some reason, initializing dpco2a = [1:2522,1] gives me the
-    % opposite dimensions I'd expect (I wanted 2521x1, got 1x2521)
-    % TODO: multiplying by dpCO2a, but it's just zero at the moment
 
-   % convolve the air-sea flux and the pulse response function (Joos 1996)
+    % convolve the air-sea flux and the pulse response function (Joos 1996)
     w = conv(fas(1:i,2),r(1:i,2)); 
 
     % Calculate delDIC 
-    % units on this?
-    delDIC(i+1,1) = year(i+1); % filling time column for delDIC
+    delDIC(i+1,1) = year(i+1); 
     delDIC(i+1,2) = (c/h)*w(i)*dt; % change in DIC
     %end
 
@@ -306,10 +295,6 @@ for i = 1:length(year_ocean2)-1; % changed this to -1 -- any adverse effects?
 
         % land uptake (biobox10)
         % fast box
-        % dpco2a = 
-        % note: line below throws error "index exceeds matrix dims" in OG
-        % driver
-        % this leaves C1dt with all zeros - why?
         % temperature-dependent respiration 
         C1dt(i,2) = Ka1*(Catm + eps*dpCO2a(i,2)) - K1a*Q1a^((temp_anom(i,2)-T0)/10)...
             *(C1 + delC1(i,2)); 
@@ -341,6 +326,7 @@ for i = 1:length(year_ocean2)-1; % changed this to -1 -- any adverse effects?
 
 if predict == 1 % prognostic case, running forward model
     
+% For debugging:
 %     fas(i,2) = 0;
 %     dtdelpCO2a(i,2) = 0;
 %     ff1(i,2) = 0;
@@ -371,9 +357,14 @@ end
 
     
 %integrationCheck(i,2) = sum(Aoc*fas(1:i,2)) - sum(B(1:i,2)) - sum(ff(1:i,2));
+
 integrationCheck(i,2) =  sum(ff(1:i,2)) + sum(landuse(1:i,2)) - sum(Aoc*fas(1:i,2)) - sum(B(1:i,2)); 
 
-atmosInteg(i,2) = dpCO2a; %sum(dtdelpCO2a(1:i,2));
+% dtdelpCO2a(i,2) =  ff(i,2) + landuse(i,2) - Aoc*fas(i,2) - B(i,2);
+% dpCO2a(i+1,2) = dpCO2a(i,2) + dtdelpCO2a(i,2)/12; 
+%atmosInteg(i,2) = sum(dtdelpCO2a(1:i,2));
+atmosInteg(i,2) = dpCO2a(1,2);
+%x = sum(dtdelpCO2a(1:i,2));
 
     % with units, if everyting in ppm, make sure fluxes in ppm/yr
     % find where LR integrates dpco2a etc to get absolute atmospheric co2
@@ -429,7 +420,7 @@ if predict == 1
 
     % mass balance check
     sumCheck = [];
-    sumCheck(:,1) = year_ocean2; 
+    sumCheck(:,1) = year2; 
     
     if JLD == 1 % fas is positive into atmosphere
         sumCheck(:,2) = ff(:,2)  + Aoc*fas(:,2) + residualLandUptake(:,2)...
@@ -475,7 +466,7 @@ else % predict == 0
 
     % mass balance check
     sumCheck = [];
-    sumCheck(:,1) = year_ocean2; 
+    sumCheck(:,1) = year2; 
     % the logical version:
     %sumCheck(:,2) = ff1(:,2) + landusemo(:,2) - residualLandUptake(:,2) - Aoc*fas(:,2) - dtdelpCO2a_obs(:,2);
     if JLD == 1 % fas is positive into atmosphere
