@@ -85,10 +85,9 @@ load landwt_T_2011.mat % land temperature anomaly
 
 %[ff,landuse,landuseExtra] = getsourcesink_scale4(predict,year); % ff1 load land
 
-[ff,landuse,landuseExtra] = getsourcesink_scale5;
+[ff,landuse,landuseExtra] = getsourcesink_scale5(year);
 
 beta = [0.5;2]; % initial guesses for model fit
-
 
 %%%%
 % getsourcesink outputs end at 2006
@@ -110,6 +109,11 @@ landuseExtra(j+1:k,2) = 0;
 % TODO: the following (extending records) can all happen in 
 % getsourcesink_scale3, but wait to
 % change until can get the code running and working
+
+%Extend extratropical emissions by assuming emissions are zero
+% extratrop_landmo(1802:1916,1) = landusemo(1802:1916,1);
+% extratrop_landmo(1802:1916,2) = 0;
+
 
 %Extend extratropical emissions by assuming emissions are zero
 % extratrop_landmo(1802:1916,1) = landusemo(1802:1916,1);
@@ -202,7 +206,6 @@ else % For CO2 fertilization model
 end
 
 
-
 delC1(:,1) = year2(:,1);
 delC1(:,2) = zeros(size(year2));
 delC2(:,1) = year2(:,1);
@@ -231,6 +234,16 @@ integrationCheck(:,2) = 0;
 
 atmosInteg(:,1) = year2;
 atmosInteg(:,2) = 0;
+
+cum_ff(:,1) = year2;
+cum_ff(:,2) = 0;
+cum_lu(:,1) = year2;
+cum_lu(:,2) = 0;
+cum_ocean(:,1) = year2;
+cum_ocean(:,2) = 0;
+cum_land(:,1) = year2;
+cum_land(:,2) = 0;
+ 
 
 
 for i = 1:length(year2)-1; % changed this to -1 -- any adverse effects?
@@ -337,7 +350,8 @@ if predict == 1 % prognostic case, running forward model
     
     % dtdelpCO2a: time derivative, not overall increase since preindustrial
     dtdelpCO2a(i,2) =  ff(i,2) + landuse(i,2) - Aoc*fas(i,2) - B(i,2); 
-    residualLandUptake(i,2) = dtdelpCO2a(i,2) + Aoc*fas(i,2) - ff(i,2) - landuse(i,2);
+    % residualLandUptake should not be here
+    %residualLandUptake(i,2) = dtdelpCO2a(i,2) + Aoc*fas(i,2) - ff(i,2) - landuse(i,2);
     % new overall increase since preindustrial = previous value + change (dt)
     dpCO2a(i+1,2) = dpCO2a(i,2) + dtdelpCO2a(i,2)/12; 
     
@@ -346,7 +360,7 @@ if predict == 1 % prognostic case, running forward model
 else % predict == 0
     
     % budget, in ppm/yr
-    residualLandUptake(i,2) = dtdelpCO2a_obs(i,2) + Aoc*fas(i,2) - ff(i,2);% - landusemo(i,2); 
+    residualLandUptake(i,2) = dtdelpCO2a_obs(i,2) + Aoc*fas(i,2) - ff(i,2) - landuse(i,2); 
     dpCO2a(i+1,2) = dpCO2a_obs(i+1,2); % in ppm
     
 
@@ -354,17 +368,18 @@ else % predict == 0
     
 end
 
-
+    cum_ff(i,2) = sum(ff(1:i,2));
+    cum_lu(i,2) = sum(landuse(1:i,2));
+    cum_ocean(i,2) = sum(-Aoc*fas(1:i,2)); % negative sign here because JLD convention, 
+    cum_land(i,2) = sum(B(1:i,2));
     
-%integrationCheck(i,2) = sum(Aoc*fas(1:i,2)) - sum(B(1:i,2)) - sum(ff(1:i,2));
 
-integrationCheck(i,2) =  sum(ff(1:i,2)) + sum(landuse(1:i,2)) - sum(Aoc*fas(1:i,2)) - sum(B(1:i,2)); 
+integrationCheck(i,2) =  cum_ff(i) + cum_lu(i) - cum_ocean(i) - cum_land(i); 
 
-% dtdelpCO2a(i,2) =  ff(i,2) + landuse(i,2) - Aoc*fas(i,2) - B(i,2);
-% dpCO2a(i+1,2) = dpCO2a(i,2) + dtdelpCO2a(i,2)/12; 
+
 %atmosInteg(i,2) = sum(dtdelpCO2a(1:i,2));
-atmosInteg(i,2) = dpCO2a(1,2);
-%x = sum(dtdelpCO2a(1:i,2));
+atmosInteg(i,2) = dpCO2a(i,2);
+
 
     % with units, if everyting in ppm, make sure fluxes in ppm/yr
     % find where LR integrates dpco2a etc to get absolute atmospheric co2
@@ -394,6 +409,7 @@ fas(length(year),2) = (kg/Aoc)*(dpCO2a(length(year),2)...
 % update sign convention
 if JLD == 1
     fas(:,2) = -1*fas(:,2);
+    B(:,2) = -1*B(:,2);
 end
 
 
@@ -415,18 +431,18 @@ height = ss(4);
 if predict == 1
     
     % calculate residualLandUptake with updated value for fas at last point
-    residualLandUptake(length(year),2) = dtdelpCO2a(length(year),2)...
-        + Aoc*fas(length(year),2) - ff(length(year),2);% - landusemo(i,2);
+%     residualLandUptake(length(year),2) = dtdelpCO2a(length(year),2)...
+%         + Aoc*fas(length(year),2) - ff(length(year),2);% - landusemo(i,2);
 
     % mass balance check
     sumCheck = [];
     sumCheck(:,1) = year2; 
     
     if JLD == 1 % fas is positive into atmosphere
-        sumCheck(:,2) = ff(:,2)  + Aoc*fas(:,2) + residualLandUptake(:,2)...
+        sumCheck(:,2) = ff(:,2)  + Aoc*fas(:,2) + B(:,2)...
             - dtdelpCO2a(:,2)+ landuse(:,2);
     else % fas is positive into ocean
-        sumCheck(:,2) = dtdelpCO2a(:,2) - residualLandUptake(:,2) - ff(:,2)...
+        sumCheck(:,2) = dtdelpCO2a(:,2) - B(:,2) - ff(:,2)...
             + Aoc*fas(:,2) - landuse(:,2);
     end
     
@@ -441,19 +457,19 @@ if predict == 1
     plot(atmosInteg(:,1),x);
     title('Integration sum check')
     
-    H = figure('name','residualLandUptake plus components JLD - PREDICT');
+    H = figure('name','land flux (B) plus components JLD - PREDICT');
     if JLD == 1
-    plot(residualLandUptake(:,1),residualLandUptake(:,2),'-g',ff(:,1), ff(:,2), ...
+    plot(B(:,1),B(:,2),'-g',ff(:,1), ff(:,2), ...
         '-k', dtdelpCO2a(:,1),dtdelpCO2a(:,2),'-r', fas(:,1),Aoc*fas(:,2),'-b');
 %     plot(B(:,1),B(:,2),'-g',ff1(:,1), ff1(:,2), ...
 %         '-k', dtdelpCO2a(:,1),dtdelpCO2a(:,2),'-r', fas(:,1),Aoc*fas(:,2),'-b');
     else
-        plot(residualLandUptake(:,1),residualLandUptake(:,2),'-g',ff(:,1), ff(:,2), ...
+        plot(B(:,1),B(:,2),'-g',ff(:,1), ff(:,2), ...
         '-k', dtdelpCO2a(:,1),dtdelpCO2a(:,2),'-r', fas(:,1),-Aoc*fas(:,2),'-b');
     end
     axis([1800 2010 -10 10])
-    legend('residualLandUptake','fossil fuel','atmosphere','ocean','Location','SouthWest')
-    title('residualLandUptake plus components JLD - PREDICT')
+    legend('land flux','fossil fuel','atmosphere','ocean','Location','SouthWest')
+    title('land flux (B) plus components JLD - PREDICT')
     xlabel('Year ')
     ylabel('ppm/year  Positive = source, negative = sink ')
 
@@ -502,3 +518,14 @@ end
     set(H,'Position',[(3*width/4)-horz/2, (height/2)-vert/2, horz, vert]);
     I = openfig('LR_plot.fig');
     set(I,'Position',[(width/4)-horz/2, (height/2)-vert/2, horz, vert]);
+
+    %integrationCheck(i,2) =  sum(ff(1:i,2)) + sum(landuse(1:i,2)) - sum(Aoc*fas(1:i,2)) - sum(B(1:i,2)); 
+
+    
+    figure('name','Integration Check');
+    plot(integrationCheck(:,1),integrationCheck(:,2),dtdelpCO2a(:,1), dtdelpCO2a(:,2),dpCO2a(:,1), dpCO2a(:,2), ...
+        ff(:,1), cum_ff,ff(:,1), cum_lu, ff(:,1), cum_ocean, ff(:,1),cum_land)
+    legend('cumulative sum except atmos','dtdelpCO2a','dpCO2a','cum ff','cum lu', 'cum ocean', 'cum land','Location','NorthWest')
+%     hold on
+%     plot(ff(:,1), cum_ff,ff(:,1), cum_lu, ff(:,1), cum_ocean, ff(:,1),cum_land);
+    

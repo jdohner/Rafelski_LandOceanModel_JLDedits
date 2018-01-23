@@ -10,7 +10,7 @@
 %
 % This file is for the record between 1800 and 2006+10/12
 
-function [ff,LU,LUex] = getsourcesink_scale4(predict,year_vector);
+function [ff,LU,LUex] = getsourcesink_scale4(predict,year);
 
 if predict == 1
 
@@ -22,7 +22,7 @@ if predict == 1
     load fossilFuel_1751-2009.mat;
     FF_2009 = ff1; % already monthly resolution
     % shortening ff vector to begin at start_year
-    FF_start = find(FF_2009(:,1) == year_vector(1));
+    FF_start = find(FF_2009(:,1) == year(1));
     FF_2009 = FF_2009(FF_start:end,:);
 
     % load extended data thru 2016 - all annual
@@ -69,17 +69,17 @@ if predict == 1
 
     % Houghton record begins in 1959, combine two records at 1959
     i_1959 = find(FF_2009(:,1) == 1959); % same for ff, landuse, extraLU
-    ff(:,1) = year_vector;
+    ff(:,1) = year;
     ff(1:i_1959-1,2) = FF_2009(1:i_1959-1,2);
     ff(i_1959:end,2) = FF_2016mo(:,2);
 
-    LU(:,1) = year_vector; 
+    LU(:,1) = year; 
     LU(1:i_1959-1,2) = LU_2006mo(1:i_1959-1,2);
     LU(i_1959:end,2) = LU_2016mo(:,2);
 
     % don't have updated extratropical land use data, so just extend from 2000
     % onward using 0
-    LUex(:,1) = year_vector; 
+    LUex(:,1) = year; 
     LUex(1:length(LUex_2000mo),2) = LUex_2000mo(:,2);
     LUex(length(LUex_2000mo)+1:end,2) = 0;
 
@@ -114,6 +114,31 @@ else % if predict == 0 (diagnostic case, not forward projecting), LR code
     LUex_2000mo(last_ind_2000+1:last_ind_2006,1) = LU_2006mo(last_ind_2000+1:last_ind_2006,1);
     LUex_2000mo(last_ind_2000+1:last_ind_2006,2) = 0;
 
+    LU = LU_2006mo;
+    LUex = LUex_2000mo;
+    ff = ff1;
     % other variables should just be loaded and passed
 
 end
+
+%%%%
+% getsourcesink outputs end at 2006
+% Extend land use record by making recent emissions equal to last
+% record
+j = length(LU);
+%k = length(year);
+%extendYears = year(1,j+1:end);
+%landusemo(:,1) = [landusemo(:,1), extendYears];
+
+%LU(j+1:k,1) = year(1,j+1:k);
+LU(j+1:end,2) = LU(j,2);
+
+%Extend extratropical emissions by assuming emissions are zero
+i = length(LUex);
+%LUex(i+1:k,1) = LU(i+1:k,1);
+LUex(i+1:end,2) = 0;
+
+
+% TODO: the following (extending records) can all happen in 
+% getsourcesink_scale3, but wait to
+% change until can get the code running and working

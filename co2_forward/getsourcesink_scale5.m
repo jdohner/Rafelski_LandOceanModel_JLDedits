@@ -10,7 +10,7 @@
 %
 % This file is for the record between 1800 and 2006+10/12
 
-function [ff1,landusemo,extratrop_landmo] = getsourcesink_scale5;
+function [ff1,landusemo,extratrop_landmo] = getsourcesink_scale5(year);
 
 load joos_hilda_2011.mat
 landnowppm_JLD = csvread('landnowppm_JLD.csv');
