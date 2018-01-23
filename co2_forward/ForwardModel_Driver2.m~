@@ -400,7 +400,7 @@ else % predict == 0
         annualMB(:,2) = ff(:,2)  + Aoc*fas(:,2) + residualLandUptake(:,2) - dtdelpCO2a_obs(:,2); %+ landusemo(:,2)
     else % fas is positive into ocean
         % signs here seem wrong; 
-        annualMB(:,2) = ff(:,2) - Aoc*fas(:,2) + residualLandUptake(:,2) - dtdelpCO2a_obs(:,2); % - landusemo(:,2);
+        annualMB(:,2) = ff(:,2)dtdelpCO2a_obs(:,2) - residualLandUptake(:,2) -  + Aoc*fas(:,2);% - landusemo(:,2);
     end
     figure('name','sumCheck - NO PREDICT');
     plot(annualMB(:,1),annualMB(:,2));
