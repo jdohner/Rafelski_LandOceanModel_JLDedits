@@ -6,7 +6,6 @@
 % emissions that are extrapolated to the present by keeping values 
 % constant at the last value, instead of increasing by 1.4%
 % 10/25/12 - Lauren Rafelski - added annotations
-% Oct 24, 2017 - JLD removed Aoc from output
 %
 % This file is for the record between 1800 and 2006+10/12
 

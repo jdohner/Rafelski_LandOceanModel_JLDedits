@@ -51,6 +51,10 @@ year2 = year';
 % give access to data files in co2_forward_data folder
 addpath(genpath(...
     '/Users/juliadohner/Documents/MATLAB/JLDedits_Rafelski_LandOceanModel/co2_forward/co2_forward_data'));
+addpath(genpath(...
+    '/Users/juliadohner/Documents/MATLAB/JLDedits_Rafelski_LandOceanModel/co2_forward/co2_forward_data_2016'));
+
+
 
 % loading temp data
 addpath(genpath('/Users/juliadohner/Documents/MATLAB/Rafelski_LandOceanModel_JLDedits/co2_forward/co2_forward_data'));
@@ -133,25 +137,7 @@ cum_land(:,2) = 0;
 
 %% set up land
 
-%[ff,landuse,landuseExtra] = getsourcesink_scale4(predict,year); % ff1 load land
-
-[ff,landuse,landuseExtra] = getsourcesink_scale5(year);
-
-%%%%
-% getsourcesink outputs end at 2006
-% Extend land use record by making recent emissions equal to last
-% record
-j = length(landuse);
-k = length(year);
-extendYears = year(1,j+1:k);
-%landusemo(:,1) = [landusemo(:,1), extendYears];
-
-landuse(j+1:k,1) = year(1,j+1:k);
-landuse(j+1:k,2) = landuse(j,2);
-
-%Extend extratropical emissions by assuming emissions are zero
-landuseExtra(j+1:k,1) = landuse(j+1:k,1);
-landuseExtra(j+1:k,2) = 0;
+[ff, landuse, landuseExtra] = getSourceSink(predict,year);
 
 
 % tland4: begins in 1880. tland4 extends record back to 1800 using the mean
@@ -198,9 +184,8 @@ dtdelpCO2a_obs = dtdelpCO2a_obs(1919:4434,:); % indices of closest values
 %% probably time for THE MOTHERLOOP
 
 
-for i = 1:length(year2) % changed this to -1 -- any adverse effects?
+for i = 1:length(year2) 
     
-    %Calculate flux 
     fas(i,1) = year(i);
     fas(i,2) = (kg/Aoc)*(dpCO2a(i,2) - dpCO2s(i,2)); % air-sea flux of CO2
 
@@ -316,15 +301,11 @@ for i = 1:length(year2) % changed this to -1 -- any adverse effects?
 
         integrationCheck(i,2) =  cum_ff(i,2)  + cum_ocean(i,2) + cum_land(i,2); %+ cum_lu(i,2)
 
-        
-
-
 end 
 
 % update sign convention
 fas(:,2) = -1*fas(:,2);
 delCdt(:,2) = -1*delCdt(:,2);
-
 
 
 %% plotting
@@ -349,9 +330,10 @@ if predict == 1
     xlabel('Year')
     
     % sources and sinks (to compare to LR)
+    x = 0*year;
     H = figure('name','sources and sinks - PREDICT');
     plot(delCdt(:,1),delCdt(:,2),'-g',ff(:,1), ff(:,2), ...
-        '-k', dtdelpCO2a(:,1),dtdelpCO2a(:,2),'-r', fas(:,1),Aoc*fas(:,2),'-b');
+        '-k', dtdelpCO2a(:,1),dtdelpCO2a(:,2),'-r', fas(:,1),Aoc*fas(:,2),'-b',year(1,:),x,'--k');
     axis([1800 2010 -10 10])
     legend('land flux','fossil fuel','atmosphere','ocean','Location','SouthWest')
     title('sources and sinks - PREDICT')
@@ -361,10 +343,10 @@ if predict == 1
 
     % cumulative mass balance
     figure('name','Cumulative Mass Balance');
-    x = integrationCheck(:,2)-dpCO2a(:,2);
+    diff = integrationCheck(:,2)-dpCO2a(:,2);
     plot(dpCO2a(:,1), dpCO2a(:,2), ...
         ff(:,1), cum_ff(:,2), ff(:,1), cum_ocean(:,2), ff(:,1),-1*cum_land(:,2),...
-        ff(:,1),x(:,1))
+        ff(:,1),diff(:,1),year(1,:),x,'--k');
     legend('dpCO2a','Cumulative FF','Cumulative ocean sink', 'Cumulative land', 'Cumulative mass balance','Location','NorthWest')
     set(findall(gca, 'Type', 'Line'),'LineWidth',4);
 
@@ -389,9 +371,10 @@ else % predict == 0
 
     
     % plot
+    x = 0*year;
     H = figure('name','residualLandUptake plus components - NO PREDICT');
     plot(residualLandUptake(:,1),residualLandUptake(:,2),'-g',ff(:,1), ff(:,2), ...
-        '-k', dtdelpCO2a_obs(:,1),dtdelpCO2a_obs(:,2),'-r', fas(:,1),-Aoc*fas(:,2),'-b');
+        '-k', dtdelpCO2a_obs(:,1),dtdelpCO2a_obs(:,2),'-r', fas(:,1),Aoc*fas(:,2),'-b',year(1,:),x,'--k');
     axis([1800 2010 -10 10])
     legend('residualLandUptake','fossil fuel','atmosphere','ocean','Location','SouthWest')
     title('residualLandUptake plus components - NO PREDICT')
