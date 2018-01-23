@@ -13,11 +13,6 @@ beta = [0.5;2]; % initial guesses for model fit
 % MLOinterp, calculating residual land uptake in motherloop
 predict = 1;
 
-% choose your sign convention
-% JLD = 1: JLD sign convention (all terms (including fas) are positive into atmosphere)
-% JLD = 0; LR sign convention (fas is positive into the ocean)
-JLD = 1;
-
 % define what kind of run you want to do
 LU = 1; %1 = high land use scenario; 2 = low land use scenario
 nitrogen = 0; % 1 = yes, 0 = no; account for nitrogen fertilization?
@@ -327,10 +322,9 @@ for i = 1:length(year2) % changed this to -1 -- any adverse effects?
 end 
 
 % update sign convention
-if JLD == 1
-    fas(:,2) = -1*fas(:,2);
-    delCdt(:,2) = -1*delCdt(:,2);
-end
+fas(:,2) = -1*fas(:,2);
+delCdt(:,2) = -1*delCdt(:,2);
+
 
 
 %% plotting
@@ -345,14 +339,8 @@ if predict == 1
     % annual mass balance check
     annualMB = [];
     annualMB(:,1) = year2; 
-    
-    if JLD == 1 % fas is positive into atmosphere
-        annualMB(:,2) = ff(:,2)  + Aoc*fas(:,2) + delCdt(:,2)...
+    annualMB(:,2) = ff(:,2)  + Aoc*fas(:,2) + delCdt(:,2)...
             - dtdelpCO2a(:,2); %+ landuse(:,2);
-    else % fas is positive into ocean
-        annualMB(:,2) = dtdelpCO2a(:,2) - delCdt(:,2) - ff(:,2)...
-            + Aoc*fas(:,2);% - landuse(:,2);
-    end
     
     figure('name','annual mass balance - PREDICT');
     plot(annualMB(:,1),annualMB(:,2));
@@ -362,13 +350,8 @@ if predict == 1
     
     % sources and sinks (to compare to LR)
     H = figure('name','sources and sinks - PREDICT');
-    if JLD == 1
-        plot(delCdt(:,1),delCdt(:,2),'-g',ff(:,1), ff(:,2), ...
+    plot(delCdt(:,1),delCdt(:,2),'-g',ff(:,1), ff(:,2), ...
         '-k', dtdelpCO2a(:,1),dtdelpCO2a(:,2),'-r', fas(:,1),Aoc*fas(:,2),'-b');
-    else
-        plot(delCdt(:,1),delCdt(:,2),'-g',ff(:,1), ff(:,2), ...
-        '-k', dtdelpCO2a(:,1),dtdelpCO2a(:,2),'-r', fas(:,1),-Aoc*fas(:,2),'-b');
-    end
     axis([1800 2010 -10 10])
     legend('land flux','fossil fuel','atmosphere','ocean','Location','SouthWest')
     title('sources and sinks - PREDICT')
@@ -396,12 +379,7 @@ else % predict == 0
     annualMB(:,1) = year2; 
     % the logical version:
     %sumCheck(:,2) = ff1(:,2) + landusemo(:,2) - residualLandUptake(:,2) - Aoc*fas(:,2) - dtdelpCO2a_obs(:,2);
-    if JLD == 1 % fas is positive into atmosphere
-        annualMB(:,2) = ff(:,2)  + Aoc*fas(:,2) + residualLandUptake(:,2) - dtdelpCO2a_obs(:,2); %+ landusemo(:,2)
-    else % fas is positive into ocean
-        % signs here seem wrong; 
-        annualMB(:,2) = ff(:,2) - Aoc*fas(:,2) + residualLandUptake(:,2) - dtdelpCO2a_obs(:,2); % - landusemo(:,2);
-    end
+    annualMB(:,2) = ff(:,2)  + Aoc*fas(:,2) + residualLandUptake(:,2) - dtdelpCO2a_obs(:,2); %+ landusemo(:,2)
     figure('name','sumCheck - NO PREDICT');
     plot(annualMB(:,1),annualMB(:,2));
     axis([1800 2010 -10 10])
@@ -411,12 +389,12 @@ else % predict == 0
 
     
     % plot
-    H = figure('name','residualLandUptake plus components JLD - NO PREDICT');
+    H = figure('name','residualLandUptake plus components - NO PREDICT');
     plot(residualLandUptake(:,1),residualLandUptake(:,2),'-g',ff(:,1), ff(:,2), ...
         '-k', dtdelpCO2a_obs(:,1),dtdelpCO2a_obs(:,2),'-r', fas(:,1),-Aoc*fas(:,2),'-b');
     axis([1800 2010 -10 10])
     legend('residualLandUptake','fossil fuel','atmosphere','ocean','Location','SouthWest')
-    title('residualLandUptake plus components JLD - NO PREDICT')
+    title('residualLandUptake plus components - NO PREDICT')
     xlabel('Year')
     ylabel('ppm/year  Positive = source, negative = sink')
 
