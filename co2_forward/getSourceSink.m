@@ -1,8 +1,15 @@
+% getSourceSink.m
+%
+% author: Lauren Rafelski, modified by Julia Dohner
+% January 23, 2018
+%
+% reorganized version of getsourcesink_scale3 from LR code. Allows for
+% forward model running to 2016
+
+% LU in ppm/year
 
 
-
-
-function [ff,LU,LUex] = getsourcesink_scale4(predict,year);
+function [ff,LU,LUex] = getSourceSink(predict,year);
 
 % load data thru 2009, 2006, 2000 - ff is monthly, lu is annual
 

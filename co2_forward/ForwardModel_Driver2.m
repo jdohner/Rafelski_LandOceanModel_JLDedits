@@ -125,8 +125,6 @@ cum_land(:,1) = year2;
 cum_land(:,2) = 0;
 
 
-
-
 %% set up ocean
 
 
@@ -134,40 +132,16 @@ cum_land(:,2) = 0;
 [t,r] = HILDAResponse(year);
 
 
-
 %% set up land
 
 [ff, landuse, landuseExtra] = getSourceSink(predict,year);
 
-
 % tland4: begins in 1880. tland4 extends record back to 1800 using the mean
 % temperature for the first years
+% what's the difference between tland4 and landtglob?
+[temp_anom, T0] = tempRecord(tland4, landtglob, dt, end_year);
 
-% do a moving boxcar average of the land temperature: 1 year average
-%l_boxcar(func,boxlength,dt,starttime,endtime,datecol,numcol)
-[avg_temp] = l_boxcar(tland4,1,12,1,2483,1,2); 
-% at the moment, length(year_ocean) is too long for the tland4 record
-%[avg_temp] = l_boxcar(tland4,1,12,1,length(year_ocean),1,2); 
 
-avg_temp(1:6,2) = avg_temp(7,2); % make the first 6 points 
-% Question: why does avg_temp has zeros for first 6 time points?
-% do these time points just not get called? only the corresponding values?
-
-% THIS IS REALLY SUSPECT - looks like landtglob is just repeated
-temp_anom(1:606,1) = avg_temp(1:606,1); % fill time column of temp_anom
-temp_anom(1:606,2) = landtglob(1,2); %landtglob are temp anomalies
-temp_anom(607:2516,1) = landtglob(1:1910,1);
-temp_anom(607:2516,2) = landtglob(1:1910,2);
-
-% how LR did it
-%  temp_anom(1:6,1) =  avg_temp(601:606,1); %Jan 1850-May 1850
-%  temp_anom(1:6,2) = landtglob(1,2); %355 instead of 1, 360 instead of 6
-%  temp_anom(7:1916,1) = landtglob(1:1910,1); % Starts at the year 1850.5. 
-%  temp_anom(7:1916,2) = landtglob(1:1910,2); % 
-
-clear avg_temp;
-
-T0 = temp_anom(1,2);
 
 %% OBSERVATION DIAGNOSTIC DEBUGGING SECTION
 
@@ -180,6 +154,12 @@ T0 = temp_anom(1,2);
 dtdelpCO2a_obs = dtdelpCO2a_obs(1919:4434,:); % indices of closest values 
 % to 1800 and 2006
 
+%[c index] = min(abs(N-V(1)))
+
+% this doesn't quite work since closest value is below (floor problem)
+% i = find(floor(100*dtdelpCO2a_obs(:,1)) == floor(100*start_year));
+% j = find(floor(100*dtdelpCO2a_obs(:,1)) == floor(100*end_year));
+% dtdelpCO2a_obs = dtdelpCO2a_obs(i:j,:);
 
 %% probably time for THE MOTHERLOOP
 
