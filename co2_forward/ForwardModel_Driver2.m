@@ -273,10 +273,10 @@ for i = 1:length(year2)
 
     end
 
-        cum_ff(i,2) = sum(ff(1:i,2));
+        cum_ff(i,2) = sum(ff(1:i,2)/12);
         %cum_lu(i,2) = sum(landuse(1:i,2));
-        cum_ocean(i,2) = sum(-Aoc*fas(1:i,2)); % negative sign here because JLD convention, 
-        cum_land(i,2) = sum(-delCdt(1:i,2));  % neg sign here bc JLD not yet applied
+        cum_ocean(i,2) = sum(-Aoc*fas(1:i,2)/12); % negative sign here because JLD convention, 
+        cum_land(i,2) = sum(-delCdt(1:i,2)/12);  % neg sign here bc JLD not yet applied
 
 
         integrationCheck(i,2) =  cum_ff(i,2)  + cum_ocean(i,2) + cum_land(i,2); %+ cum_lu(i,2)
