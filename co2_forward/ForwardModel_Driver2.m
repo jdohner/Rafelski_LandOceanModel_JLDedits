@@ -7,6 +7,7 @@ clear all; %close all;
 %% define run types
 
 beta = [0.5;2]; % initial guesses for model fit
+% VHM-V: [0.83;3.3]
 
 % predict = 1 --> prognostic, calculating dpCO2a in motherloop
 % predict = 0 --> diagnostic (single deconvolution), feeding dpCO2a from
@@ -35,7 +36,7 @@ end
 
 start_year = 1800; % start year from LR ocean model
 if predict == 1
-    end_year = 2016;%2009+(7/12); %2016;
+    end_year = 2009+(7/12);% 2016;%2009+(7/12); %2016;
 else
     end_year = 2009+(7/12); % end year from LR land model
 end
