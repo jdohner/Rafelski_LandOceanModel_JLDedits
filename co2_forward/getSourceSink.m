@@ -21,8 +21,9 @@ FF_2009 = ff1; % already monthly resolution
 
 % shortening ff vector to begin at start_year
 FF_start = find(FF_2009(:,1) == year(1));
-FF_end = find(FF_2009(:,1) == year(end));
-FF_2009 = FF_2009(FF_start:FF_end,:);
+%FF_end = find(FF_2009(:,1) == year(end)); % buggy line - need data thru 2016
+%FF_2009 = FF_2009(FF_start:FF_end,:);
+FF_2009 = FF_2009(FF_start:end,:);
 ff = FF_2009;
     
 % interpolate to monthly
@@ -68,6 +69,8 @@ if predict == 1 && year(end) == 2016
     
     % extend (making full length vectors (1800-2016)) and patch
 
+    clear ff; % get rid of dimension mismatch since looks like below pulls
+    % from original data source (FF_2009) anyways
     % Houghton record begins in 1959, combine two records at 1959
     i_1959 = find(FF_2009(:,1) == 1959); % same for ff, landuse, extraLU
     ff(:,1) = year;

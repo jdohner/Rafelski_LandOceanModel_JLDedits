@@ -35,7 +35,7 @@ end
 
 start_year = 1800; % start year from LR ocean model
 if predict == 1
-    end_year = 2009+(7/12); %2016;
+    end_year = 2016;%2009+(7/12); %2016;
 else
     end_year = 2009+(7/12); % end year from LR land model
 end

@@ -8,6 +8,11 @@
 
 function [temp_anom, T0] = tempRecord(tRecord,globalRecord,dt, end_year);
 
+if end_year == 2016
+    globT_2017 = csvread('HadCRUT4_2017.csv');
+end
+
+
 % do a moving boxcar average of the land temperature: 1 year average
 %l_boxcar(func,boxlength,dt,starttime,endtime,datecol,numcol)
 [avg_temp] = l_boxcar(tRecord,1,12,1,2483,1,2); 
