@@ -164,14 +164,7 @@ CO2_2016mo(:,1) = year;
 CO2_2016mo(:,2) = (interp1(CO2_2016(:,1),CO2_2016(:,2),year)).';
 co2_preind = mean(CO2_2016(1:1000,2));
 CO2_2016mo(:,2) = CO2_2016mo(:,2) - co2_preind;
-i = find(CO2_2016mo(:,1) == 2010); % come back to this with actual indexing
-
-newCO2obs(:,1) = year2;
-newCO2obs(:,2) = 0;
-newCO2obs(1:2520,2) = dpCO2a_obs(1:2520,2);
-newCO2obs(i:end,2) = CO2_2016mo(i:end,2);
-dpCO2a_obs = newCO2obs;
-
+i = find(CO2_2016mo(:,1) == dpCO2a_obs(end,1));
 
 % co2_predict = dpCO2a;
 % co2_predict(:,2) = co2_predict(:,2) + co2_preind;
@@ -183,7 +176,7 @@ dtdelpCO2a_obs = dtdelpCO2a_obs(1919:4434,:); % indices of closest values
 
 
 % not proper but it'll have to do for now:
-%dpCO2a_obs = dpCO2a_obs(1:2516,:);
+dpCO2a_obs = dpCO2a_obs(1:2516,:);
 
 % cut off dpco2a to end at end_year
 %     co2_end = find(dpCO2a_obs(:,1) == year(end)); % buggy line - need data thru 2016
