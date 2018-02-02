@@ -36,7 +36,7 @@ end
 
 start_year = 1800; % start year from LR ocean model
 if predict == 1
-    end_year = 2009+(7/12);%2016; %
+    end_year = 2016;%2009+(7/12);%2016; %
 else
     end_year = 2009+(7/12); % end year from LR land model
 end
@@ -255,10 +255,10 @@ for i = 1:length(year2)
 
         % For debugging:
         %     fas(i,2) = 0;
-        %     dtdelpCO2a(i,2) = 0;
-        %     ff1(i,2) = 0;
-        %     landusemo(i,2) = 0;
-        %     B(i,2) = 0;
+             dtdelpCO2a(i,2) = 0;
+             ff1(i,2) = 0;
+             landusemo(i,2) = 0;
+             B(i,2) = 0;
 
         dtdelpCO2a(i,2) =  ff(i,2) - Aoc*fas(i,2) - delCdt(i,2);%+landuse(i,2);
         if i < length(year2)

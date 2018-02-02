@@ -18,12 +18,11 @@ if end_year == 2016
     CRU_endYr = CRU_data(end,1) + (11/12); % ends Dec 2017
     CRU_year = (CRU_startYr:(1/12):CRU_endYr)';
     CRU_temp = CRU_data(1:2:end,2:13); % every other row for cols 2 to 13
-    CRU_temp = CRU_temp(:); % reshape to column vector
+    CRU_temp = reshape(CRU_temp',[],1); % reshape to column vector
     temp_recent(:,1) = CRU_year;
     temp_recent(:,2) = CRU_temp;
 
 end
-
 
 % do a moving boxcar average of the land temperature: 1 year average
 %l_boxcar(func,boxlength,dt,starttime,endtime,datecol,numcol)

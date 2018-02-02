@@ -58,9 +58,9 @@ if predict == 1 && year(end) == 2016
     
         % fossil fuel 2016 to monthly
     month_2016 = 1959:(1/12):2016;
-    FF_2016mo = (interp1(FF_2016(:,1),FF_2016(:,2),month_2016)).';
+    FF_2016mo_0 = (interp1(FF_2016(:,1),FF_2016(:,2),month_2016)).';
     FF_2016mo(:,1) = month_2016;
-    FF_2016mo(:,2) = FF_2016mo;
+    FF_2016mo(:,2) = FF_2016mo_0;
 
     % land use 2016 to monthly
     LU_2016mo = (interp1(LU_2016(:,1),LU_2016(:,2),month_2016)).';
