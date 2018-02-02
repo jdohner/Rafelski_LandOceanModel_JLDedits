@@ -33,7 +33,6 @@ if year(end) == 2016
 else  
     FF_end = find(FF_2009(:,1) == year(end)); % buggy line - need data thru 2016
     FF_2009 = FF_2009(FF_start:FF_end,:);
-    %FF_2009 = FF_2009(FF_start:FF_end,:);
     ff = FF_2009;
 end
 

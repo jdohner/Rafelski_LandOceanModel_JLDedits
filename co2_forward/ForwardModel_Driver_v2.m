@@ -8,8 +8,9 @@ clear all; %close all;
 
 %% define run types
 
-beta = [0.83;3.3]; % initial guesses for model fit
+beta = [0.79;4.91]; % initial guesses for model fit
 % VHM-V: [0.83;3.3]
+% CHM-V: [0.79;4.91]
 
 % predict = 1 --> prognostic, calculating dpCO2a in motherloop
 % predict = 0 --> diagnostic (single deconvolution), feeding dpCO2a from
@@ -95,10 +96,10 @@ Ka2 = K2a*C2/Catm;
 %% initialize vectors
 
 % dpCO2a is the change in atmospheric CO2 from preindustrial value
-dpCO2a = zeros(length(year),2); 
-dpCO2a(:,1) = year; 
-dpCO2s = zeros(length(dpCO2a),2); % dissolved CO2
-dpCO2s(:,1) = dpCO2a(:,1);
+% dpCO2a = zeros(length(year),2); 
+% dpCO2a(:,1) = year; 
+dpCO2s = zeros(length(year),2); % dissolved CO2
+dpCO2s(:,1) = year(:,1);
 integral = zeros(length(year),length(year));
 delDIC = zeros(length(year),2); 
 delC1(:,1) = year2(:,1);
@@ -112,8 +113,8 @@ delC1(length(year2)+1,1) = year2(length(year2),1)+dt;
 delC2(length(year2)+1,1) = year2(length(year2),1)+dt;
 residualLandUptake = [];
 residualLandUptake(:,1) = year2;
-dtdelpCO2a = []; 
-dtdelpCO2a(:,1) = year2;
+% dtdelpCO2a = []; 
+% dtdelpCO2a(:,1) = year2;
 fas = zeros(length(year2),2);
 fas(:,1) = year2;
 integrationCheck(:,1) = year2;
@@ -161,6 +162,15 @@ dtdelpCO2a_calc(:,2) = 0;
 % ALWAYS BE WARY OF THIS WHEN DEBUGGING:
 dtdelpCO2a_obs = dtdelpCO2a_obs(1919:4434,:); % indices of closest values 
 % to 1800 and 2006
+
+
+% not proper but it'll have to do for now:
+dpCO2a_obs = dpCO2a_obs(1:2516,:);
+
+% cut off dpco2a to end at end_year
+%     co2_end = find(dpCO2a_obs(:,1) == year(end)); % buggy line - need data thru 2016
+%     dpCO2a_obs = dpCO2a_obs(1:co2_end,:);
+%     
 
 %[c index] = min(abs(N-V(1)))
 
@@ -316,7 +326,7 @@ height = ss(4);
 
     % cumulative mass balance
     figure('name','Cumulative Mass Balance');
-    diff = integrationCheck(:,2)-dpCO2a(:,2);
+    diff = integrationCheck(:,2)-dpCO2a_obs(:,2);
     plot(dpCO2a_calc(:,1), dpCO2a_calc(:,2), ...
         ff(:,1), cum_ff(:,2), ff(:,1), cum_ocean(:,2), ff(:,1),cum_land(:,2),...
         ff(:,1),cum_lu(:,2),ff(:,1),diff(:,1),year(1,:),x,'--k');
@@ -333,10 +343,22 @@ height = ss(4);
     co2_predict = dpCO2a_calc;
     co2_predict(:,2) = co2_predict(:,2) + co2_preind;
     co2_diff = CO2_2016mo(:,2)-co2_predict(:,2);
-    plot(CO2_2016mo(:,1), CO2_2016mo(:,2),co2_predict(:,1),co2_predict(:,2),CO2_2016mo(:,1),co2_diff);
-    legend('observed co2','predicted co2','predicted-obs');
+    meandiff = mean(co2_diff(1909:2149));
+    predict2 = co2_predict(:,2)+meandiff;
+    %plot(CO2_2016mo(:,1), CO2_2016mo(:,2),co2_predict(:,1),co2_predict(:,2),CO2_2016mo(:,1),co2_diff);
+    plot(CO2_2016mo(:,1), CO2_2016mo(:,2),co2_predict(:,1),predict2);
+    legend('observed co2','predicted co2');
     set(findall(gca, 'Type', 'Line'),'LineWidth',4);
-
+    xlim([1850 year(end)])
+    ylim([275 400])
+    
+    figure('name','CO2: Predicted vs. Observed Difference');
+    newdiff = predict2 - CO2_2016mo(:,2);
+    plot(CO2_2016mo(:,1), newdiff);
+    legend('predicted - observed co2');
+    set(findall(gca, 'Type', 'Line'),'LineWidth',4);
+    xlim([1850 year(end)])
+    
 % position figures
     vert = 300; %300 vertical pixels
     horz = 600; %600 horizontal pixels
