@@ -22,10 +22,21 @@ FF_2009 = ff1; % already monthly resolution
 
 % shortening ff vector to begin at start_year
 FF_start = find(FF_2009(:,1) == year(1));
-%FF_end = find(FF_2009(:,1) == year(end)); % buggy line - need data thru 2016
-%FF_2009 = FF_2009(FF_start:FF_end,:);
-FF_2009 = FF_2009(FF_start:end,:);
-ff = FF_2009;
+
+if year(end) == 2016
+    % shortening ff vector to begin at start_year
+    FF_start = find(FF_2009(:,1) == year(1));
+    %FF_end = find(FF_2009(:,1) == year(end)); % buggy line - need data thru 2016
+    %FF_2009 = FF_2009(FF_start:FF_end,:);
+    FF_2009 = FF_2009(FF_start:end,:);
+    ff = FF_2009;
+else  
+    FF_end = find(FF_2009(:,1) == year(end)); % buggy line - need data thru 2016
+    FF_2009 = FF_2009(FF_start:FF_end,:);
+    %FF_2009 = FF_2009(FF_start:FF_end,:);
+    ff = FF_2009;
+end
+
     
 % interpolate to monthly
 LU_2006mo(:,1) = (1800:(1/12):2006)';
