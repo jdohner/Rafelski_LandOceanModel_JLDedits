@@ -6,7 +6,7 @@ clear all; %close all;
 
 %% define run types
 
-beta = [0.5;2]; % initial guesses for model fit
+beta = [0.83;3.3]; % initial guesses for model fit
 % VHM-V: [0.83;3.3]
 
 % predict = 1 --> prognostic, calculating dpCO2a in motherloop
@@ -260,7 +260,7 @@ for i = 1:length(year2)
              landusemo(i,2) = 0;
              B(i,2) = 0;
 
-        dtdelpCO2a(i,2) =  ff(i,2) - Aoc*fas(i,2) - delCdt(i,2);%+landuse(i,2);
+        dtdelpCO2a(i,2) =  ff(i,2) - Aoc*fas(i,2) - delCdt(i,2) +landuse(i,2);
         if i < length(year2)
             dpCO2a(i+1,2) = dpCO2a(i,2) + dtdelpCO2a(i,2)/12; 
         end
@@ -268,7 +268,7 @@ for i = 1:length(year2)
     else % predict == 0
 
         % budget, in ppm/yr - calculate land sink as residual
-        residualLandUptake(i,2) = dtdelpCO2a_obs(i,2) + Aoc*fas(i,2) - ff(i,2);% - landuse(i,2); 
+        residualLandUptake(i,2) = dtdelpCO2a_obs(i,2) + Aoc*fas(i,2) - ff(i,2) - landuse(i,2); 
         
         if i < length(year2)
             dpCO2a(i+1,2) = dpCO2a_obs(i+1,2); % in ppm
@@ -277,12 +277,12 @@ for i = 1:length(year2)
     end
 
         cum_ff(i,2) = sum(ff(1:i,2)/12);
-        %cum_lu(i,2) = sum(landuse(1:i,2));
+        cum_lu(i,2) = sum(landuse(1:i,2)/12);
         cum_ocean(i,2) = sum(-Aoc*fas(1:i,2)/12); % negative sign here because JLD convention, 
         cum_land(i,2) = sum(-delCdt(1:i,2)/12);  % neg sign here bc JLD not yet applied
 
 
-        integrationCheck(i,2) =  cum_ff(i,2)  + cum_ocean(i,2) + cum_land(i,2); %+ cum_lu(i,2)
+        integrationCheck(i,2) =  cum_ff(i,2)  + cum_ocean(i,2) + cum_land(i,2) + cum_lu(i,2);
 
 end 
 
@@ -304,7 +304,7 @@ if predict == 1
     annualMB = [];
     annualMB(:,1) = year2; 
     annualMB(:,2) = ff(:,2)  + Aoc*fas(:,2) + delCdt(:,2)...
-            - dtdelpCO2a(:,2); %+ landuse(:,2);
+            - dtdelpCO2a(:,2) + landuse(:,2);
     
     figure('name','annual mass balance - PREDICT');
     plot(annualMB(:,1),annualMB(:,2));
@@ -329,8 +329,8 @@ if predict == 1
     diff = integrationCheck(:,2)-dpCO2a(:,2);
     plot(dpCO2a(:,1), dpCO2a(:,2), ...
         ff(:,1), cum_ff(:,2), ff(:,1), cum_ocean(:,2), ff(:,1),-1*cum_land(:,2),...
-        ff(:,1),diff(:,1),year(1,:),x,'--k');
-    legend('dpCO2a','Cumulative FF','Cumulative ocean sink', 'Cumulative land', 'Cumulative mass balance','Location','NorthWest')
+        ff(:,1),cum_lu(:,2),ff(:,1),diff(:,1),year(1,:),x,'--k');
+    legend('dpCO2a','Cumulative FF','Cumulative ocean sink', 'Cumulative land', 'cumulative landuse','Cumulative mass balance','Location','NorthWest')
     set(findall(gca, 'Type', 'Line'),'LineWidth',4);
     
     % compare predicted co2 to observed
@@ -358,9 +358,9 @@ else % predict == 0
     annualMB(:,1) = year2; 
     % the logical version:
     %sumCheck(:,2) = ff1(:,2) + landusemo(:,2) - residualLandUptake(:,2) - Aoc*fas(:,2) - dtdelpCO2a_obs(:,2);
-    annualMB(:,2) = ff(:,2)  + Aoc*fas(:,2) + residualLandUptake(:,2) - dtdelpCO2a_obs(:,2); %+ landusemo(:,2)
+    %annualMB(:,2) = ff(:,2)  + Aoc*fas(:,2) + residualLandUptake(:,2) - dtdelpCO2a_obs(:,2); %+ landusemo(:,2)
     figure('name','sumCheck - NO PREDICT');
-    plot(annualMB(:,1),annualMB(:,2));
+%    plot(annualMB(:,1),annualMB(:,2));
     axis([1800 2010 -10 10])
     title('sumCheck = atmos - land - ff + Aoc*fas')
     xlabel('Year')

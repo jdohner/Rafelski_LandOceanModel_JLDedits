@@ -67,9 +67,9 @@ if predict == 1 && year(end) == 2016
     FF_2016mo(:,2) = FF_2016mo_0*d; %convert to ppm
 
     % land use 2016 to monthly
-    LU_2016mo = (interp1(LU_2016(:,1),LU_2016(:,2),month_2016)).';
+    LU_2016mo_0 = (interp1(LU_2016(:,1),LU_2016(:,2),month_2016)).';
     LU_2016mo(:,1) = month_2016;
-    LU_2016mo(:,2) = LU_2016mo*d;
+    LU_2016mo(:,2) = LU_2016mo_0*d;
     
     % extend (making full length vectors (1800-2016)) and patch
 
