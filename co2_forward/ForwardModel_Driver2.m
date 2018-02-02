@@ -36,7 +36,7 @@ end
 
 start_year = 1800; % start year from LR ocean model
 if predict == 1
-    end_year = 2009+(7/12);% 2016;%2009+(7/12); %2016;
+    end_year = 2009+(7/12);%2016; %
 else
     end_year = 2009+(7/12); % end year from LR land model
 end
@@ -140,7 +140,9 @@ cum_land(:,2) = 0;
 % tland4: begins in 1880. tland4 extends record back to 1800 using the mean
 % temperature for the first years
 % what's the difference between tland4 and landtglob?
-[temp_anom, T0] = tempRecord(tland4, landtglob, dt, end_year);
+
+
+[temp_anom, T0] = tempRecord(tland4, landtglob, dt, year, end_year);
 
 
 
