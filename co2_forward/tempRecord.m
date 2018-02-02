@@ -5,6 +5,9 @@
 %
 % puts all the temperature record code into separate function to clean up
 % main driver
+%
+% CRUTEM4-gl data from https://crudata.uea.ac.uk/cru/data/temperature/
+% Climatic Research Unit
 
 function [temp_anom, T0] = tempRecord(temp_early,temp_recent,dt, year, end_year);
 

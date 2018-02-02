@@ -7,6 +7,7 @@
 % forward model running to 2016
 
 % LU in ppm/year
+% ff in ppm/year
 
 
 function [ff,LU,LUex] = getSourceSink(predict,year);
@@ -47,7 +48,10 @@ LUex(length(LUex_2000mo)+1:end,2) = 0;
 if predict == 1 && year(end) == 2016
     
     % load extended data thru 2016 - all annual
-    FF_2016 = csvread('fossilFuel_1959-2016.csv');
+    FF_2016 = csvread('fossilFuel_1959-2016.csv'); % in gigatons/year
+    % 1 ppm CO2 = 2.31 gton CO2
+    d = 1/2.31; % gigaton to ppm conversion factor
+    
     % this one isn't working for csvread, so reading in as text file
     %landUse_2016 = csvread('landUse_1959-2016.csv'); 
     fid = fopen('landUse_1959-2016.txt');
@@ -60,12 +64,12 @@ if predict == 1 && year(end) == 2016
     month_2016 = 1959:(1/12):2016;
     FF_2016mo_0 = (interp1(FF_2016(:,1),FF_2016(:,2),month_2016)).';
     FF_2016mo(:,1) = month_2016;
-    FF_2016mo(:,2) = FF_2016mo_0;
+    FF_2016mo(:,2) = FF_2016mo_0*d; %convert to ppm
 
     % land use 2016 to monthly
     LU_2016mo = (interp1(LU_2016(:,1),LU_2016(:,2),month_2016)).';
     LU_2016mo(:,1) = month_2016;
-    LU_2016mo(:,2) = LU_2016mo;
+    LU_2016mo(:,2) = LU_2016mo*d;
     
     % extend (making full length vectors (1800-2016)) and patch
 
