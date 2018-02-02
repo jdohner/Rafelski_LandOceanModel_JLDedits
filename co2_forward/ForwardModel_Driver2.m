@@ -332,6 +332,20 @@ if predict == 1
         ff(:,1),diff(:,1),year(1,:),x,'--k');
     legend('dpCO2a','Cumulative FF','Cumulative ocean sink', 'Cumulative land', 'Cumulative mass balance','Location','NorthWest')
     set(findall(gca, 'Type', 'Line'),'LineWidth',4);
+    
+    % compare predicted co2 to observed
+    
+    CO2_2016 = csvread('mergedCO2_2016.csv');
+    CO2_2016mo(:,1) = year;
+    CO2_2016mo(:,2) = (interp1(CO2_2016(:,1),CO2_2016(:,2),year)).';
+    figure('name','CO2: Predicted vs. Observed');
+    co2_preind = mean(CO2_2016(1:1000,2));
+    co2_predict = dpCO2a;
+    co2_predict(:,2) = co2_predict(:,2) + co2_preind;
+    co2_diff = CO2_2016mo(:,2)-co2_predict(:,2);
+    plot(CO2_2016mo(:,1), CO2_2016mo(:,2),co2_predict(:,1),co2_predict(:,2),CO2_2016mo(:,1),co2_diff);
+    legend('observed co2','predicted co2','predicted-obs');
+    set(findall(gca, 'Type', 'Line'),'LineWidth',4);
 
 else % predict == 0
 
