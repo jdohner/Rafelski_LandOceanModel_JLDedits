@@ -372,7 +372,7 @@ height = ss(4);
     
     figure('name','CO2: Predicted vs. Observed Difference');
     newdiff = predict2 - CO2_2016mo(:,2);
-    plot(CO2_2016mo(:,1), newdiff);
+    plot(CO2_2016mo(:,1), newdiff, year(1,:),x,'--k');
     legend('predicted - observed co2');
     set(findall(gca, 'Type', 'Line'),'LineWidth',4);
     xlim([1850 year(end)])
