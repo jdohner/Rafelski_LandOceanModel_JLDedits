@@ -2,6 +2,9 @@
 
 % file ForwardModel_Driver2.m
 % version where data starts at 1850, ends at 2006 across all files
+% re-engineered so that ocean and land uptake are calculated from observed
+% atmospheric co2 record, but then sum the various fluxes (FF, LU, ocean
+% and land) at the end to come up with new modeled atmospheric co2 record
 
 
 clear all; %close all;
@@ -351,7 +354,7 @@ height = ss(4);
     legend('dpCO2a_calc','Cumulative FF','Cumulative ocean sink', 'Cumulative land', 'cumulative landuse','Cumulative mass balance','Location','NorthWest')
     set(findall(gca, 'Type', 'Line'),'LineWidth',4);
     
-    % compare predicted co2 to observed
+    % compare predicted co2 to observed - basically fig 7
     
     CO2_2016 = csvread('mergedCO2_2016.csv');
     CO2_2016mo(:,1) = year;
@@ -361,21 +364,43 @@ height = ss(4);
     co2_predict = dpCO2a_calc;
     co2_predict(:,2) = co2_predict(:,2) + co2_preind;
     co2_diff = CO2_2016mo(:,2)-co2_predict(:,2);
-    meandiff = mean(co2_diff(1909:2149));
+
+    % from paper: add integration constant to achieve best agreement with
+    % co2 record from 1959 to 1979
+    meandiff = mean(co2_diff(1909:2149)); % mean difference over 1959-1979
     predict2 = co2_predict(:,2)+meandiff;
     %plot(CO2_2016mo(:,1), CO2_2016mo(:,2),co2_predict(:,1),co2_predict(:,2),CO2_2016mo(:,1),co2_diff);
-    plot(CO2_2016mo(:,1), CO2_2016mo(:,2),co2_predict(:,1),predict2);
-    legend('observed co2','predicted co2');
+    %  fixed fraction of fossil fuel emissions (fit to observations) -- fit
+    %  between 1959 and 1979
+    ff57(:,1) = cum_ff(:,1);
+    ff57(:,2) = cum_ff(:,2)*0.57+co2_preind;
+    co2_diff2 = CO2_2016mo(:,2)-ff57(:,2); % getting factor by which to move up 57% ff
+    meandiff2 = mean(co2_diff2(1909:2149)); % mean difference over 1959-1979
+    ff57_2 = ff57(:,2)+meandiff2;
+    
+    plot(CO2_2016mo(:,1), CO2_2016mo(:,2),co2_predict(:,1),predict2, ff57(:,1),ff57_2, '--k');
+    legend('Observations','Temperature-dependent model (CHM-V)','Fixed fraction of ff emissions (fit to observations');
     set(findall(gca, 'Type', 'Line'),'LineWidth',4);
     xlim([1850 year(end)])
     ylim([275 400])
     
-    figure('name','CO2: Predicted vs. Observed Difference');
+    figure('name','Atmospheric CO2 History - Figure 7, Rafelski (2009)');
     newdiff = predict2 - CO2_2016mo(:,2);
     plot(CO2_2016mo(:,1), newdiff, year(1,:),x,'--k');
     legend('predicted - observed co2');
     set(findall(gca, 'Type', 'Line'),'LineWidth',4);
     xlim([1850 year(end)])
+    
+    % recreating figure 7a
+    figure('name','cumulative mass balance');
+    diff = integrationCheck(:,2)-dpCO2a_obs(:,2);
+    plot(dpCO2a_calc(:,1), dpCO2a_calc(:,2), ...
+        ff(:,1), cum_ff(:,2), ff(:,1), cum_ocean(:,2), ff(:,1),cum_land(:,2),...
+        ff(:,1),cum_lu(:,2),ff(:,1),diff(:,1),year(1,:),x,'--k');
+    legend('dpCO2a_calc','Cumulative FF','Cumulative ocean sink', 'Cumulative land', 'cumulative landuse','Cumulative mass balance','Location','NorthWest')
+    set(findall(gca, 'Type', 'Line'),'LineWidth',4);
+    
+    
     
 % position figures
     vert = 300; %300 vertical pixels
