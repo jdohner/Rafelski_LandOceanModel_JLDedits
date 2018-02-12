@@ -43,7 +43,7 @@ load landwt_T_2011.mat % land temperature anomaly
 
 ts = 12; % timesteps per year
 start_year = 1850;
-end_year = 2005;%2009+(7/12); 
+end_year = 2006;%2009+(7/12); 
 year = start_year:(1/ts):end_year;
 year2 = year';
 
@@ -338,4 +338,4 @@ newat(:,1) = year2;
 newat(:,2) =  ff1(i2:j2,2)....
 - Aoc*fas(i3:j3,2) + extratrop_landmo(1:length(year2),2) + delCdt(:,2) ;
 end
-new
+

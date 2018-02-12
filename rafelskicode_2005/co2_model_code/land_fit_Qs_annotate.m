@@ -9,7 +9,7 @@ function yhat = land_fit_Qs_annotate(beta,X)
 
 ts = 12;
 start_year = 1850;
-end_year = 2005;%2009+(7/12);
+end_year = 2006;%2009+(7/12);
 
 % Get parameters
 
