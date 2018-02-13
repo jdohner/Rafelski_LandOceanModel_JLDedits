@@ -1,47 +1,29 @@
-% Rafelski code thru 2005
+% table 2 output script
+%
+% author: Julia Dohner
 
-%% Modifications
-%% 11/27/2007: added NPP weighted land temperature datasets: npp_T.mat
-%% 11/27/2007: added land weighted land T datasets: landwt_T.mat
-%% 12/18/2007: added option to do fit with unfiltered data
-%% 3/13/2008: changed data filter so that only 1957 to present is filtered
-%% 4/2/2008: change index numbers for dtdelpCO2a to use with new dataset.
-%% change 2053 to 2521, change 3919 to 4387
-%% 3/31/2009: change index numbers to do run to 6/2007 for mode 1
-%% 1/10/2011: add in joos_hilda_2011.mat
-%% 8/23/2012: annotate code better
+% constant SST
+% CO2 fertilization only
 
-% forward run model with temperature dependence in land
+% table 1 parameters: sst // land use // ocean uptake // temp dependence
 
-%clear all
+% C _ _ - _ for all of these cases (Table 1 labeling convention)
 
-for n = 1
-%% define what kind of run you want to do
+%% LR setup
 
-LU = 1; %1 = high land use scenario; 2 = low land use scenario
-
-nitrogen = 0; % 1 = yes, 0 = no; account for nitrogen fertilization?
-
-filter = 1; % filter the data? 1 = 10 year filter; 2 = unfiltered
-
-%%
 load land_temp.mat % land temperature records
 
 load npp_T.mat % NPP-weighted temperature record
 
 load landwt_T_2011.mat % land temperature anomaly
 
-%% load CO2 sources and sinks
-%% landusemo: land use emissions, in ppm/year, interpolated to monthly
-%% resolution
-%% ff1: fossil fuel emissions
-%% fas: ocean flux per m^2
-%% Aoc: ocean surface area
-%% extratrop_landmo: extratropical land use emissions
+nitrogen = 0; % 1 = yes, 0 = no; account for nitrogen fertilization?
+
+filter = 1; % filter the data? 1 = 10 year filter; 2 = unfiltered
 
 [landusemo,ff1,fas,Aoc,extratrop_landmo] = getsourcesink_scale3; 
 
- clear year start_year end_year ts
+clear year start_year end_year ts
 
 ts = 12; % timesteps per year
 start_year = 1850;
@@ -88,25 +70,25 @@ residual2(:,1) = year2;
 residual2(:,2) = dtdelpCO2a(i1:j1,2) - ff1(i2:j2,2)....
 + Aoc*fas(i3:j3,2) - extratrop_landmo(1:length(year2),2);
 
-%% tland4: the temperature record started at 1880. tland4 extends the
-%% record back to 1800 by using the mean temperature for the first year
-%% 
-%% do a moving boxcar average of the land temperature: 1 year average
-%% note: in this case the box length (1; second term in l_boxcar) is in
-%% units of years. dt (12, third term) is the number of points per year
-%% first column of avg_temp gives the date, second column gives the moving
-%% average of the land temperature
+% tland4: the temperature record started at 1880. tland4 extends the
+% record back to 1800 by using the mean temperature for the first year
+% 
+% do a moving boxcar average of the land temperature: 1 year average
+% note: in this case the box length (1; second term in l_boxcar) is in
+% units of years. dt (12, third term) is the number of points per year
+% first column of avg_temp gives the date, second column gives the moving
+% average of the land temperature
 [avg_temp] = l_boxcar(tland4,1,12,1,2483,1,2); 
 
 avg_temp(1:6,2) = avg_temp(7,2); % make the first 6 points 
 
-%% 10 year moving boxcar average of land temperature
+% 10 year moving boxcar average of land temperature
 % [avg_temp] = l_boxcar(tland4,10,12,1,2483,1,2);
 % 
 % avg_temp(1:60,2) = avg_temp(61,2);
 
 %%----------------------------------------------------------------------%%
-%% Pick the temperature record to use
+% Pick the temperature record to use
 %%----------------------------------------------------------------------%%
 
 %%----------------------------------------------------------------------%%
@@ -149,11 +131,52 @@ avg_temp(1:6,2) = avg_temp(7,2); % make the first 6 points
 X = temp_anom(:,:);
  
 
+
+
+%% cases script below:
+
+landuse = [1 2]; % high, low land use
+oceanUptake = [3 4 5]; % high (3), medium (4), low (5) ocean uptake
+tempDepen = [7 8]; % temp-independent, temp-dependent
+
+cases = (combvec(landuse, oceanUptake, tempDepen))';
+
+for i = 1:length(cases(:,1))
+    
+    % land use
+    if ismember(1,cases) == 1
+        LU = 1; % landuse = high
+    else 
+        LU = 2; % landuse = low
+    end
+        
+    % ocean uptake
+    if ismember(3,cases) == 1 
+        % oceanuptake = high
+    elseif ismember(4,cases) == 1
+        % oceanuptake = medium
+    else 
+        % oceanuptake = low
+    end
+        
+    % temperature dependence
+    if ismember(7, cases) == 1
+        % temp-independent
+    else 
+        % temp-dependent
+    end
+    
+    % run all of the model code for each case (each iteration of i)
+    % but don't make any plots - only plot by running in comand line at end
+    % in each iteration, add a line to an output table of epsilon, q10,
+    % error
+    
+
 %%----------------------------------------------------------------------%%
 
-%% calculate a 10-year running boxcar average of the residual land uptake
-%% don't use 10 year mean before 1957, because data are already smoothed
-%% (ice core)
+% calculate a 10-year running boxcar average of the residual land uptake
+% don't use 10 year mean before 1957, because data are already smoothed
+% (ice core)
 if(LU==1) %high land use
 %[residual10] = l_boxcar(residual,10,12,1,length(residual),1,2);
 % l_boxcar(func,boxlength,dt,starttime,endtime,datecol,numcol)
@@ -200,15 +223,16 @@ end
 ci = nlparci(betahat,resid,J);
 
 %% Redefine values of epsilon, gamma and Q1
-if(nitrogen == 1)
-epsilon = 0;% betahat(2)
-gamma = betahat(1)
-Q1 = betahat(2)
-Q2 = 1;%betahat(3)
-else
-epsilon = betahat(1)%0.79;%
-Q1 = betahat(2)%4.91;
-Q2 = 1;%betahat(2)
+
+if(nitrogen == 1) % N-fertilization case
+    epsilon = 0;% betahat(2)
+    gamma = betahat(1)
+    Q1 = betahat(2)
+    Q2 = 1;%betahat(3)
+else % co2-fertilization case
+    epsilon = betahat(1)%0.79;%
+    Q1 = betahat(2)%4.91;
+    Q2 = 1;%betahat(2)
 end
 
 year2 = year';
@@ -270,16 +294,7 @@ i5 = find(year2 == 1855);
    [R,P,RLO,RUP] = corrcoef(yhat2(601:(end-1),1),residual10(601:(end-1),2));
 %   
    R(1,2)^2;
-   
-figure
-plot(residual10(:,1),residual10(:,2),delC10(:,1),yhat2)
-xlabel('year')
-ylabel('ppm CO2/year')
-title('land uptake')
-% I think these are the right line labels.....
-legend('Residual uptake','land uptake with T effects') %'land uptake without T effects',
-set(gca,'Xlim',[1850 2010])   
-%      
+     
 
 %----------------------------------------------------------------%
 %
@@ -319,7 +334,7 @@ legend('Residual uptake','land uptake without T effects','land uptake with T eff
 end
 
     
-end
+
 
 %% Do "reverse deconvolution" to calculate modeled atmospheric change in
 %% CO2
@@ -341,3 +356,8 @@ newat(:,2) =  ff1(i2:j2,2)....
 - Aoc*fas(i3:j3,2) + extratrop_landmo(1:length(year2),2) + delCdt(:,2) ;
 end
 
+
+    
+    
+end
+    
