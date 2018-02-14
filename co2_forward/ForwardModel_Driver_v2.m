@@ -65,6 +65,7 @@ addpath(genpath(...
 
 % loading temp data
 addpath(genpath('/Users/juliadohner/Documents/MATLAB/Rafelski_LandOceanModel_JLDedits/co2_forward/co2_forward_data'));
+
 load land_temp.mat % land temperature records
 load npp_T.mat % NPP-weighted temperature record
 load landwt_T_2011.mat % land temperature anomaly

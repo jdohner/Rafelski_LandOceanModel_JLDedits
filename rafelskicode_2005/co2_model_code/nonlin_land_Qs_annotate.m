@@ -47,7 +47,7 @@ end_year = 2006;%2009+(7/12);
 year = start_year:(1/ts):end_year;
 year2 = year';
 
-beta = [0.5;2]; % initial guesses for model fit
+beta = [0.79, 4.91];%[0.5;2]; % initial guesses for model fit, for epsilon, Q10
 
 [dtdelpCO2a,dpCO2a,year,dt,CO2a] = MLOinterpolate_increment2(ts,start_year,end_year); 
 

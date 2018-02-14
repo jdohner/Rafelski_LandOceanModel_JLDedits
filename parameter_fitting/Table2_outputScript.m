@@ -9,39 +9,45 @@
 
 % C _ _ - _ for all of these cases (Table 1 labeling convention)
 
-%% LR setup
+clear all
+
+%% define time frame, cases
+
+ts = 12; % timesteps per year
+start_year = 1850;
+end_year = 2006;%2009+(7/12); 
+year2 = (start_year:(1/ts):end_year)';
+
+% define cases (nitrogen, filter, tropical vs extratrop lu)
+nitrogen = 0; % 1 = yes, 0 = no; account for nitrogen fertilization?
+filter = 1; % filter the data? 1 = 10 year filter; 2 = unfiltered
+tropicalLU = 1; % 1 = use tropical LU, 0 = extratropical LU
+
+beta = [0.5;2]; % initial guesses for model fit (epsilon, q10)
+Aoc = 3.62E14; % surface area of ocean, m^2, from Joos 1996
+
+%% load data
+
+% give access to data files in co2_forward_data folder
+addpath(genpath(...
+    '/Users/juliadohner/Documents/MATLAB/JLDedits_Rafelski_LandOceanModel/co2_forward/co2_forward_data'));
+addpath(genpath(...
+    '/Users/juliadohner/Documents/MATLAB/JLDedits_Rafelski_LandOceanModel/co2_forward/co2_forward_data_2016'));
+
+
+
+% loading temp data
+addpath(genpath('/Users/juliadohner/Documents/MATLAB/Rafelski_LandOceanModel_JLDedits/co2_forward/co2_forward_data'));
+
 
 load land_temp.mat % land temperature records
 load npp_T.mat % NPP-weighted temperature record
 load landwt_T_2011.mat % land temperature anomaly
 
-nitrogen = 0; % 1 = yes, 0 = no; account for nitrogen fertilization?
-filter = 1; % filter the data? 1 = 10 year filter; 2 = unfiltered
+[fas, ff, LU, LUex] = getSourceSink2(year2);
 
-[landusemo,ff1,fas,Aoc,extratrop_landmo] = getsourcesink_scale3; 
+[dtdelpCO2a,dpCO2a,year2,dt,CO2a] = MLOinterpolate_increment2(ts,start_year,end_year); 
 
-clear year start_year end_year ts
-
-ts = 12; % timesteps per year
-start_year = 1850;
-end_year = 2006;%2009+(7/12); 
-year = start_year:(1/ts):end_year;
-year2 = year';
-
-beta = [0.5;2]; % initial guesses for model fit
-
-[dtdelpCO2a,dpCO2a,year,dt,CO2a] = MLOinterpolate_increment2(ts,start_year,end_year); 
-
-% % Extend land use record by making recent emissions equal to last
-% % record
-% landusemo(1874:1916,1) = year(1874:1916);
-% landusemo(1874:1916,2) = landusemo(1873,2);
-% % % 
-
-
-%Extend extratropical emissions by assuming emissions are zero
-extratrop_landmo(1802:length(year2),1) = landusemo(1802:length(year2),1);
-extratrop_landmo(1802:length(year2),2) = 0;
 
 %% Calculate residual land uptake
 % run to 8/2009
@@ -52,21 +58,38 @@ extratrop_landmo(1802:length(year2),2) = 0;
 i1 = find(floor(100*dtdelpCO2a(:,1)) == floor(100*(start_year+(1/24))));
 j1 = find(floor(100*dtdelpCO2a(:,1)) == floor(100*(end_year+(1/24))));
 
-i2 = find(ff1(:,1) == start_year);
-j2 = find(ff1(:,1) == end_year);
+i2 = find(ff(:,1) == start_year);
+j2 = find(ff(:,1) == end_year);
 
 i3 = find(fas(:,1) == start_year);
 j3 = find(fas(:,1) == end_year);
 
-residual(:,1) = year2;
-residual(:,2) = dtdelpCO2a(i1:j1,2) - ff1(i2:j2,2)....
-+ Aoc*fas(i3:j3,2) - landusemo(1:length(year2),2);
 
-% using extratropical emissions only
-residual2(:,1) = year2;
-residual2(:,2) = dtdelpCO2a(i1:j1,2) - ff1(i2:j2,2)....
-+ Aoc*fas(i3:j3,2) - extratrop_landmo(1:length(year2),2);
+if tropicalLU == 1
+    % % Extend land use record by making recent emissions equal to last
+    % % record
+    % LU(1874:1916,1) = year(1874:1916);
+    % LU(1874:1916,2) = LU(1873,2);
+    % % % 
+    
+    residual(:,1) = year2;
+    residual(:,2) = dtdelpCO2a(i1:j1,2) - ff(i2:j2,2)....
+    + Aoc*fas(i3:j3,2) - LU(1:length(year2),2);
 
+else 
+    
+    %Extend extratropical emissions by assuming emissions are zero
+    LUex(1802:length(year2),1) = LU(1802:length(year2),1);
+    LUex(1802:length(year2),2) = 0;
+    
+    % using extratropical emissions only
+    residual(:,1) = year2;
+    residual(:,2) = dtdelpCO2a(i1:j1,2) - ff(i2:j2,2)....
+    + Aoc*fas(i3:j3,2) - LUex(1:length(year2),2);
+end
+
+
+%% land temperature record
 % tland4: the temperature record started at 1880. tland4 extends the
 % record back to 1800 by using the mean temperature for the first year
 % 
@@ -103,11 +126,11 @@ X = temp_anom(:,:);
 
 %% cases script below:
 
-landuse = [1 2]; % high, low land use
+LU = [1 2]; % high, low land use
 oceanUptake = [3 4 5]; % high (3), medium (4), low (5) ocean uptake
 tempDepen = [7 8]; % temp-independent, temp-dependent
 
-cases = (combvec(landuse, oceanUptake, tempDepen))';
+cases = (combvec(LU, oceanUptake, tempDepen))';
 
 for i = 1:length(cases(:,1))
     
@@ -121,7 +144,7 @@ for i = 1:length(cases(:,1))
     % ocean uptake
     if ismember(3,cases) == 1 
         oceanUptake = 1; % oceanuptake = high
-        fas(:,2) = fas(:,2).*
+        %fas(:,2) = fas(:,2).*
     elseif ismember(4,cases) == 1
         oceanUptake = 2; % oceanuptake = medium
     else 
@@ -147,20 +170,21 @@ for i = 1:length(cases(:,1))
 % don't use 10 year mean before 1957, because data are already smoothed
 % (ice core)
 if(LU==1) %high land use
-%[residual10] = l_boxcar(residual,10,12,1,length(residual),1,2);
-% l_boxcar(func,boxlength,dt,starttime,endtime,datecol,numcol)
-[residual10a] = l_boxcar(residual,10,12,1225,length(residual),1,2);
-residual10(1:1284,:) = residual(1:1284,:);
-residual10(1285:(length(residual10a)),:) = residual10a(1285:end,:);
+    %[residual10] = l_boxcar(residual,10,12,1,length(residual),1,2);
+    % l_boxcar(func,boxlength,dt,starttime,endtime,datecol,numcol)
+    [residual10a] = l_boxcar(residual,10,12,1225,length(residual),1,2);
+    residual10(1:1284,:) = residual(1:1284,:);
+    residual10(1285:(length(residual10a)),:) = residual10a(1285:end,:);
 
-decon = residual;
+    decon = residual;
+    
 elseif(LU ==2) % low land use
-%[residual10] = l_boxcar(residual2,10,12,1,length(residual2),1,2);
-[residual10a] = l_boxcar(residual2,10,12,1225,length(residual2),1,2);
-residual10(1:1284,:) = residual2(1:1284,:);
-residual10(1285:(length(residual10a)),:) = residual10a(1285:end,:);
+    %[residual10] = l_boxcar(residual2,10,12,1,length(residual2),1,2);
+    [residual10a] = l_boxcar(residual,10,12,1225,length(residual),1,2);
+    residual10(1:1284,:) = residual(1:1284,:);
+    residual10(1285:(length(residual10a)),:) = residual10a(1285:end,:);
 
-decon = residual2;
+    decon = residual;
 end
 
 
@@ -218,14 +242,14 @@ else % co2-fertilization case
     Q2 = 1;%betahat(2)
 end
 
-year2 = year';
+year2 = year2';
 
 %% Run the best fit values in the model again to plot
  [C1dt,C2dt,delCdt,delC1,delC2] = bioboxtwo_sub10_annotate(epsilon,Q1,Q2,ts,year2,dpCO2a,X); 
  
 %%% Nitrogen%%%
 
-% [C1dt,C2dt,delCdt,delC1,delC2] = bioboxtwo_subN_annotate(epsilon,Q1,Q2,gamma,ff1,ts,year2,dpCO2a,X);
+% [C1dt,C2dt,delCdt,delC1,delC2] = bioboxtwo_subN_annotate(epsilon,Q1,Q2,gamma,ff,ts,year2,dpCO2a,X);
    
     
 delCdt(:,2) = -delCdt(:,2);
@@ -324,19 +348,19 @@ end
 if(LU==1)
 newat(:,1) = year2;
 % 1850 to end year
-% i2 = find(ff1(:,1) == start_year);
-% j2 = find(ff1(:,1) == end_year);
+% i2 = find(ff(:,1) == start_year);
+% j2 = find(ff(:,1) == end_year);
 % 
 % i3 = find(fas(:,1) == start_year);
 % j3 = find(fas(:,1) == end_year);
-newat(:,2) =  ff1(i2:j2,2)....
-- Aoc*fas(i3:j3,2) + landusemo(1:length(year2),2) + delCdt(:,2) ;
+newat(:,2) =  ff(i2:j2,2)....
+- Aoc*fas(i3:j3,2) + LU(1:length(year2),2) + delCdt(:,2) ;
 
 elseif(LU==2)
 newat(:,1) = year2;
 % 1850 to 2005  --- units on this?
-newat(:,2) =  ff1(i2:j2,2)....
-- Aoc*fas(i3:j3,2) + extratrop_landmo(1:length(year2),2) + delCdt(:,2) ;
+newat(:,2) =  ff(i2:j2,2)....
+- Aoc*fas(i3:j3,2) + LUex(1:length(year2),2) + delCdt(:,2) ;
 end
 
 
