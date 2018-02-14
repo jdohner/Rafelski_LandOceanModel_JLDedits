@@ -12,13 +12,10 @@
 %% LR setup
 
 load land_temp.mat % land temperature records
-
 load npp_T.mat % NPP-weighted temperature record
-
 load landwt_T_2011.mat % land temperature anomaly
 
 nitrogen = 0; % 1 = yes, 0 = no; account for nitrogen fertilization?
-
 filter = 1; % filter the data? 1 = 10 year filter; 2 = unfiltered
 
 [landusemo,ff1,fas,Aoc,extratrop_landmo] = getsourcesink_scale3; 
@@ -101,37 +98,8 @@ avg_temp(1:6,2) = avg_temp(7,2); % make the first 6 points
  temp_anom(7:1916,1) = landtglob(1:1910,1); % Starts at the year 1850.5. 
  temp_anom(7:1916,2) = landtglob(1:1910,2); % 
  
-%  temp_anom(1:6,1) =  avg_temp(601:606,1);
-%  temp_anom(1:6,2) = npptglob(1,2); %355 instead of 1, 360 instead of 6
-%  
-%  temp_anom(7:1867,1) = npptglob(1:1861,1); % Starts at the year 1850.5
-%  temp_anom(7:1867,2) = npptglob(1:1861,2); % 361 instead of 7, 355 instead of 1
-%  
-%  temp_anom(1:6,1) =  avg_temp(601:606,1);
-%  temp_anom(1:6,2) = npptno(1,2);
-% 
-%  temp_anom(7:1867,1) = npptno(1:1861,1); % Starts at the year 1850.5
-%  temp_anom(7:1867,2) = npptno(1:1861,2);
-%  
-%  temp_anom(1:6,1) =  avg_temp(601:606,1);
-%  temp_anom(1:15,2) = npptso(10,2);
-% 
-%  temp_anom(7:1867,1) = npptso(1:1861,1); % Starts at the year 1850.5
-%  temp_anom(16:1867,2) = npptso(10:1861,2);
-%  
-%  temp_anom(1:6,1) =  avg_temp(601:606,1);
-%  temp_anom(1:18,2) = nppttro(13,2);
-% 
-%  temp_anom(7:1867,1) = nppttro(1:1861,1); % Starts at the year 1850.5
-%  temp_anom(19:1867,2) = nppttro(13:1861,2);
-
-%  temp_anom(:,1) = T(601:2467,1);
-%  temp_anom(:,2) = T(601:2467,2);
-%  
+  
 X = temp_anom(:,:);
- 
-
-
 
 %% cases script below:
 
@@ -152,18 +120,19 @@ for i = 1:length(cases(:,1))
         
     % ocean uptake
     if ismember(3,cases) == 1 
-        % oceanuptake = high
+        oceanUptake = 1; % oceanuptake = high
+        fas(:,2) = fas(:,2).*
     elseif ismember(4,cases) == 1
-        % oceanuptake = medium
+        oceanUptake = 2; % oceanuptake = medium
     else 
-        % oceanuptake = low
+        oceanUptake = 3; % oceanuptake = low
     end
         
     % temperature dependence
     if ismember(7, cases) == 1
-        % temp-independent
+        tempDep = 0; % temp-independent
     else 
-        % temp-dependent
+        tempDep = 1; % temp-dependent
     end
     
     % run all of the model code for each case (each iteration of i)
@@ -197,14 +166,28 @@ end
 
 %JLD note: residual10(601:end,2) - check dims
 %% find model fit using a nonlinear regression
-if(filter == 1) % fit to 10-year filtered record
 
-    [betahat,resid,J] = nlinfit(X,residual10(601:end,2),'land_fit_Qs_annotate',beta); %change 601:end to 1081:1513; change 601 to 1297
+if tempDep == 1
+    if(filter == 1) % fit to 10-year filtered record
 
-elseif(filter == 2) % fit to unfiltered record
+        [betahat,resid,J] = nlinfit(X,residual10(601:end,2),'Table2_tempDep_land_fit_Qs_annotate',beta); %change 601:end to 1081:1513; change 601 to 1297
 
-    [betahat,resid,J] = nlinfit(X,decon(1057:1513,2),'land_fit_Qs_annotate',beta); %change 601:end to 1081:1513. After 1958: 1297; was on 1309:end
+    elseif(filter == 2) % fit to unfiltered record
 
+        [betahat,resid,J] = nlinfit(X,decon(1057:1513,2),'Table2_tempDep_land_fit_Qs_annotate',beta); %change 601:end to 1081:1513. After 1958: 1297; was on 1309:end
+
+    end
+else
+        if(filter == 1) % fit to 10-year filtered record
+
+        [betahat,resid,J] = nlinfit(X,residual10(601:end,2),'Table2_tempIndep_land_fit_Qs_annotate',beta); %change 601:end to 1081:1513; change 601 to 1297
+
+        elseif(filter == 2) % fit to unfiltered record
+
+        [betahat,resid,J] = nlinfit(X,decon(1057:1513,2),'Table2_tempIndep_land_fit_Qs_annotate',beta); %change 601:end to 1081:1513. After 1958: 1297; was on 1309:end
+
+    end
+    
 end
 
 %% Look at covariances and correlations between model result and calculated land uptake 
