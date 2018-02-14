@@ -9,7 +9,7 @@
 % CRUTEM4-gl data from https://crudata.uea.ac.uk/cru/data/temperature/
 % Climatic Research Unit
 
-function [temp_anom, T0] = tempRecord(temp_early,temp_recent,dt, year, end_year);
+function [temp_anom] = tempRecord(temp_early,temp_recent, end_year);
 
 if end_year == 2016
     clear temp_recent;
@@ -44,4 +44,3 @@ temp_anom(k:j+k-1,2) = temp_recent(1:j,2);
 
 clear avg_temp;
 
-T0 = temp_anom(1,2);

@@ -14,8 +14,9 @@ clear all
 %% define time frame, cases
 
 ts = 12; % timesteps per year
+dt = 1/ts;
 start_year = 1850;
-end_year = 2006;%2009+(7/12); 
+end_year = 2009+(7/12); 
 year2 = (start_year:(1/ts):end_year)';
 
 % define cases (nitrogen, filter, tropical vs extratrop lu)
@@ -44,9 +45,10 @@ load land_temp.mat % land temperature records
 load npp_T.mat % NPP-weighted temperature record
 load landwt_T_2011.mat % land temperature anomaly
 
-[fas, ff, LU, LUex] = getSourceSink2(year2);
+[fas, ff, LU, LUex] = getSourceSink3(year2, ts);
 
-[dtdelpCO2a,dpCO2a,year2,dt,CO2a] = MLOinterpolate_increment2(ts,start_year,end_year); 
+[dtdelpCO2a,dpCO2a,CO2a] = MLOinterpolate_increment2(ts,start_year,end_year); 
+
 
 
 %% Calculate residual land uptake
@@ -57,6 +59,8 @@ load landwt_T_2011.mat % land temperature anomaly
 
 i1 = find(floor(100*dtdelpCO2a(:,1)) == floor(100*(start_year+(1/24))));
 j1 = find(floor(100*dtdelpCO2a(:,1)) == floor(100*(end_year+(1/24))));
+% TODO: need to extend dtdelpCO2a record (obs CO2 record) to 2016
+%dtdelpCO2a = dtdelpCO2a(i1:j1,:);
 
 i2 = find(ff(:,1) == start_year);
 j2 = find(ff(:,1) == end_year);
@@ -88,41 +92,10 @@ else
     + Aoc*fas(i3:j3,2) - LUex(1:length(year2),2);
 end
 
+%% get temp record
 
-%% land temperature record
-% tland4: the temperature record started at 1880. tland4 extends the
-% record back to 1800 by using the mean temperature for the first year
-% 
-% do a moving boxcar average of the land temperature: 1 year average
-% note: in this case the box length (1; second term in l_boxcar) is in
-% units of years. dt (12, third term) is the number of points per year
-% first column of avg_temp gives the date, second column gives the moving
-% average of the land temperature
-[avg_temp] = l_boxcar(tland4,1,12,1,2483,1,2); 
+[temp_anom] = tempRecord_cases(tland4,landtglob,end_year);
 
-avg_temp(1:6,2) = avg_temp(7,2); % make the first 6 points 
-
-% 10 year moving boxcar average of land temperature
-% [avg_temp] = l_boxcar(tland4,10,12,1,2483,1,2);
-% 
-% avg_temp(1:60,2) = avg_temp(61,2);
-
-%%----------------------------------------------------------------------%%
-% Pick the temperature record to use
-%%----------------------------------------------------------------------%%
-
-%%----------------------------------------------------------------------%%
-% 
-% ***Use these for various T tests***
-
- temp_anom(1:6,1) =  avg_temp(601:606,1); %Jan 1850-May 1850
- temp_anom(1:6,2) = landtglob(1,2); %355 instead of 1, 360 instead of 6
-  
- temp_anom(7:1916,1) = landtglob(1:1910,1); % Starts at the year 1850.5. 
- temp_anom(7:1916,2) = landtglob(1:1910,2); % 
- 
-  
-X = temp_anom(:,:);
 
 %% cases script below:
 
@@ -194,28 +167,28 @@ end
 if tempDep == 1
     if(filter == 1) % fit to 10-year filtered record
 
-        [betahat,resid,J] = nlinfit(X,residual10(601:end,2),'Table2_tempDep_land_fit_Qs_annotate',beta); %change 601:end to 1081:1513; change 601 to 1297
+        [betahat,resid,J] = nlinfit(temp_anom,residual10(601:end,2),'Table2_tempDep_land_fit_Qs_annotate',beta); %change 601:end to 1081:1513; change 601 to 1297
 
     elseif(filter == 2) % fit to unfiltered record
 
-        [betahat,resid,J] = nlinfit(X,decon(1057:1513,2),'Table2_tempDep_land_fit_Qs_annotate',beta); %change 601:end to 1081:1513. After 1958: 1297; was on 1309:end
+        [betahat,resid,J] = nlinfit(temp_anom,decon(1057:1513,2),'Table2_tempDep_land_fit_Qs_annotate',beta); %change 601:end to 1081:1513. After 1958: 1297; was on 1309:end
 
     end
 else
         if(filter == 1) % fit to 10-year filtered record
 
-        [betahat,resid,J] = nlinfit(X,residual10(601:end,2),'Table2_tempIndep_land_fit_Qs_annotate',beta); %change 601:end to 1081:1513; change 601 to 1297
+        [betahat,resid,J] = nlinfit(temp_anom,residual10(601:end,2),'Table2_tempIndep_land_fit_Qs_annotate',beta); %change 601:end to 1081:1513; change 601 to 1297
 
         elseif(filter == 2) % fit to unfiltered record
 
-        [betahat,resid,J] = nlinfit(X,decon(1057:1513,2),'Table2_tempIndep_land_fit_Qs_annotate',beta); %change 601:end to 1081:1513. After 1958: 1297; was on 1309:end
+        [betahat,resid,J] = nlinfit(temp_anom,decon(1057:1513,2),'Table2_tempIndep_land_fit_Qs_annotate',beta); %change 601:end to 1081:1513. After 1958: 1297; was on 1309:end
 
     end
     
 end
 
 %% Look at covariances and correlations between model result and calculated land uptake 
-[N,P] = size(X);
+[N,P] = size(temp_anom);
 % 
 covariance = inv(J(1:1177,:)'*J(1:1177,:))*sum(resid(1:1177,:).^2)/(N-P) 
 
@@ -245,7 +218,7 @@ end
 year2 = year2';
 
 %% Run the best fit values in the model again to plot
- [C1dt,C2dt,delCdt,delC1,delC2] = bioboxtwo_sub10_annotate(epsilon,Q1,Q2,ts,year2,dpCO2a,X); 
+ [C1dt,C2dt,delCdt,delC1,delC2] = bioboxtwo_sub10_annotate(epsilon,Q1,Q2,ts,year2,dpCO2a,temp_anom); 
  
 %%% Nitrogen%%%
 
