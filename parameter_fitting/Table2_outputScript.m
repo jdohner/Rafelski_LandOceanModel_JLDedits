@@ -16,7 +16,7 @@ clear all
 ts = 12; % timesteps per year
 dt = 1/ts;
 start_year = 1850;
-end_year = 2009+(7/12); 
+end_year = 2006;%2009+(7/12); 
 year2 = (start_year:(1/ts):end_year)';
 
 % define cases (nitrogen, filter, tropical vs extratrop lu)
@@ -101,7 +101,7 @@ end
 
 LU = [1 2]; % high, low land use
 oceanUptake = [3 4 5]; % high (3), medium (4), low (5) ocean uptake
-tempDepen = [7 8]; % temp-independent, temp-dependent
+tempDepen = [ 8]; % temp-independent, temp-dependent
 
 cases = (combvec(LU, oceanUptake, tempDepen))';
 
