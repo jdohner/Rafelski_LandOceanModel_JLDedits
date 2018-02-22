@@ -30,38 +30,45 @@ Ka2 = K2a*C2/Catm;
 
 % set up arrays
 
-delC1(:,1) = year(:,1);
-delC1(:,2) = zeros(size(year));
-delC2(:,1) = year(:,1);
-delC2(:,2) = zeros(size(year));
+delC1 = [year(:,1) zeros(size(year))];
+delC2 = [year(:,1) zeros(size(year))];
+% delC1(:,1) = year(:,1);
+% delC1(:,2) = zeros(size(year));
+% delC2(:,1) = year(:,1);
+% delC2(:,2) = zeros(size(year));
 delCdt(:,1) = year(:,1);
 C1dt(:,1) = year(:,1);
 C2dt(:,1) = year(:,1);
+
+
 delC1(length(year)+1,1) = year(length(year),1)+dt;
 delC2(length(year)+1,1) = year(length(year),1)+dt;
 
 % this loop is the same as in oceanpulseresponse- need to be the same as in
 % ocean pulse response in higher level code, then call next what's below
-for i = 1:length(year)
+for ii = 1:length(year)
     
     % fast box (equation (3) in Rafelski 2009
     % calculate land uptake by fast box
-    C1dt(i,2) = Ka1*(Catm + eps*dpCO2a(i,2)) - K1a*Q1a^((T(i,2)-T0)/10)*(C1 + delC1(i,2)); % temperature-dependent respiration
+    C1dt(ii,2) = Ka1*(Catm + eps*dpCO2a(ii,2)) - K1a*Q1a^((T(ii,2)-T0)/10)*(C1 + delC1(ii,2)); % temperature-dependent respiration
         
    % C1dt(i,2) = Ka1*(Catm + eps*dpCO2a(i,2))*(1 + Q1a*(T(i,2)-T0)) - K1a*(C1 + delC1(i,2)); % temperature-dependent photosynthesis
     
     % slow box (equation (3) in Rafelski 2009
     % calculate land uptake by slow box
-    C2dt(i,2) = Ka2*(Catm + eps*dpCO2a(i,2)) - K2a*Q2a^((T(i,2)-T0)/10)*(C2 + delC2(i,2)); % temperature-dependent respiration
+    C2dt(ii,2) = Ka2*(Catm + eps*dpCO2a(ii,2)) - K2a*Q2a^((T(ii,2)-T0)/10)*(C2 + delC2(ii,2)); % temperature-dependent respiration
         
    % C2dt(i,2) = Ka2*(Catm + eps*dpCO2a(i,2))*(1 + Q2a*(T(i,2)-T0)) - K2a*(C2 + delC2(i,2)); % temperature dependent photosynthesis  
     
     % box total change in concentrations (of fast box, slow box, respectively)
-    delC1(i+1,2) = sum(C1dt(:,2))*dt;
-    delC2(i+1,2) = sum(C2dt(:,2))*dt;
+    delC1(ii+1,2) = sum(C1dt(:,2))*dt;
+    delC2(ii+1,2) = sum(C2dt(:,2))*dt;
     
     % total flux into land
     
-    delCdt(i,2) = C2dt(i,2) + C1dt(i,2);
+    delCdt(ii,2) = C2dt(ii,2) + C1dt(ii,2);
     
 end
+
+
+

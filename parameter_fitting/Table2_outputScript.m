@@ -99,36 +99,37 @@ end
 
 %% cases script below:
 
-LU = [1 2]; % high, low land use
+LUlevel = [1 2]; % high, low land use
 oceanUptake = [3 4 5]; % high (3), medium (4), low (5) ocean uptake
 tempDepen = [ 8]; % temp-independent, temp-dependent
 
-cases = (combvec(LU, oceanUptake, tempDepen))';
-
+cases = (combvec(LUlevel, oceanUptake, tempDepen))';
+u = 0;
 for i = 1:length(cases(:,1))
-    
+   
+    i 
     % land use
-    if ismember(1,cases) == 1
-        LU = 1; % landuse = high
+    if ismember(1,cases(i,:)) == 1
+        LUlevel = 1 % landuse = high
     else 
-        LU = 2; % landuse = low
+        LUlevel = 2 % landuse = low
     end
         
     % ocean uptake
-    if ismember(3,cases) == 1 
-        oceanUptake = 1; % oceanuptake = high
+    if ismember(3,cases(i,:)) == 1 
+        oceanUptake = 1 % oceanuptake = high
         %fas(:,2) = fas(:,2).*
     elseif ismember(4,cases) == 1
-        oceanUptake = 2; % oceanuptake = medium
+        oceanUptake = 2 % oceanuptake = medium
     else 
-        oceanUptake = 3; % oceanuptake = low
+        oceanUptake = 3 % oceanuptake = low
     end
         
     % temperature dependence
-    if ismember(7, cases) == 1
-        tempDep = 0; % temp-independent
+    if ismember(7, cases(i,:)) == 1
+        tempDep = 0 % temp-independent
     else 
-        tempDep = 1; % temp-dependent
+        tempDep = 1 % temp-dependent
     end
     
     % run all of the model code for each case (each iteration of i)
@@ -142,7 +143,7 @@ for i = 1:length(cases(:,1))
 % calculate a 10-year running boxcar average of the residual land uptake
 % don't use 10 year mean before 1957, because data are already smoothed
 % (ice core)
-if(LU==1) %high land use
+if(LUlevel==1) %high land use
     %[residual10] = l_boxcar(residual,10,12,1,length(residual),1,2);
     % l_boxcar(func,boxlength,dt,starttime,endtime,datecol,numcol)
     [residual10a] = l_boxcar(residual,10,12,1225,length(residual),1,2);
@@ -151,7 +152,7 @@ if(LU==1) %high land use
 
     decon = residual;
     
-elseif(LU ==2) % low land use
+elseif(LUlevel ==2) % low land use
     %[residual10] = l_boxcar(residual2,10,12,1,length(residual2),1,2);
     [residual10a] = l_boxcar(residual,10,12,1225,length(residual),1,2);
     residual10(1:1284,:) = residual(1:1284,:);
@@ -193,9 +194,9 @@ end
 covariance = inv(J(1:1177,:)'*J(1:1177,:))*sum(resid(1:1177,:).^2)/(N-P) 
 
 [isize,jsize] = size(covariance);
-for i=1:isize
+for k=1:isize
     for j=1:jsize
-correlation(i,j) = covariance(i,j)/sqrt(covariance(i,i)*covariance(j,j));
+        correlation(k,j) = covariance(k,j)/sqrt(covariance(k,k)*covariance(j,j));
     end
 end
 
@@ -215,9 +216,12 @@ else % co2-fertilization case
     Q2 = 1;%betahat(2)
 end
 
-year2 = year2';
+%year2 = year2';
 
 %% Run the best fit values in the model again to plot
+
+
+
  [C1dt,C2dt,delCdt,delC1,delC2] = bioboxtwo_sub10_annotate(epsilon,Q1,Q2,ts,year2,dpCO2a,temp_anom); 
  
 %%% Nitrogen%%%
@@ -318,26 +322,24 @@ end
 
 %% Do "reverse deconvolution" to calculate modeled atmospheric change in
 %% CO2
-if(LU==1)
-newat(:,1) = year2;
-% 1850 to end year
-% i2 = find(ff(:,1) == start_year);
-% j2 = find(ff(:,1) == end_year);
-% 
-% i3 = find(fas(:,1) == start_year);
-% j3 = find(fas(:,1) == end_year);
-newat(:,2) =  ff(i2:j2,2)....
-- Aoc*fas(i3:j3,2) + LU(1:length(year2),2) + delCdt(:,2) ;
+if(LUlevel==1)
+    newat(:,1) = year2;
+    % 1850 to end year
+    % i2 = find(ff(:,1) == start_year);
+    % j2 = find(ff(:,1) == end_year);
+    % 
+    % i3 = find(fas(:,1) == start_year);
+    % j3 = find(fas(:,1) == end_year);
+    newat(:,2) =  ff(i2:j2,2)....
+    - Aoc*fas(i3:j3,2) + LU(1:length(year2),2) + delCdt(:,2) ;
 
-elseif(LU==2)
-newat(:,1) = year2;
-% 1850 to 2005  --- units on this?
-newat(:,2) =  ff(i2:j2,2)....
-- Aoc*fas(i3:j3,2) + LUex(1:length(year2),2) + delCdt(:,2) ;
+elseif(LUlevel==2)
+    newat(:,1) = year2;
+    % 1850 to 2005  --- units on this?
+    newat(:,2) =  ff(i2:j2,2)....
+    - Aoc*fas(i3:j3,2) + LUex(1:length(year2),2) + delCdt(:,2) ;
 end
 
-
-    
     
 end
     
