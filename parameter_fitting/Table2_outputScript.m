@@ -101,7 +101,7 @@ end
 
 LUlevel = [1 2]; % high, low land use
 oceanUptake = [3 4 5]; % high (3), medium (4), low (5) ocean uptake
-tempDepen = [ 8]; % temp-independent, temp-dependent
+tempDepen = [8]; % temp-independent, temp-dependent
 
 cases = (combvec(LUlevel, oceanUptake, tempDepen))';
 u = 0;
