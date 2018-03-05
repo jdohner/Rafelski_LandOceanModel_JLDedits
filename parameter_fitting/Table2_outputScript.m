@@ -69,33 +69,45 @@ i3 = find(fas(:,1) == start_year);
 j3 = find(fas(:,1) == end_year);
 
 
-if tropicalLU == 1
-    % % Extend land use record by making recent emissions equal to last
-    % % record
-    % LU(1874:1916,1) = year(1874:1916);
-    % LU(1874:1916,2) = LU(1873,2);
-    % % % 
-    
-    residual(:,1) = year2;
-    residual(:,2) = dtdelpCO2a(i1:j1,2) - ff(i2:j2,2)....
-    + Aoc*fas(i3:j3,2) - LU(1:length(year2),2);
+%if tropicalLU == 1
+% % Extend land use record by making recent emissions equal to last
+% % record
+% LU(1874:1916,1) = year(1874:1916);
+% LU(1874:1916,2) = LU(1873,2);
+% % % 
 
-else 
+residual(:,1) = year2;
+residual(:,2) = dtdelpCO2a(i1:j1,2) - ff(i2:j2,2)....
++ Aoc*fas(i3:j3,2) - LU(1:length(year2),2);
+
+%else 
     
-    %Extend extratropical emissions by assuming emissions are zero
-    LUex(1802:length(year2),1) = LU(1802:length(year2),1);
-    LUex(1802:length(year2),2) = 0;
-    
-    % using extratropical emissions only
-    residual(:,1) = year2;
-    residual(:,2) = dtdelpCO2a(i1:j1,2) - ff(i2:j2,2)....
-    + Aoc*fas(i3:j3,2) - LUex(1:length(year2),2);
-end
+%Extend extratropical emissions by assuming emissions are zero
+LUex(1802:length(year2),1) = LU(1802:length(year2),1);
+LUex(1802:length(year2),2) = 0;
+
+% using extratropical emissions only
+residual2(:,1) = year2;
+residual2(:,2) = dtdelpCO2a(i1:j1,2) - ff(i2:j2,2)....
++ Aoc*fas(i3:j3,2) - LUex(1:length(year2),2);
+
+%end
 
 %% get temp record
 
-[temp_anom] = tempRecord_cases(tland4,landtglob,end_year);
+%[temp_anom] = tempRecord_cases(tland4,landtglob,end_year);
 
+
+[avg_temp] = l_boxcar(tland4,1,12,1,2483,1,2); 
+
+avg_temp(1:6,2) = avg_temp(7,2); % make the first 6 points 
+ temp_anom(1:6,1) =  avg_temp(601:606,1); %Jan 1850-May 1850
+ temp_anom(1:6,2) = landtglob(1,2); %355 instead of 1, 360 instead of 6
+  
+ temp_anom(7:1916,1) = landtglob(1:1910,1); % Starts at the year 1850.5. 
+ temp_anom(7:1916,2) = landtglob(1:1910,2); % 
+ 
+ X = temp_anom(:,:);
 
 %% cases script below:
 
@@ -103,8 +115,18 @@ LUlevel = [1 2]; % high, low land use
 oceanUptake = [3 4 5]; % high (3), medium (4), low (5) ocean uptake
 tempDepen = [8]; % temp-independent, temp-dependent
 
-cases = (combvec(LUlevel, oceanUptake, tempDepen))';
+% row 1: high LU, high ocean, temp-dep (CHH-V)
+% row 2: low LU, high ocean, temp-dep (CLH-V)
+% row 3: high LU, med ocean, temp-dep (CHM-V)
+% row 4: low LU, med ocean, temp-dep (CLM-V)
+% row 5: high LU, low ocean, temp-dep (CHL-V)
+% row 6: low LU, low ocean, temp-dep (CLL-V)
+%1,3,8; 
+cases = [2,3,8; 1,4,8; 2,4,8; 1,5,8; 2,5,8] %(combvec(LUlevel, oceanUptake, tempDepen))';
 u = 0;
+
+fas2 = fas;
+
 for i = 1:length(cases(:,1))
    
     i 
@@ -137,6 +159,16 @@ for i = 1:length(cases(:,1))
     % in each iteration, add a line to an output table of epsilon, q10,
     % error
     
+    
+% scaling ocean uptake
+
+if oceanUptake == 1 % high ocean uptake
+    fas(:,2) = fas2(:,2)*1.3;
+elseif oceanUptake == 3 % low ocean uptake
+        fas(:,2) = fas2(:,2)*0.7;
+end
+
+
 
 %%----------------------------------------------------------------------%%
 
@@ -154,11 +186,11 @@ if(LUlevel==1) %high land use
     
 elseif(LUlevel ==2) % low land use
     %[residual10] = l_boxcar(residual2,10,12,1,length(residual2),1,2);
-    [residual10a] = l_boxcar(residual,10,12,1225,length(residual),1,2);
-    residual10(1:1284,:) = residual(1:1284,:);
+    [residual10a] = l_boxcar(residual2,10,12,1225,length(residual2),1,2);
+    residual10(1:1284,:) = residual2(1:1284,:);
     residual10(1285:(length(residual10a)),:) = residual10a(1285:end,:);
 
-    decon = residual;
+    decon = residual2;
 end
 
 
@@ -206,7 +238,7 @@ ci = nlparci(betahat,resid,J);
 %% Redefine values of epsilon, gamma and Q1
 
 if(nitrogen == 1) % N-fertilization case
-    epsilon = 0;% betahat(2)
+    epsilon = 0% betahat(2)
     gamma = betahat(1)
     Q1 = betahat(2)
     Q2 = 1;%betahat(3)
