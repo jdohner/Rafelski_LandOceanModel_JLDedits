@@ -16,7 +16,7 @@ clear all
 ts = 12; % timesteps per year
 dt = 1/ts;
 start_year = 1850;
-end_year = 2006;%2009+(7/12); 
+end_year = 2009+(7/12); %2006;
 year2 = (start_year:(1/ts):end_year)';
 
 % define cases (nitrogen, filter, tropical vs extratrop lu)
@@ -51,7 +51,94 @@ load landwt_T_2011.mat % land temperature anomaly
 
 
 
-%% Calculate residual land uptake
+%% get temp record
+
+%[temp_anom] = tempRecord_cases(tland4,landtglob,end_year);
+
+
+[avg_temp] = l_boxcar(tland4,1,12,1,2483,1,2); 
+
+avg_temp(1:6,2) = avg_temp(7,2); % make the first 6 points 
+ temp_anom(1:6,1) =  avg_temp(601:606,1); %Jan 1850-May 1850
+ temp_anom(1:6,2) = landtglob(1,2); %355 instead of 1, 360 instead of 6
+  
+ temp_anom(7:1916,1) = landtglob(1:1910,1); % Starts at the year 1850.5. 
+ temp_anom(7:1916,2) = landtglob(1:1910,2); % 
+ 
+ X = temp_anom(:,:);
+
+%% cases script below:
+
+LUlevel = [1 2]; % high, low land use
+oceanUptake = [3 4 5]; % high (3), medium (4), low (5) ocean uptake
+tempDepen = [8]; % temp-independent, temp-dependent
+
+% row 1: high LU, high ocean, temp-dep (CHH-V)
+% row 2: low LU, high ocean, temp-dep (CLH-V)
+% row 3: high LU, med ocean, temp-dep (CHM-V)
+% row 4: low LU, med ocean, temp-dep (CLM-V)
+% row 5: high LU, low ocean, temp-dep (CHL-V)
+% row 6: low LU, low ocean, temp-dep (CLL-V)
+%1,3,8; 
+cases = [1,3,8; 2,3,8; 1,4,8; 2,4,8; 1,5,8; 2,5,8] %(combvec(LUlevel, oceanUptake, tempDepen))';
+u = 0;
+
+fas2 = fas;
+
+for i = 1:length(cases(:,1))
+   
+    i 
+    % land use
+    if ismember(1,cases(i,:)) == 1
+        LUlevel = 1; % landuse = high
+        disp('high land use')
+    else 
+        LUlevel = 2; % landuse = low
+        disp('low land use')
+    end
+        
+    % ocean uptake
+    if ismember(3,cases(i,:)) == 1 
+        oceanUptake = 1; % oceanuptake = high
+        disp('high ocean')
+        %fas(:,2) = fas(:,2).*
+    elseif ismember(4,cases(i,:)) == 1
+        oceanUptake = 2; % oceanuptake = medium
+        disp('medium ocean')
+    else 
+        oceanUptake = 3; % oceanuptake = low
+        disp('low ocean')
+    end
+        
+    % temperature dependence
+    if ismember(7, cases(i,:)) == 1
+        tempDep = 0; % temp-independent
+        disp('temp-indepen')
+    else 
+        tempDep = 1; % temp-dependent
+        disp('temp-depen')
+    end
+    
+    % run all of the model code for each case (each iteration of i)
+    % but don't make any plots - only plot by running in comand line at end
+    % in each iteration, add a line to an output table of epsilon, q10,
+    % error
+    
+    
+% scaling ocean uptake
+
+if oceanUptake == 1 % high ocean uptake
+    fas(:,2) = fas2(:,2)*1.3;
+    disp('ocean multiplied by 1.3')
+elseif oceanUptake == 3 % low ocean uptake
+        fas(:,2) = fas2(:,2)*0.7;
+        disp('ocean multiplied by 0.7')
+else
+    disp('ocean not multiplied')
+end
+
+%%----------------------------------------------------------------------%%
+% Calculate residual land uptake
 % run to 8/2009
 % using high land use emissions
 % i = length(year2);
@@ -92,82 +179,6 @@ residual2(:,2) = dtdelpCO2a(i1:j1,2) - ff(i2:j2,2)....
 + Aoc*fas(i3:j3,2) - LUex(1:length(year2),2);
 
 %end
-
-%% get temp record
-
-%[temp_anom] = tempRecord_cases(tland4,landtglob,end_year);
-
-
-[avg_temp] = l_boxcar(tland4,1,12,1,2483,1,2); 
-
-avg_temp(1:6,2) = avg_temp(7,2); % make the first 6 points 
- temp_anom(1:6,1) =  avg_temp(601:606,1); %Jan 1850-May 1850
- temp_anom(1:6,2) = landtglob(1,2); %355 instead of 1, 360 instead of 6
-  
- temp_anom(7:1916,1) = landtglob(1:1910,1); % Starts at the year 1850.5. 
- temp_anom(7:1916,2) = landtglob(1:1910,2); % 
- 
- X = temp_anom(:,:);
-
-%% cases script below:
-
-LUlevel = [1 2]; % high, low land use
-oceanUptake = [3 4 5]; % high (3), medium (4), low (5) ocean uptake
-tempDepen = [8]; % temp-independent, temp-dependent
-
-% row 1: high LU, high ocean, temp-dep (CHH-V)
-% row 2: low LU, high ocean, temp-dep (CLH-V)
-% row 3: high LU, med ocean, temp-dep (CHM-V)
-% row 4: low LU, med ocean, temp-dep (CLM-V)
-% row 5: high LU, low ocean, temp-dep (CHL-V)
-% row 6: low LU, low ocean, temp-dep (CLL-V)
-%1,3,8; 
-cases = [2,3,8; 1,4,8; 2,4,8; 1,5,8; 2,5,8] %(combvec(LUlevel, oceanUptake, tempDepen))';
-u = 0;
-
-fas2 = fas;
-
-for i = 1:length(cases(:,1))
-   
-    i 
-    % land use
-    if ismember(1,cases(i,:)) == 1
-        LUlevel = 1 % landuse = high
-    else 
-        LUlevel = 2 % landuse = low
-    end
-        
-    % ocean uptake
-    if ismember(3,cases(i,:)) == 1 
-        oceanUptake = 1 % oceanuptake = high
-        %fas(:,2) = fas(:,2).*
-    elseif ismember(4,cases) == 1
-        oceanUptake = 2 % oceanuptake = medium
-    else 
-        oceanUptake = 3 % oceanuptake = low
-    end
-        
-    % temperature dependence
-    if ismember(7, cases(i,:)) == 1
-        tempDep = 0 % temp-independent
-    else 
-        tempDep = 1 % temp-dependent
-    end
-    
-    % run all of the model code for each case (each iteration of i)
-    % but don't make any plots - only plot by running in comand line at end
-    % in each iteration, add a line to an output table of epsilon, q10,
-    % error
-    
-    
-% scaling ocean uptake
-
-if oceanUptake == 1 % high ocean uptake
-    fas(:,2) = fas2(:,2)*1.3;
-elseif oceanUptake == 3 % low ocean uptake
-        fas(:,2) = fas2(:,2)*0.7;
-end
-
 
 
 %%----------------------------------------------------------------------%%
