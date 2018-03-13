@@ -45,7 +45,7 @@ load land_temp.mat % land temperature records
 load npp_T.mat % NPP-weighted temperature record
 load landwt_T_2011.mat % land temperature anomaly
 
-[fas, ff, LU, LUex] = getSourceSink3(year2, ts);
+
 
 [dtdelpCO2a,dpCO2a,CO2a] = MLOinterpolate_increment2(ts,start_year,end_year); 
 
@@ -83,7 +83,7 @@ tempDepen = [8]; % temp-independent, temp-dependent
 cases = [1,3,8; 2,3,8; 1,4,8; 2,4,8; 1,5,8; 2,5,8] %(combvec(LUlevel, oceanUptake, tempDepen))';
 u = 0;
 
-fas2 = fas;
+
 
 for i = 1:length(cases(:,1))
    
@@ -97,6 +97,7 @@ for i = 1:length(cases(:,1))
         disp('low land use')
     end
         
+    
     % ocean uptake
     if ismember(3,cases(i,:)) == 1 
         oceanUptake = 1; % oceanuptake = high
@@ -126,6 +127,8 @@ for i = 1:length(cases(:,1))
     
     
 % scaling ocean uptake
+[fas, ff, LU, LUex] = getSourceSink3(year2, ts);
+fas2 = fas;
 
 if oceanUptake == 1 % high ocean uptake
     fas(:,2) = fas2(:,2)*1.3;
