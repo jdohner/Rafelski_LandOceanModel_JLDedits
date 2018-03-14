@@ -83,7 +83,11 @@ tempDepen = [8]; % temp-independent, temp-dependent
 cases = [1,3,8; 2,3,8; 1,4,8; 2,4,8; 1,5,8; 2,5,8] %(combvec(LUlevel, oceanUptake, tempDepen))';
 u = 0;
 
-
+% eventual output table
+params = cell(3,6);
+params(1,:) = {'CHH-V'} , {'CLH-V'} ,{'CHM-V'}, {'CLM-V'}, {'CHL-V'}, {'CLL-V'};
+%params(2,i) = {eps}
+%params(3,i) = {q10}
 
 for i = 1:length(cases(:,1))
    
@@ -251,6 +255,8 @@ ci = nlparci(betahat,resid,J);
 
 %% Redefine values of epsilon, gamma and Q1
 
+
+
 if(nitrogen == 1) % N-fertilization case
     epsilon = 0% betahat(2)
     gamma = betahat(1)
@@ -262,13 +268,54 @@ else % co2-fertilization case
     Q2 = 1;%betahat(2)
 end
 
+params(2,i) = {epsilon};
+params(3,i) = {Q1};
+
 %year2 = year2';
+end
+
+% for storage & review purposes:
+caseNames = params(1,:)';
+epsVals = cell2mat(params(2,:))';
+Q10Vals = cell2mat(params(3,:))';
+paramTable = table(caseNames,epsVals,Q10Vals);
+
+prompt = 'Which cases would you like to see plotted? Please use the form XXX-X with single quotes.  ';
+inputStr = input(prompt);
+if inputStr == 'CHH-V'
+    epsilon = epsVals(1);
+    Q1 = Q10Vals(1);
+    elseif inputStr == 'CLH-V'
+        epsilon = epsVals(2);
+        Q1 = Q10Vals(2);    
+    elseif inputStr == 'CHM-V'
+        epsilon = epsVals(3);
+        Q1 = Q10Vals(3);  
+    elseif inputStr == 'CLM-V'
+        epsilon = epsVals(4);
+        Q1 = Q10Vals(4);  
+    elseif inputStr == 'CHL-V'
+        epsilon = epsVals(5);
+        Q1 = Q10Vals(5);  
+    elseif inputStr == 'CLL-V'
+        epsilon = epsVals(6);
+        Q1 = Q10Vals(6);  
+    else
+        prompt2 = 'Please try again. Which cases would you like to see plotted? Please use the form XXX-X with single quotes.  ';
+        inputStr = input(prompt2);
+end
+
+   
+    
+    
+    
+dispMsg = strcat('You will be seeing the plot for the case ', inputStr);
+disp(dispMsg);
 
 %% Run the best fit values in the model again to plot
 
 
-
- [C1dt,C2dt,delCdt,delC1,delC2] = bioboxtwo_sub10_annotate(epsilon,Q1,Q2,ts,year2,dpCO2a,temp_anom); 
+[C1dt,C2dt,delCdt,delC1,delC2] = bioboxtwo_sub10_annotate(epsilon,Q1,Q2,ts,year2,dpCO2a,temp_anom); 
  
 %%% Nitrogen%%%
 
@@ -277,10 +324,10 @@ end
     
 delCdt(:,2) = -delCdt(:,2);
 
-%% 10 year moving boxcar average of model result
+% 10 year moving boxcar average of model result
 [delC10] = l_boxcar(delCdt,10,12,1,length(delCdt),1,2);
 
-%% Quantify how good the fit is using the mean squared error (MSE)       
+% Quantify how good the fit is using the mean squared error (MSE)       
 % Use filtered or unfiltered yhat
 %----------------------------------------------------------------%
 %
@@ -293,24 +340,35 @@ if(filter == 1)
 yhat2 = delC10(:,2);
 
 %yhat2 = yhat2 + (0 - yhat2(1));
-i5 = find(year2 == 1855);
-    
-    e = delC10(i5:end,2) - residual10(i5:end,2); % look at MSE for 1855 to 2000
-    
-    misfit = e'*e/length(delC10(i5:end,2));  
-    
-    % 1900 to 2005
-    i6 = find(year2 == 1900);
-    e2 = delC10(i6:end,2) - residual10(i6:end,2); % look at MSE for 1900 to 2000
-    misfit2 = e2'*e2/length(delC10(i6:end,2));  
+% JLD code below:
+% % i5 = find(year2 == 1855);
+% %     
+% %     e = delC10(i5:end,2) - residual10(i5:end,2); % look at MSE for 1855 to 2000
+% %     
+% %     misfit = e'*e/length(delC10(i5:end,2));  
+% %     
+% %     % 1900 to 2005
+% %     i6 = find(year2 == 1900);
+% %     e2 = delC10(i6:end,2) - residual10(i6:end,2); % look at MSE for 1900 to 2000
+% %     misfit2 = e2'*e2/length(delC10(i6:end,2));  
+% % 
+% % 
+% %    error1 = betahat(1)-ci(1);
+
+e = delC10(61:1806,2) - residual10(61:1806,2); % look at MSE for 1855 to 2000
+
+misfit = e'*e/length(delC10(61:1806,2));  
+
+e2 = delC10(601:1806,2) - residual10(601:1806,2); % look at MSE for 1900 to 2000
+misfit2 = e2'*e2/length(delC10(601:1806,2));  
 
 
-   error1 = betahat(1)-ci(1);
+error1 = betahat(1)-ci(1);
    
 %   error2= betahat(2)-ci(2)
 
 %   error3= betahat(3)-ci(3)
-   
+%    
 %   figure
 % plot(decon(:,1),decon(:,2),delCdt(:,1),yhat2)
 % xlabel('year')
@@ -324,7 +382,14 @@ i5 = find(year2 == 1855);
    [R,P,RLO,RUP] = corrcoef(yhat2(601:(end-1),1),residual10(601:(end-1),2));
 %   
    R(1,2)^2;
-     
+
+figure
+plot(residual10(:,1),residual10(:,2),delC10(:,1),yhat2)
+xlabel('year')
+ylabel('ppm CO2/year')
+title('land uptake')
+legend('Residual uptake','land uptake without T effects','land uptake with T effects')
+set(gca,'Xlim',[1850 2010])  
 
 %----------------------------------------------------------------%
 %
@@ -366,26 +431,32 @@ end
     
 
 
-%% Do "reverse deconvolution" to calculate modeled atmospheric change in
-%% CO2
+% Do "reverse deconvolution" to calculate modeled atmospheric change in
+% CO2
 if(LUlevel==1)
     newat(:,1) = year2;
-    % 1850 to end year
-    % i2 = find(ff(:,1) == start_year);
-    % j2 = find(ff(:,1) == end_year);
-    % 
-    % i3 = find(fas(:,1) == start_year);
-    % j3 = find(fas(:,1) == end_year);
-    newat(:,2) =  ff(i2:j2,2)....
-    - Aoc*fas(i3:j3,2) + LU(1:length(year2),2) + delCdt(:,2) ;
+    newat(:,1) = year(1,1:1916);
+newat(:,2) =  ff1(1189:3104,2)....
+- Aoc*fas(601:2516,2) + landusemo(1:1916,2) + delCdt(:,2) ;
+
+    
+    % JLD code below:
+%     newat(:,2) =  ff(i2:j2,2)....
+%     - Aoc*fas(i3:j3,2) + LU(1:length(year2),2) + delCdt(:,2) ;
 
 elseif(LUlevel==2)
-    newat(:,1) = year2;
+    
     % 1850 to 2005  --- units on this?
-    newat(:,2) =  ff(i2:j2,2)....
-    - Aoc*fas(i3:j3,2) + LUex(1:length(year2),2) + delCdt(:,2) ;
+    newat(:,1) = year(1,1:1867);
+newat(:,2) =  ff1(1189:3055,2)....
+- Aoc*fas(601:2467,2) + extratrop_landmo(1:1867,2) + delCdt(1:1867,2) ; %JLD 3/13/18 changed from delCdt(:,2) to delCdt(1:1867,2)
+
+    % JLD code below:
+%     newat(:,1) = year2;
+%     newat(:,2) =  ff(i2:j2,2)....
+%     - Aoc*fas(i3:j3,2) + LUex(1:length(year2),2) + delCdt(:,2) ;
 end
 
     
-end
+
     
