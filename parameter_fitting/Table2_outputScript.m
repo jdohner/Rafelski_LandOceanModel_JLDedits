@@ -85,7 +85,7 @@ u = 0;
 
 % eventual output table
 params = cell(3,6);
-params(1,:) = {'CHH-V'} , {'CLH-V'} ,{'CHM-V'}, {'CLM-V'}, {'CHL-V'}, {'CLL-V'};
+params(1,:) = {'CHH-V','CLH-V','CHM-V','CLM-V','CHL-V','CLL-V'};
 %params(2,i) = {eps}
 %params(3,i) = {q10}
 
@@ -309,7 +309,7 @@ end
     
     
     
-dispMsg = strcat('You will be seeing the plot for the case ', inputStr);
+dispMsg = strcat('You will be seeing the plot for the case','  ', inputStr);
 disp(dispMsg);
 
 %% Run the best fit values in the model again to plot
