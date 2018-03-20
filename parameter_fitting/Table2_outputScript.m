@@ -390,6 +390,7 @@ ylabel('ppm CO2/year')
 title('land uptake')
 legend('Residual uptake','land uptake without T effects','land uptake with T effects')
 set(gca,'Xlim',[1850 2010])  
+grid
 
 %----------------------------------------------------------------%
 %
@@ -425,7 +426,7 @@ xlabel('year')
 ylabel('ppm CO2/year')
 title('land uptake')
 legend('Residual uptake','land uptake without T effects','land uptake with T effects')
-
+grid
 end
 
     
