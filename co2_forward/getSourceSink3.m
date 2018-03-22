@@ -25,6 +25,7 @@ LU_2006 = csvread('landUse_1800-2006.csv');
 LUex_2000 = csvread('landUseExtra_1800-2000.csv');
 load fossilFuel_1751-2009.mat;
 FF_2009 = ff1; % already monthly resolution
+
 % shortening ff vector to begin at start_year (have data back thru 1700)
 FF_start = find(FF_2009(:,1) == year2(1));
 FF_2009 = FF_2009(FF_start:end,:);

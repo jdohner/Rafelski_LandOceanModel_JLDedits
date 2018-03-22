@@ -76,7 +76,7 @@ addpath(genpath(...
 
 
 % loading temp data
-addpath(genpath('/Users/juliadohner/Documents/MATLAB/Rafelski_LandOceanModel_JLDedits/co2_forward/co2_forward_data'));
+%addpath(genpath('/Users/juliadohner/Documents/MATLAB/Rafelski_LandOceanModel_JLDedits/co2_forward/co2_forward_data'));
 
 
 load land_temp.mat % land temperature records
@@ -84,8 +84,8 @@ load npp_T.mat % NPP-weighted temperature record
 load landwt_T_2011.mat % land temperature anomaly
 
 
-
-[dtdelpCO2a,dpCO2a,CO2a] = MLOinterpolate_increment2(ts,start_year,end_year); 
+%[annincMLOSPO,dpCO2a,year,dt,MLOSPOiceinterp] = MLOinterpolate_increment2(ts,start_year,end_year)
+[dtdelpCO2a,dpCO2a] = MLOinterpolate_increment2(ts,start_year,end_year); 
 
 
 
@@ -107,7 +107,7 @@ avg_temp(1:6,2) = avg_temp(7,2); % make the first 6 points
 
  %% fitting parameters for cases
 
-    
+
 % scaling ocean uptake
 [fas, ff, LU, LUex] = getSourceSink3(year2, ts);
 fas2 = fas;
@@ -259,9 +259,9 @@ if strcmpi('yes',inputStr2)
 [C1dt,C2dt,delCdt,delC1,delC2] = bioboxtwo_sub10_annotate(epsilon,Q1,Q2,ts,year2,dpCO2a,temp_anom); 
  
 %%% Nitrogen%%%
-
-% [C1dt,C2dt,delCdt,delC1,delC2] = bioboxtwo_subN_annotate(epsilon,Q1,Q2,gamma,ff,ts,year2,dpCO2a,X);
-   
+if nitrogen == 1
+    [C1dt,C2dt,delCdt,delC1,delC2] = bioboxtwo_subN_annotate(epsilon,Q1,Q2,gamma,ff,ts,year2,dpCO2a,X);
+end
     
 delCdt(:,2) = -delCdt(:,2);
 
@@ -329,7 +329,7 @@ plot(residual10(:,1),residual10(:,2),delC10(:,1),yhat2)
 xlabel('year')
 ylabel('ppm CO2/year')
 title('land uptake')
-legend('Residual uptake','land uptake without T effects','land uptake with T effects')
+legend('Residual uptake','land uptake with T effects')
 set(gca,'Xlim',[1850 2010])  
 grid
 
@@ -405,8 +405,8 @@ newat(:,2) =  ff(:,2) - Aoc*fas(i4:end,2) + LUex(:,2) + delCdt(:,2);
 end
 
 
-
-CO2_2016 = csvread('mergedCO2_2016.csv');
+% starts at year 1 (?) incremented by year
+CO2_2016 = csvread('mergedCO2_2016.csv'); 
 CO2_2016mo(:,1) = year2;
 CO2_2016mo(:,2) = (interp1(CO2_2016(:,1),CO2_2016(:,2),year2)).';
     
