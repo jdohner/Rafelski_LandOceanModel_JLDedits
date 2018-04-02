@@ -4,7 +4,7 @@
 %% 4/24/08: add in an option to decrease ice core data by 2 ppm; change to
 %% linear interpolation for this option
 %% 1/10/11: add updated CO2 dataset through 2010
-
+% jld fiddling version
 
 function [annincMLOSPO,dpCO2a,MLOSPOiceinterp] = MLOinterpolate_increment2(ts,start_year,end_year)
 
@@ -17,7 +17,10 @@ years0 = mlospo_meure(:,1);
 CO2 = mlospo_meure(:,2);
 
 %% Create new time array
-years = [years0(1):1/ts:years0(length(years0))];
+%years = [years0(1):1/ts:years0(length(years0))];
+mlostart = 1640+(1/12);
+mloend = mlospo_meure(end,1);
+years = mlostart:1/ts:mloend; % changed this here! so get full record
 
 %% Do interpolation
 CO22 = interp1(years0,CO2,years,'spline');
@@ -28,6 +31,12 @@ MLOSPOiceinterp(:,2) = CO22;
 %% CO2 increment with monthly resolution, in ppm/year
 % n = 7 is 7/1958, last value is 7/2005
 
+%for n = ((ts/2)+1):(length(years)-(ts/2))
+% need help with this one - compare to LR original code
+% for n = 1:length(years)
+%     annincMLOSPO(n,1) = MLOSPOiceinterp(n,1);
+%     annincMLOSPO(n,2) = MLOSPOiceinterp(n+(ts/2),2) - MLOSPOiceinterp(n-(ts/2),2);
+% end
 for n = ((ts/2)+1):(length(years)-(ts/2))
     annincMLOSPO(n,1) = MLOSPOiceinterp(n,1);
     annincMLOSPO(n,2) = MLOSPOiceinterp(n+(ts/2),2) - MLOSPOiceinterp(n-(ts/2),2);
@@ -36,6 +45,8 @@ end
 year = start_year:dt:end_year;
 
 %% Calculate change in atmospheric concentration
-i = find(floor(100*MLOSPOiceinterp(:,1)) == floor(100*(start_year+(1/24))));
-dpCO2a(:,1) = MLOSPOiceinterp(i:length(MLOSPOiceinterp),1); 
-dpCO2a(:,2) = MLOSPOiceinterp(i:length(MLOSPOiceinterp),2)-MLOSPOiceinterp(i,2);
+%i = find(floor(100*MLOSPOiceinterp(:,1)) == floor(100*(start_year+(1/24))));
+%dpCO2a(:,1) = MLOSPOiceinterp(i:length(MLOSPOiceinterp),1); 
+%dpCO2a(:,2) = MLOSPOiceinterp(i:length(MLOSPOiceinterp),2)-MLOSPOiceinterp(i,2);
+dpCO2a(:,1) = MLOSPOiceinterp(:,1); 
+dpCO2a(:,2) = MLOSPOiceinterp(:,2)-MLOSPOiceinterp(1,2);
