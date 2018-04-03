@@ -17,7 +17,7 @@ CO2 = 1; % 1 = CO2 fertilization, 0 = N fertilization model
 % Get parameters
 
 %[dtdelpCO2a,dpCO2a,year,dt,CO2a] = MLOinterpolate_increment2(ts,start_year,end_year);
-[dtdelpCO2a,dpCO2a,CO2a] = MLOinterpolate_increment2(ts,start_year,end_year);
+[dtdelpCO2a,dpCO2a,CO2a] = MLOinterpolate_increment2_recent(ts,start_year,end_year);
 
 
 %[landusemo,ff1,fas,Aoc,extratrop_landmo] = getsourcesink_scale3;

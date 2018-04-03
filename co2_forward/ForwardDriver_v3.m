@@ -54,7 +54,7 @@ end
 ts = 12; % timesteps per year
 dt = 1/ts;
 start_year = 1850;
-end_year = 2009+(7/12); %2006;
+end_year = 2015.5;%2009+(7/12); % latest can go is 2015.5 (6 mo before 2016)
 year2 = (start_year:(1/ts):end_year)';
 
 % define cases (nitrogen, filter, tropical vs extratrop lu)
@@ -85,7 +85,7 @@ load landwt_T_2011.mat % land temperature anomaly
 
 
 %[annincMLOSPO,dpCO2a,year,dt,MLOSPOiceinterp] = MLOinterpolate_increment2(ts,start_year,end_year)
-[dtdelpCO2a,dpCO2a] = MLOinterpolate_increment2(ts,start_year,end_year); 
+[dtdelpCO2a,dpCO2a,CO2a] = MLOinterpolate_increment2_recent(ts,start_year,end_year); 
 
 
 
@@ -129,10 +129,12 @@ end
 % i = length(year2);
 
 
-i1 = find(floor(100*dtdelpCO2a(:,1)) == floor(100*(start_year+(1/24))));
-j1 = find(floor(100*dtdelpCO2a(:,1)) == floor(100*(end_year+(1/24))));
+% i1 = find(floor(100*dtdelpCO2a(:,1)) == floor(100*(start_year+(1/24))));
+% j1 = find(floor(100*dtdelpCO2a(:,1)) == floor(100*(end_year+(1/24))));
 % TODO: need to extend dtdelpCO2a record (obs CO2 record) to 2016
 %dtdelpCO2a = dtdelpCO2a(i1:j1,:);
+i1 = find(dtdelpCO2a(:,1) == start_year);
+j1 = find(dtdelpCO2a(:,1) == end_year);
 
 i2 = find(ff(:,1) == start_year);
 j2 = find(ff(:,1) == end_year);

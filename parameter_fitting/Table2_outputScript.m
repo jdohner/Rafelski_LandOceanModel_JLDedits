@@ -47,7 +47,7 @@ load landwt_T_2011.mat % land temperature anomaly
 
 
 
-[dtdelpCO2a,dpCO2a,CO2a] = MLOinterpolate_increment2(ts,start_year,end_year); 
+[dtdelpCO2a,dpCO2a,CO2a] = MLOinterpolate_increment2_JD(ts,start_year,end_year); 
 
 
 

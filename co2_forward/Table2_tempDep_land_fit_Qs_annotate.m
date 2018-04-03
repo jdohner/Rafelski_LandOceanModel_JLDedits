@@ -16,7 +16,7 @@ CO2 = 1; % 1 = CO2 fertilization, 0 = N fertilization model
 
 % Get parameters
 
-[dtdelpCO2a,dpCO2a,CO2a] = MLOinterpolate_increment2(ts,start_year,end_year);
+[dtdelpCO2a,dpCO2a,CO2a] = MLOinterpolate_increment2_recent(ts,start_year,end_year);
 
 
 % To make temperature-independent: set Q1 and Q2 to 1
