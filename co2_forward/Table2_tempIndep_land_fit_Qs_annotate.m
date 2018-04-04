@@ -17,11 +17,11 @@ CO2 = 1; % 1 = CO2 fertilization, 0 = N fertilization model
 % Get parameters
 
 %[dtdelpCO2a,dpCO2a,year,dt,CO2a] = MLOinterpolate_increment2(ts,start_year,end_year);
-[dtdelpCO2a,dpCO2a,CO2a] = MLOinterpolate_increment2_recent(ts,start_year,end_year);
+[~,dpCO2a,~] = MLOinterpolate_increment2_recent(ts,start_year,end_year);
 
 
 %[landusemo,ff1,fas,Aoc,extratrop_landmo] = getsourcesink_scale3;
-[fas,ff,LU,LUex] = getSourceSink3(year2,ts);
+[ff,~,~] = getSourceSink3(year2,ts);
 
 
 
@@ -31,7 +31,7 @@ if CO2 == 1
     Q1 = 1; %beta(2);
     Q2 = 1;%beta(2);
     
-    [C1dt,C2dt,delCdt,delC1,delC2] = bioboxtwo_sub10_annotate(epsilon,Q1,Q2,ts,year2,dpCO2a,X); 
+    [~,~,delCdt,~,~] = bioboxtwo_sub10_annotate(epsilon,Q1,Q2,ts,year2,dpCO2a,X); 
 else 
     % For N fertilization model
     epsilon = 0;
@@ -39,7 +39,7 @@ else
     Q1 = beta(2);
     Q2 = 1;%beta(3);
     
-    [C1dt,C2dt,delCdt,delC1,delC2] = bioboxtwo_subN(epsilon,Q1,Q2,gamma,ff(601:end,:),ts,year2,dpCO2a,X);
+    [~,~,delCdt,~,~] = bioboxtwo_subN(epsilon,Q1,Q2,gamma,ff(601:end,:),ts,year2,dpCO2a,X);
 end 
 
 

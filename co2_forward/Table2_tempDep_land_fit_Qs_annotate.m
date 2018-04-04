@@ -9,14 +9,14 @@ function yhat = Table2_tempDep_land_fit_Qs_annotate(beta,X)
 
 ts = 12;
 start_year = 1850;
-end_year = 2009+(7/12);
+end_year = 2015.5;%2009+(7/12);
 year2 = (start_year:(1/ts):end_year)';
 
 CO2 = 1; % 1 = CO2 fertilization, 0 = N fertilization model
 
 % Get parameters
 
-[dtdelpCO2a,dpCO2a,CO2a] = MLOinterpolate_increment2_recent(ts,start_year,end_year);
+[~,dpCO2a,~] = MLOinterpolate_increment2_recent(ts,start_year,end_year);
 
 
 % To make temperature-independent: set Q1 and Q2 to 1
@@ -27,15 +27,15 @@ if CO2 == 1
     Q1 = beta(2);
     Q2 = 1; %beta(2);
     
-    [C1dt,C2dt,delCdt,delC1,delC2] = bioboxtwo_sub10_annotate(epsilon,Q1,Q2,ts,year2,dpCO2a,X); 
+    [~,~,delCdt,~,~] = bioboxtwo_sub10_annotate(epsilon,Q1,Q2,ts,year2,dpCO2a,X); 
 else 
     % For N fertilization model
     epsilon = 0;
     gamma = beta(1);
     Q1 = beta(2);
     Q2 = 1; %beta(3);
-    [fas,ff,LU,LUex] = getSourceSink3(year2,ts);
-    [C1dt,C2dt,delCdt,delC1,delC2] = bioboxtwo_subN(epsilon,Q1,Q2,gamma,ff(601:end,:),ts,year2,dpCO2a,X);
+    [ff,~,~] = getSourceSink3(year2,ts);
+    [~,~,delCdt,~,~] = bioboxtwo_subN(epsilon,Q1,Q2,gamma,ff(601:end,:),ts,year2,dpCO2a,X);
 end
 
     

@@ -57,6 +57,13 @@ start_year = 1850;
 end_year = 2015.5;%2009+(7/12); % latest can go is 2015.5 (6 mo before 2016)
 year2 = (start_year:(1/ts):end_year)';
 
+% ocean constants
+Aoc = 3.62E14; % surface area of ocean, m^2, from Joos 1996
+c = 1.722E17; % unit converter, umol m^3 ppm^-1 kg^-1, from Joos 1996
+h = 75; % mixed layer depth, m, from Joos 1996
+T = 18.2; % surface temperature, deg C, from Joos 1996
+kg = 1/9.06; % gas exchange rate, yr^-1, from Joos 1996
+
 % define cases (nitrogen, filter, tropical vs extratrop lu)
 nitrogen = 0; % 1 = yes, 0 = no; account for nitrogen fertilization?
 filter = 1; % filter the data? 1 = 10 year filter; 2 = unfiltered
@@ -107,11 +114,12 @@ avg_temp(1:6,2) = avg_temp(7,2); % make the first 6 points
 
  %% fitting parameters for cases
 
+[ff, LU, LUex] = getSourceSink3(year2, ts);
 
-% scaling ocean uptake
-[fas, ff, LU, LUex] = getSourceSink3(year2, ts);
+[fas,dpCO2s] = joos_oceanuptake(year2,c,h,kg,T,Aoc,dt);
 fas2 = fas;
 
+% scaling ocean uptake
 if oceanUptake == 1 % high ocean uptake
     fas(:,2) = fas2(:,2)*1.3;
     disp('ocean multiplied by 1.3')

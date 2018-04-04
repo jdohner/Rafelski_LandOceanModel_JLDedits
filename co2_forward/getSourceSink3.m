@@ -13,9 +13,9 @@
 % ff in ppm/year
 
 
-function [fas,ff,LU,LUex] = getSourceSink3(year2, ts);
+function [ff,LU,LUex] = getSourceSink3(year2, ts);
 
-load joos_hilda_2011.mat % ocean stuff
+    
 year3 = (year2(1,1):(1/ts):2016)'; % making full data vector thru to 2016
     
 % load data thru 2009, 2006, 2000 - ff is monthly, lu is annual
