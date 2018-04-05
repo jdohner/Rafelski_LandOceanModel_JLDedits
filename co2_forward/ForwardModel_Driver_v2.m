@@ -151,7 +151,8 @@ dtdelpCO2a_calc(:,2) = 0;
 % temperature for the first years
 % what's the difference between tland4 and landtglob?
 
-
+% tland4 becomes temp early (1800-2006)
+% landtglob becomes temp recent (1850-2010.4)
 [temp_anom, T0] = tempRecord(tland4, landtglob, dt, year, end_year);
 
 

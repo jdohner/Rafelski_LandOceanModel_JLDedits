@@ -7,12 +7,8 @@ function yhat = Table2_tempDep_land_fit_Qs_annotate(beta,X)
 
 % Initial conditions - set according to Joos et al
 
-ts = 12;
-start_year = 1850;
-end_year = 2015.5;%2009+(7/12);
-year2 = (start_year:(1/ts):end_year)';
-
-CO2 = 1; % 1 = CO2 fertilization, 0 = N fertilization model
+% load ts, start_year, end_year, year2, nitrogen
+load caseDetails;
 
 % Get parameters
 
@@ -21,7 +17,7 @@ CO2 = 1; % 1 = CO2 fertilization, 0 = N fertilization model
 
 % To make temperature-independent: set Q1 and Q2 to 1
 
-if CO2 == 1
+if nitrogen == 0
     % For CO2 fertilization model
     epsilon = beta(1);
     Q1 = beta(2);
