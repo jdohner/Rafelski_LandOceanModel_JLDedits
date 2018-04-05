@@ -14,38 +14,37 @@
 % also worth noting that CRU data has much better resolution- should use
 % throughout or just append to after 2009?
 
-function [X, T0] = tempRecord2(year2,end_year)
+function [temp_anom, T0] = tempRecord2(start_year,end_year,dt)
 
 load landwt_T_2011.mat
 
-% temp_anom will be 1850-present
-temp_anom(:,1) = year2;
+CRU_data = csvread('CRUTEM4-gl.csv');
+    
+% processing of CRUTEM4 file - comes in weird format
+% taking just rows with temp anomalies and cut off year values
+CRU_startYr = CRU_data(1,1); % starts 1850
+CRU_endYr = CRU_data(end,1) + (11/12); % ends Dec 2017
+CRU_year = (CRU_startYr:(1/12):CRU_endYr)';
+CRU_temp = CRU_data(1:2:end,2:13); % every other row for cols 2 to 13
+CRU_temp = reshape(CRU_temp',[],1); % reshape to column vector
+
+% temp_anom is 1850-Dec 2017 (end CRU data)
+temp_full(:,1) = 1850:dt:CRU_endYr;
 % add in landtglob, which begins at 1850.5
-i = find(temp_anom(:,1) == landtglob(1,1));
-temp_anom(1:i-1,2) = landtglob(1,2); 
+i = find(temp_full(:,1) == landtglob(1,1));
+temp_full(1:i-1,2) = landtglob(1,2); % set first values
 % add landtglob up until 2009+7/12
-j = find(temp_anom(:,1) == 2009+(7/12));  
+j = find(floor(100*temp_full(:,1)) == floor(100*(2009+(7/12))));
 k = find(floor(100*landtglob(:,1)) == floor(100*(2009+(7/12)))); 
-temp_anom(i:j,2) = landtglob(1:k,2); 
+temp_full(i:j,2) = landtglob(1:k,2);  %%
+l = find(floor(100*CRU_year) == floor(100*landtglob(1910,1))); % find 2009+7/12
+%m = find(CRU_year == end);
+temp_full(1917:end,2) = CRU_temp(l+1:end);
 
-if end_year >= 2009+(7/12)
-    
-    CRU_data = csvread('CRUTEM4-gl.csv');
-    
-    % processing of CRUTEM4 file - comes in weird format
-    % taking just rows with temp anomalies and cut off year values
-    CRU_startYr = CRU_data(1,1); % starts 1850
-    CRU_endYr = CRU_data(end,1) + (11/12); % ends Dec 2017
-    CRU_year = (CRU_startYr:(1/12):CRU_endYr)';
-    CRU_temp = CRU_data(1:2:end,2:13); % every other row for cols 2 to 13
-    CRU_temp = reshape(CRU_temp',[],1); % reshape to column vector
-    
-    i = find(floor(100*CRU_year) == floor(100*landtglob(1910,1))); % find 2009+7/12
-    j = find(CRU_year == year2(end));
-    temp_anom(1917:end,2) = CRU_temp(i+1:j);
-    
+% temp_anom record spans 1850-dec 2017
+% cut short according to start and end years
+i1 = find(floor(100*temp_full(:,1)) == floor(100*start_year));
+j1 = find(floor(100*temp_full(:,1)) == floor(100*end_year));
+temp_anom = temp_full(i1:j1,:);
 
-end
-
-X = temp_anom;
-T0 = temp_anom(1,2);
+T0 = temp_full(1,2); % for some reason want first point at 1850

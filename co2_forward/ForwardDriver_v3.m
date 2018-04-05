@@ -110,7 +110,7 @@ load landwt_T_2011.mat % land temperature anomaly
 %% get temp record
 
 % X is temp_anom record
-[X, ~] = tempRecord2(year2,end_year);
+[temp_anom, ~] = tempRecord2(start_year,end_year,dt);
 
  %% fitting parameters for cases
 
@@ -270,7 +270,7 @@ if strcmpi('yes',inputStr2)
  
 %%% Nitrogen%%%
 if nitrogen == 1
-    [C1dt,C2dt,delCdt,delC1,delC2] = bioboxtwo_subN_annotate(epsilon,Q1,Q2,gamma,ff,ts,year2,dpCO2a,X);
+    [C1dt,C2dt,delCdt,delC1,delC2] = bioboxtwo_subN_annotate(epsilon,Q1,Q2,gamma,ff,ts,year2,dpCO2a,temp_anom);
 end
     
 delCdt(:,2) = -delCdt(:,2);
