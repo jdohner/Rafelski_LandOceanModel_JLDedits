@@ -6,7 +6,7 @@
 % 1/10/11: add updated CO2 dataset through 2010
 % combined jld fiddling, updated to run thru present
 
-function [annincMLOSPO,dpCO2a,MLOSPOiceinterp_2011] = MLOinterpolate_increment2_recent(ts,start_year,end_year)
+function [annincMLOSPO,dpCO2a,co2_combine_trunc,co2_preind] = MLOinterpolate_increment2_recent(ts,start_year,end_year)
 
 dt = 1/ts;
     
@@ -55,7 +55,7 @@ year_full = MLOSPOiceinterp_2011(1,1):1/ts:CO2_2016mo(end,1);
 co2_combine(:,1) = year_full; 
 co2_combine(:,2) = [MLOSPOiceinterp_2011(1:end,2); CO2_2016mo(j+1:end,2)];
 
-
+co2_preind = mean(co2_combine(1:1000,2));
 %% Calculate CO2 increment with monthly resolution, in ppm/year
 % n = 7 is 7/1958, last value is 7/2005
 
@@ -74,6 +74,10 @@ co2_trunc = co2_combine(i1:j1,:); % truncated to be between start and end years
 %j = find(floor(100*co2_combine(:,1)) == floor(100*(start_year+(1/24))));
 dpCO2a(:,1) = co2_trunc(:,1); 
 dpCO2a(:,2) = co2_trunc(:,2)-co2_trunc(1,2);
+
+m = find(co2_combine(:,1) == start_year);
+n = find(co2_combine(:,1) == end_year);
+co2_combine_trunc = co2_combine(m:n,:);
 
 
 % %% 3/13/08: changed CO2 dataset to spline fit with sigma =0.6 to capture

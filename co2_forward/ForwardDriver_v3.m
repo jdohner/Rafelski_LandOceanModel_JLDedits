@@ -54,7 +54,7 @@ end
 ts = 12; % timesteps per year
 dt = 1/ts;
 start_year = 1850;
-end_year = 2015.5;%2009+(7/12); % latest can go is 2015.5 (6 mo before 2016)
+end_year = 2015.5; %2009+(7/12);%2015.5;% % latest can go is 2015.5 (6 mo before 2016)
 year2 = (start_year:(1/ts):end_year)';
 
 % ocean constants
@@ -103,7 +103,7 @@ load landwt_T_2011.mat % land temperature anomaly
 
 
 %[annincMLOSPO,dpCO2a,year,dt,MLOSPOiceinterp] = MLOinterpolate_increment2(ts,start_year,end_year)
-[dtdelpCO2a,dpCO2a,CO2a] = MLOinterpolate_increment2_recent(ts,start_year,end_year); 
+[dtdelpCO2a,dpCO2a,CO2a,co2_preind] = MLOinterpolate_increment2_recent(ts,start_year,end_year); 
 
 
 
@@ -241,7 +241,9 @@ end
 %% Get uncertainties of best fit values
 ci = nlparci(betahat,resid,J);
 
-%% Redefine values of epsilon, gamma and Q1
+%%  PLOTTING WITH FITTED PARAMETERS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Redefine values of epsilon, gamma and Q1
 
 
 if(nitrogen == 1) % N-fertilization case
@@ -339,7 +341,7 @@ plot(residual10(:,1),residual10(:,2),delC10(:,1),yhat2)
 xlabel('year')
 ylabel('ppm CO2/year')
 title('land uptake')
-legend('Residual uptake','land uptake with T effects')
+legend('Residual uptake','land uptake with T effects','location','northwest')
 set(gca,'Xlim',[1850 2010])  
 grid
 
@@ -376,7 +378,7 @@ plot(decon(:,1),decon(:,2),delCdt(:,1),yhat2)
 xlabel('year')
 ylabel('ppm CO2/year')
 title('land uptake')
-legend('Residual uptake','land uptake with T effects')
+legend('Residual uptake','land uptake with T effects','location','northwest')
 grid
 end
 
@@ -414,31 +416,40 @@ newat(:,2) =  ff(:,2) - Aoc*fas(i4:end,2) + LUex(:,2) + delCdt(:,2);
 %     - Aoc*fas(i3:j3,2) + LUex(1:length(year2),2) + delCdt(:,2) ;
 end
 
-
+% combine CO2a from mlointerp (goes through 2010) with yearly thru 2016
 % starts at year 1 (?) incremented by year
-CO2_2016 = csvread('mergedCO2_2016.csv'); 
-CO2_2016mo(:,1) = year2;
-CO2_2016mo(:,2) = (interp1(CO2_2016(:,1),CO2_2016(:,2),year2)).';
+% CO2_2016 = csvread('mergedCO2_2016.csv'); 
+% CO2_2016mo(:,1) = year2;
+% CO2_2016mo(:,2) = (interp1(CO2_2016(:,1),CO2_2016(:,2),year2)).';
+% k1 = find(floor(100*CO2_2016mo(:,1)) == floor(100*CO2a(end,1)));
     
-co2_preind = mean(CO2_2016(1:1000,2));
+
 
 atmcalc(:,1) = year2;
 atmcalc(:,2) = cumsum(newat(:,2)/12);
 atmcalc(:,2) = atmcalc(:,2)+co2_preind;
 
 co2_diff(:,1) = year2;
-co2_diff(:,2) = CO2_2016mo(:,2)-atmcalc(:,2);
+co2_diff(:,2) = CO2a(:,2)-atmcalc(:,2);
 i6 = find(co2_diff(:,1) == 1959);
 j6 = find(co2_diff(:,1) == 1979);
 meandiff = mean(co2_diff(i6:j6,2)); % mean difference over 1959-1979
 atmcalc2 = atmcalc(:,2)+meandiff;
 
+% co2_diff(:,1) = year2;
+% co2_diff(:,2) = CO2_2016mo(:,2)-atmcalc(:,2);
+% i6 = find(co2_diff(:,1) == 1959);
+% j6 = find(co2_diff(:,1) == 1979);
+% meandiff = mean(co2_diff(i6:j6,2)); % mean difference over 1959-1979
+% atmcalc2 = atmcalc(:,2)+meandiff;
+
 figure
-plot(year2,atmcalc2, CO2_2016mo(:,1), CO2_2016mo(:,2));
+%plot(year2,atmcalc2, CO2_2016mo(:,1), CO2_2016mo(:,2));
+plot(year2,atmcalc2,CO2a(:,1),CO2a(:,2));
 xlabel('year')
 ylabel('ppm CO2')
 title('modeled atmospheric co2 from deconvolution')
-legend('modeled atmospheric co2','observed atmos');
+legend('modeled atmospheric co2','observed atmos','co2a','location','northwest');
 grid
 
 
