@@ -54,7 +54,7 @@ end
 ts = 12; % timesteps per year
 dt = 1/ts;
 start_year = 1850;
-end_year = 2015.5; %2009+(7/12);%2015.5;% % latest can go is 2015.5 (6 mo before 2016)
+end_year = 2005; %2009+(7/12);%2015.5;% % latest can go is 2015.5 (6 mo before 2016)
 year2 = (start_year:(1/ts):end_year)';
 
 % ocean constants
