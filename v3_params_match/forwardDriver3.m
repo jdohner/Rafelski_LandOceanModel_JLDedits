@@ -57,6 +57,13 @@ start_year = 1850;
 end_year = 2009+(7/12); %2006;
 year2 = (start_year:(1/ts):end_year)';
 
+% ocean constants
+Aoc = 3.62E14; % surface area of ocean, m^2, from Joos 1996
+c = 1.722E17; % unit converter, umol m^3 ppm^-1 kg^-1, from Joos 1996
+h = 75; % mixed layer depth, m, from Joos 1996
+T = 18.2; % surface temperature, deg C, from Joos 1996
+kg = 1/9.06; % gas exchange rate, yr^-1, from Joos 1996
+
 % define cases (nitrogen, filter, tropical vs extratrop lu)
 nitrogen = 0; % 1 = yes, 0 = no; account for nitrogen fertilization?
 filter = 1; % filter the data? 1 = 10 year filter; 2 = unfiltered
@@ -64,6 +71,8 @@ tropicalLU = 1; % 1 = use tropical LU, 0 = extratropical LU
 
 beta = [0.5;2]; % initial guesses for model fit (epsilon, q10)
 Aoc = 3.62E14; % surface area of ocean, m^2, from Joos 1996
+
+save('caseDetails','ts','start_year','end_year','year2','nitrogen')
 
 %% load data
 
@@ -74,41 +83,16 @@ addpath(genpath(...
     '/Users/juliadohner/Documents/MATLAB/JLDedits_Rafelski_LandOceanModel/co2_forward/co2_forward_data_2016'));
 
 
-
-% loading temp data
-addpath(genpath('/Users/juliadohner/Documents/MATLAB/Rafelski_LandOceanModel_JLDedits/co2_forward/co2_forward_data'));
-
-
-% load land_temp.mat % land temperature records
-% load npp_T.mat % NPP-weighted temperature record
-% load landwt_T_2011.mat % land temperature anomaly
-
-
-
-[dtdelpCO2a,dpCO2a,CO2a] = MLOinterpolate_increment2(ts,start_year,end_year); 
-
+%[annincMLOSPO,dpCO2a,year,dt,MLOSPOiceinterp,co2_preind] = MLOinterpolate_increment2(ts,start_year,end_year)
+[dtdelpCO2a,dpCO2a,CO2a,co2_preind] = MLOinterpolate_increment2(ts,start_year,end_year); 
 
 
 %% get temp record
 [temp_anom, ~] = tempRecord2(start_year,end_year,dt);
 
-%[temp_anom] = tempRecord_cases(tland4,landtglob,end_year);
-
-% 
-% [avg_temp] = l_boxcar(tland4,1,12,1,2483,1,2); 
-% 
-% avg_temp(1:6,2) = avg_temp(7,2); % make the first 6 points 
-%  temp_anom(1:6,1) =  avg_temp(601:606,1); %Jan 1850-May 1850
-%  temp_anom(1:6,2) = landtglob(1,2); %355 instead of 1, 360 instead of 6
-%   
-%  temp_anom(7:1916,1) = landtglob(1:1910,1); % Starts at the year 1850.5. 
-%  temp_anom(7:1916,2) = landtglob(1:1910,2); % 
-%  
- X = temp_anom(:,:);
 
  %% fitting parameters for cases
 
-    
 % scaling ocean uptake
 [fas, ff, LU, LUex] = getSourceSink3(year2, ts);
 fas2 = fas;
@@ -142,18 +126,10 @@ i3 = find(fas(:,1) == start_year);
 j3 = find(fas(:,1) == end_year);
 
 
-%if tropicalLU == 1
-% % Extend land use record by making recent emissions equal to last
-% % record
-% LU(1874:1916,1) = year(1874:1916);
-% LU(1874:1916,2) = LU(1873,2);
-% % % 
-
 residual(:,1) = year2;
 residual(:,2) = dtdelpCO2a(i1:j1,2) - ff(i2:j2,2)....
 + Aoc*fas(i3:j3,2) - LU(1:length(year2),2);
 
-%else 
     
 %Extend extratropical emissions by assuming emissions are zero
 LUex(1802:length(year2),1) = LU(1802:length(year2),1);
@@ -163,8 +139,6 @@ LUex(1802:length(year2),2) = 0;
 residual2(:,1) = year2;
 residual2(:,2) = dtdelpCO2a(i1:j1,2) - ff(i2:j2,2)....
 + Aoc*fas(i3:j3,2) - LUex(1:length(year2),2);
-
-%end
 
 
 %%----------------------------------------------------------------------%%
@@ -330,7 +304,7 @@ plot(residual10(:,1),residual10(:,2),delC10(:,1),yhat2)
 xlabel('year')
 ylabel('ppm CO2/year')
 title('land uptake')
-legend('Residual uptake','land uptake with T effects')
+legend('Residual uptake','land uptake with T effects','location','northwest')
 set(gca,'Xlim',[1850 2010])  
 grid
 
@@ -407,25 +381,20 @@ end
 
 
 
-CO2_2016 = csvread('mergedCO2_2016.csv');
-CO2_2016mo(:,1) = year2;
-CO2_2016mo(:,2) = (interp1(CO2_2016(:,1),CO2_2016(:,2),year2)).';
-    
-co2_preind = mean(CO2_2016(1:1000,2));
-
 atmcalc(:,1) = year2;
 atmcalc(:,2) = cumsum(newat(:,2)/12);
 atmcalc(:,2) = atmcalc(:,2)+co2_preind;
 
 co2_diff(:,1) = year2;
-co2_diff(:,2) = CO2_2016mo(:,2)-atmcalc(:,2);
+co2_diff(:,2) = CO2a(:,2)-atmcalc(:,2);
 i6 = find(co2_diff(:,1) == 1959);
 j6 = find(co2_diff(:,1) == 1979);
 meandiff = mean(co2_diff(i6:j6,2)); % mean difference over 1959-1979
 atmcalc2 = atmcalc(:,2)+meandiff;
 
 figure
-plot(year2,atmcalc2, CO2_2016mo(:,1), CO2_2016mo(:,2));
+%plot(year2,atmcalc2, CO2_2016mo(:,1), CO2_2016mo(:,2));
+plot(year2,atmcalc2,CO2a(:,1),CO2a(:,2));
 xlabel('year')
 ylabel('ppm CO2')
 title('modeled atmospheric co2 from deconvolution')
