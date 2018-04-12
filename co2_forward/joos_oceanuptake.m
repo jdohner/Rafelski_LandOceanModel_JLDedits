@@ -9,7 +9,7 @@
 
 %[fas,dpCO2s] = joos_general_fast_annotate2(year,dpCO2a,c,h,kg,T,Aoc,r,dt);
 function [fas,dpCO2s]= joos_oceanuptake(year,c,h,kg,T,Aoc,dt)
-
+%load joos_hilda_2011.mat % ocean stuff
 end_year = year(end,1);
 ts = 12;
 [~,dpCO2a,~] = MLOinterpolate_increment2_recent(ts,1800,end_year); 
