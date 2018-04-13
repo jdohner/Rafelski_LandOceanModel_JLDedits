@@ -180,7 +180,8 @@ for i = 1:length(year2)
         delDIC(i+1,1) = year(i+1); 
         delDIC(i+1,2) = (c/h)*w(i)*dt; % change in DIC
 
-    %Calculate dpCO2s from DIC - from Joos 1996
+    %Calculate dpCO2s from DIC 
+    % equation 6b in Joos 1996
     dpCO2s(i+1,2) = (1.5568 - (1.3993E-2)*T_const)*delDIC(i+1,2) + ...
         (7.4706-0.20207*T_const)*10^(-3)*(delDIC(i+1,2))^2 - ...
         (1.2748-0.12015*T_const)*10^(-5)*(delDIC(i+1,2))^3 + ...
