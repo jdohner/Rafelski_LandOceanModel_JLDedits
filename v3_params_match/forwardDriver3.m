@@ -54,7 +54,7 @@ end
 ts = 12; % timesteps per year
 dt = 1/ts;
 start_year = 1850;
-end_year = 2009+(7/12);%2015.5;% % latest can go is 2015.5 (6 mo before 2016)
+end_year = 2009+(7/12); %2006;
 year2 = (start_year:(1/ts):end_year)';
 
 % ocean constants
@@ -73,15 +73,6 @@ beta = [0.5;2]; % initial guesses for model fit (epsilon, q10)
 Aoc = 3.62E14; % surface area of ocean, m^2, from Joos 1996
 
 save('caseDetails','ts','start_year','end_year','year2','nitrogen')
-% % Initial conditions - set according to Joos et al
-% 
-% ts = 12;
-% start_year = 1850;
-% end_year = 2015.5;%2009+(7/12);
-% year2 = (start_year:(1/ts):end_year)';
-% 
-% CO2 = 1; % 1 = CO2 fertilization, 0 = N fertilization model
-
 
 %% load data
 
@@ -92,35 +83,20 @@ addpath(genpath(...
     '/Users/juliadohner/Documents/MATLAB/JLDedits_Rafelski_LandOceanModel/co2_forward/co2_forward_data_2016'));
 
 
-
-% loading temp data
-%addpath(genpath('/Users/juliadohner/Documents/MATLAB/Rafelski_LandOceanModel_JLDedits/co2_forward/co2_forward_data'));
-
-
-%load land_temp.mat % land temperature records
-%load npp_T.mat % NPP-weighted temperature record
-%load landwt_T_2011.mat % land temperature anomaly
-
-
-%[dtdelpCO2a,dpCO2a,~,~,CO2a] = MLOinterpolate_increment2(ts,start_year,end_year);
-[dtdelpCO2a,dpCO2a,CO2a,co2_preind] = MLOinterpolate_increment2_recent(ts,start_year,end_year); 
-
+%[annincMLOSPO,dpCO2a,year,dt,MLOSPOiceinterp,co2_preind] = MLOinterpolate_increment2(ts,start_year,end_year)
+[dtdelpCO2a,dpCO2a,CO2a,co2_preind] = MLOinterpolate_increment2(ts,start_year,end_year); 
 
 
 %% get temp record
-
-% X is temp_anom record
 [temp_anom, ~] = tempRecord2(start_year,end_year,dt);
+
 
  %% fitting parameters for cases
 
-[ff, LU, LUex] = getSourceSink3(year2, ts);
-
-[fas,dpCO2s] = joos_oceanuptake(year2,c,h,kg,T,Aoc,dt);
-load fas_LR.mat;
+% scaling ocean uptake
+[fas, ff, LU, LUex] = getSourceSink3(year2, ts);
 fas2 = fas;
 
-% scaling ocean uptake
 if oceanUptake == 1 % high ocean uptake
     fas(:,2) = fas2(:,2)*1.3;
     disp('ocean multiplied by 1.3')
@@ -138,12 +114,10 @@ end
 % i = length(year2);
 
 
-%i1 = find(floor(100*dtdelpCO2a(:,1)) == floor(100*(start_year+(1/24))));
-%j1 = find(floor(100*dtdelpCO2a(:,1)) == floor(100*(end_year+(1/24))));
+i1 = find(floor(100*dtdelpCO2a(:,1)) == floor(100*(start_year+(1/24))));
+j1 = find(floor(100*dtdelpCO2a(:,1)) == floor(100*(end_year+(1/24))));
 % TODO: need to extend dtdelpCO2a record (obs CO2 record) to 2016
 %dtdelpCO2a = dtdelpCO2a(i1:j1,:);
-i1 = find(dtdelpCO2a(:,1) == start_year);
-j1 = find(dtdelpCO2a(:,1) == end_year);
 
 i2 = find(ff(:,1) == start_year);
 j2 = find(ff(:,1) == end_year);
@@ -152,18 +126,10 @@ i3 = find(fas(:,1) == start_year);
 j3 = find(fas(:,1) == end_year);
 
 
-%if tropicalLU == 1
-% % Extend land use record by making recent emissions equal to last
-% % record
-% LU(1874:1916,1) = year(1874:1916);
-% LU(1874:1916,2) = LU(1873,2);
-% % % 
-
 residual(:,1) = year2;
 residual(:,2) = dtdelpCO2a(i1:j1,2) - ff(i2:j2,2)....
 + Aoc*fas(i3:j3,2) - LU(1:length(year2),2);
 
-%else 
     
 %Extend extratropical emissions by assuming emissions are zero
 LUex(1802:length(year2),1) = LU(1802:length(year2),1);
@@ -173,8 +139,6 @@ LUex(1802:length(year2),2) = 0;
 residual2(:,1) = year2;
 residual2(:,2) = dtdelpCO2a(i1:j1,2) - ff(i2:j2,2)....
 + Aoc*fas(i3:j3,2) - LUex(1:length(year2),2);
-
-%end
 
 
 %%----------------------------------------------------------------------%%
@@ -242,9 +206,7 @@ end
 %% Get uncertainties of best fit values
 ci = nlparci(betahat,resid,J);
 
-%%  PLOTTING WITH FITTED PARAMETERS
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Redefine values of epsilon, gamma and Q1
+%% Redefine values of epsilon, gamma and Q1
 
 
 if(nitrogen == 1) % N-fertilization case
@@ -272,9 +234,9 @@ if strcmpi('yes',inputStr2)
 [C1dt,C2dt,delCdt,delC1,delC2] = bioboxtwo_sub10_annotate(epsilon,Q1,Q2,ts,year2,dpCO2a,temp_anom); 
  
 %%% Nitrogen%%%
-if nitrogen == 1
-    [C1dt,C2dt,delCdt,delC1,delC2] = bioboxtwo_subN_annotate(epsilon,Q1,Q2,gamma,ff,ts,year2,dpCO2a,temp_anom);
-end
+
+% [C1dt,C2dt,delCdt,delC1,delC2] = bioboxtwo_subN_annotate(epsilon,Q1,Q2,gamma,ff,ts,year2,dpCO2a,X);
+   
     
 delCdt(:,2) = -delCdt(:,2);
 
@@ -379,7 +341,7 @@ plot(decon(:,1),decon(:,2),delCdt(:,1),yhat2)
 xlabel('year')
 ylabel('ppm CO2/year')
 title('land uptake')
-legend('Residual uptake','land uptake with T effects','location','northwest')
+legend('Residual uptake','land uptake with T effects')
 grid
 end
 
@@ -417,13 +379,6 @@ newat(:,2) =  ff(:,2) - Aoc*fas(i4:end,2) + LUex(:,2) + delCdt(:,2);
 %     - Aoc*fas(i3:j3,2) + LUex(1:length(year2),2) + delCdt(:,2) ;
 end
 
-% combine CO2a from mlointerp (goes through 2010) with yearly thru 2016
-% starts at year 1 (?) incremented by year
-% CO2_2016 = csvread('mergedCO2_2016.csv'); 
-% CO2_2016mo(:,1) = year2;
-% CO2_2016mo(:,2) = (interp1(CO2_2016(:,1),CO2_2016(:,2),year2)).';
-% k1 = find(floor(100*CO2_2016mo(:,1)) == floor(100*CO2a(end,1)));
-    
 
 
 atmcalc(:,1) = year2;
@@ -437,25 +392,17 @@ j6 = find(co2_diff(:,1) == 1979);
 meandiff = mean(co2_diff(i6:j6,2)); % mean difference over 1959-1979
 atmcalc2 = atmcalc(:,2)+meandiff;
 
-% co2_diff(:,1) = year2;
-% co2_diff(:,2) = CO2_2016mo(:,2)-atmcalc(:,2);
-% i6 = find(co2_diff(:,1) == 1959);
-% j6 = find(co2_diff(:,1) == 1979);
-% meandiff = mean(co2_diff(i6:j6,2)); % mean difference over 1959-1979
-% atmcalc2 = atmcalc(:,2)+meandiff;
-
 figure
 %plot(year2,atmcalc2, CO2_2016mo(:,1), CO2_2016mo(:,2));
 plot(year2,atmcalc2,CO2a(:,1),CO2a(:,2));
 xlabel('year')
 ylabel('ppm CO2')
 title('modeled atmospheric co2 from deconvolution')
-legend('modeled atmospheric co2','observed atmos','location','northwest');
+legend('modeled atmospheric co2','observed atmos');
 grid
 
 
 elseif strcmpi('no',inputStr2)
     disp('all done!')
 end
-
 
