@@ -424,14 +424,41 @@ j6 = find(co2_diff(:,1) == 1979);
 meandiff = mean(co2_diff(i6:j6,2)); % mean difference over 1959-1979
 atmcalc2 = atmcalc(:,2)+meandiff;
 
-figure
-plot(year2,atmcalc2, CO2_2016mo(:,1), CO2_2016mo(:,2));
+obsCalcDiff(:,1) = year2;
+obsCalcDiff(:,2) = atmcalc2(:,1) - CO2_2016mo(:,2);
+
+
+figure('Name','Modeled vs. Observed CO2')
+subplot(2,1,1)
+plot(CO2_2016mo(:,1), CO2_2016mo(:,2),year2,atmcalc2);
 xlabel('year')
 ylabel('ppm CO2')
-title('modeled atmospheric co2 from deconvolution')
-legend('modeled atmospheric co2','observed atmos');
+title('Atmospheric CO2 history')
+legend('Observations','Temperature-dependent model','location','northwest');
+grid
+subplot(2,1,2)
+plot(obsCalcDiff(:,1),obsCalcDiff(:,2));
+line([year2(1),year2(end)],[0,0],'linestyle','--');
+grid
+legend('Modeled - observed CO2','location','northeast')
+xlabel('year')
+ylabel('ppm CO2')
+title('Deviation from Observed CO2')
+
+saveas(gcf,'CO2recordsFig.fig') 
+
+figure('Name','Land Uptake')
+plot(residual10(:,1),residual10(:,2),delC10(:,1),yhat2,LU(:,1), LU(:,2),'-.')
+line([year2(1),year2(end)],[0,0],'linestyle',':');
+set(gca,'Xlim',[1850 2010]) 
+title('Residual Land Flux')
+legend('Residual land flux','Residual land flux (model)','Land use emissions','location','northwest')
+xlabel('year')
+ylabel('ppm / year')
 grid
 
+
+saveas(gcf,'landFluxFig.fig')
 
 elseif strcmpi('no',inputStr2)
     disp('all done!')
