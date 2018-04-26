@@ -16,7 +16,8 @@ CO2 = 1; % 1 = CO2 fertilization, 0 = N fertilization model
 
 % Get parameters
 
-[dtdelpCO2a,dpCO2a,CO2a] = MLOinterpolate_increment2(ts,start_year,end_year);
+%[dtdelpCO2a,dpCO2a,CO2a] = MLOinterpolate_increment2(ts,start_year,end_year);
+[dtdelpCO2a,dpCO2a,year,dt,CO2a] = MLOinterpolate_increment2(ts,start_year,end_year);
 
 
 % To make temperature-independent: set Q1 and Q2 to 1
@@ -43,7 +44,7 @@ delCdt(:,2) = -delCdt(:,2);
 
 % 10-year moving boxcar average of model
 [delC10] = l_boxcar(delCdt,10,12,1,length(delCdt),1,2);
-
+n
 
 % yhat is the term that is compared to the residual flux in nlinfit. 
 % Change the index numbers here and in nonlin_land_Qs_annotate (e.g. line

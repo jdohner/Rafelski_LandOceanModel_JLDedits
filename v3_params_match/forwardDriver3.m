@@ -56,6 +56,7 @@ dt = 1/ts;
 start_year = 1850;
 end_year = 2009+(7/12); %2006;
 year2 = (start_year:(1/ts):end_year)';
+co2_preind = 281;
 
 % ocean constants
 Aoc = 3.62E14; % surface area of ocean, m^2, from Joos 1996
@@ -84,8 +85,8 @@ addpath(genpath(...
 
 
 %[annincMLOSPO,dpCO2a,year,dt,MLOSPOiceinterp,co2_preind] = MLOinterpolate_increment2(ts,start_year,end_year)
-[dtdelpCO2a,dpCO2a,CO2a,co2_preind] = MLOinterpolate_increment2(ts,start_year,end_year); 
-
+[dtdelpCO2a,dpCO2a,~,~,CO2a] = MLOinterpolate_increment2(ts,start_year,end_year); 
+%[annincMLOSPO,dpCO2a,year,dt,MLOSPOiceinterp]
 
 %% get temp record
 [temp_anom, ~] = tempRecord2(start_year,end_year,dt);

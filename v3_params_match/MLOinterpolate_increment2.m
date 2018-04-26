@@ -4,8 +4,8 @@
 % 4/24/08: add in an option to decrease ice core data by 2 ppm; change to
 % linear interpolation for this option
 % 1/10/11: add updated CO2 dataset through 2010
-        
-function [annincMLOSPO,dpCO2a,co2_combine_trunc,co2_preind] = MLOinterpolate_increment2(ts,start_year,end_year)
+%[annincMLOSPO,dpCO2a,year,dt,MLOSPOiceinterp]        
+function [annincMLOSPO,dpCO2a,year,dt,co2_combine_trunc] = MLOinterpolate_increment2(ts,start_year,end_year)
 
 load co2_2011_2.mat
 
@@ -48,7 +48,7 @@ year_full(:,1) = [MLOSPOiceinterp(:,1) ; CO2_2016mo(i:end,1)];
 co2_combine(:,1) = year_full; 
 co2_combine(:,2) = [MLOSPOiceinterp(1:end,2); CO2_2016mo(i:end,2)];
 
-co2_preind = mean(co2_combine(1:1000,2));
+%co2_preind = mean(co2_combine(1:1000,2));
 
 %% Calculate CO2 increment with monthly resolution, in ppm/year
 % n = 7 is 7/1958, last value is 7/2005
