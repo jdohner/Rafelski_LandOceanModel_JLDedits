@@ -107,8 +107,8 @@ LU_data = csvread('dataLU_Houghton_2016.csv'); % in gigatons/year
 [fas] = jooshildascale_annotate2(start_year,end_year,ts);
 i3 = find(fas(:,1) >= start_year,1);
 j3 = find(fas(:,1) >= end_year,1);
-fas2 = fas(i3:j3,:);
-
+fas2 = fas(i3:j3,2);
+fas2 = fas;
 
 if oceanUptake == 1 % high ocean uptake
     fas(:,2) = fas2(:,2)*1.3;
@@ -148,7 +148,7 @@ j2 = find(ff(:,1) == end_year);
 residual(:,1) = year2;
 %residual(:,2) = dtdelpCO2a(i1:j1,2) - ff(i2:j2,2)....
 %+ Aoc*fas(i3:j3,2) - LU(1:length(year2),2);
-residual(:,2) = dtdelpCO2a(:,2) - ff(:,2) + Aoc*fas2(:,2) - LU(:,2);
+residual(:,2) = dtdelpCO2a(:,2) - ff(:,2) + Aoc*fas(:,2) - LU(:,2);
 
 %else 
     
@@ -158,8 +158,8 @@ LUex(1802:length(year2),2) = 0;
 
 % using extratropical emissions only
 residual2(:,1) = year2;
-residual2(:,2) = dtdelpCO2a(:,2) - ff(:,2)....
-+ Aoc*fas2(:,2) - LUex(:,2);
+residual2(:,2) = dtdelpCO2a(i1:j1,2) - ff(i2:j2,2)....
++ Aoc*fas(i3:j3,2) - LUex(1:length(year2),2);
 
 %end
 
@@ -382,7 +382,7 @@ j4 = find(fas(:,1) == end_year);
 
 if(LUlevel==1)
     newat(:,1) = year2;
-    newat(:,2) =  ff(:,2) - Aoc*fas2(:,2) + LU(:,2) + delCdt(:,2);
+    newat(:,2) =  ff(:,2) - Aoc*fas(i4:j4,2) + LU(:,2) + delCdt(:,2);
     
     % JLD code below:
 %     newat(:,2) =  ff(i2:j2,2)....
@@ -392,7 +392,7 @@ elseif(LUlevel==2)
     
     % 1850 to 2005  --- units on this?
     newat(:,1) = year2;
-newat(:,2) =  ff(:,2) - Aoc*fas2(:,2) + LUex(:,2) + delCdt(:,2);
+newat(:,2) =  ff(:,2) - Aoc*fas(i4:end,2) + LUex(:,2) + delCdt(:,2);
 %JLD 3/13/18 changed from delCdt(:,2) to delCdt(1:1867,2)
 %JLD 3/21/18 this case will continue past where LR plots it- should match
 %up to 2005.5

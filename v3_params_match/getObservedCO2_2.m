@@ -55,8 +55,8 @@ co2_combine(:,2) = [MLOSPOiceinterp(1:end,2); CO2_2016mo(i:end,2)];
 %% Calculate CO2 increment with monthly resolution, in ppm/year
 
 for n = ((ts/2)+1):(length(co2_combine)-(ts/2))
-    dtdelpCO2a_obs(n,1) = co2_combine(n,1);
-    dtdelpCO2a_obs(n,2) = co2_combine(n+(ts/2),2) - co2_combine(n-(ts/2),2);
+    dtdelpCO2a(n,1) = co2_combine(n,1);
+    dtdelpCO2a(n,2) = co2_combine(n+(ts/2),2) - co2_combine(n-(ts/2),2);
 end
 
 i1 = find(co2_combine(:,1) >= start_year,1);
@@ -72,3 +72,9 @@ m = find(co2_combine(:,1) >= start_year,1);
 CO2a_obs = co2_combine(m:n,:);
 
 year = CO2a_obs(:,1);
+
+%% shorten records
+
+i2 = find(dtdelpCO2a(:,1) >= start_year,1);
+j2 = find(dtdelpCO2a(:,1) >= end_year);
+dtdelpCO2a_obs = dtdelpCO2a(i2:j2,:);
