@@ -85,28 +85,16 @@ addpath(genpath('/Users/juliadohner/Documents/MATLAB/Rafelski_LandOceanModel_JLD
 
 
 
-[dtdelpCO2a,dpCO2a,CO2a] = MLOinterpolate_increment2(ts,start_year,end_year); 
-
+%[dtdelpCO2a,dpCO2a,CO2a] = MLOinterpolate_increment2(ts,start_year,end_year); 
+[dtdelpCO2a,dpCO2a,~,~,CO2a] = getObservedCO2_2(ts,start_year,end_year);
 
 
 %% get temp record
 [temp_anom, ~] = tempRecord2(start_year,end_year,dt);
+  
+X = temp_anom(:,:);
 
-%[temp_anom] = tempRecord_cases(tland4,landtglob,end_year);
-
-% 
-% [avg_temp] = l_boxcar(tland4,1,12,1,2483,1,2); 
-% 
-% avg_temp(1:6,2) = avg_temp(7,2); % make the first 6 points 
-%  temp_anom(1:6,1) =  avg_temp(601:606,1); %Jan 1850-May 1850
-%  temp_anom(1:6,2) = landtglob(1,2); %355 instead of 1, 360 instead of 6
-%   
-%  temp_anom(7:1916,1) = landtglob(1:1910,1); % Starts at the year 1850.5. 
-%  temp_anom(7:1916,2) = landtglob(1:1910,2); % 
-%  
- X = temp_anom(:,:);
-
- %% fitting parameters for cases
+%% fitting parameters for cases
 
     
 % scaling ocean uptake
@@ -325,14 +313,14 @@ error1 = betahat(1)-ci(1);
 %   
    R(1,2)^2;
 
-figure
-plot(residual10(:,1),residual10(:,2),delC10(:,1),yhat2)
-xlabel('year')
-ylabel('ppm CO2/year')
-title('land uptake')
-legend('Residual uptake','land uptake with T effects')
-set(gca,'Xlim',[1850 2010])  
-grid
+% figure
+% plot(residual10(:,1),residual10(:,2),delC10(:,1),yhat2)
+% xlabel('year')
+% ylabel('ppm CO2/year')
+% title('land uptake')
+% legend('Residual uptake','land uptake with T effects')
+% set(gca,'Xlim',[1850 2010])  
+% grid
 
 %----------------------------------------------------------------%
 %
