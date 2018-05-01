@@ -6,7 +6,7 @@ function [fas] = jooshildascale_annotate2(start_year,end_year,ts);
 
 ts = 12; % number of data points/year
 start_year = 1800;
-end_year = 2016;
+end_year = 2009+(7/12);
 Aoc = 3.62E14; % surface area of ocean, m^2, from Joos 1996
 c = 1.722E17; % unit converter, umol m^3 ppm^-1 kg^-1, from Joos 1996
 h = 75; % mixed layer depth, m, from Joos 1996
@@ -41,4 +41,7 @@ end
 %% calculate ocean uptake
 [fas,dpCO2s] = joos_general_fast_annotate2(year,dpCO2a,c,h,kg,T,Aoc,r,dt); 
 
+i3 = find(fas(:,1) >= 1850,1);
+j3 = find(fas(:,1) >= end_year,1);
+fas = fas(i3:j3,:);
 end

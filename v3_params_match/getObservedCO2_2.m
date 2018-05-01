@@ -60,7 +60,7 @@ for n = ((ts/2)+1):(length(co2_combine)-(ts/2))
 end
 
 i1 = find(co2_combine(:,1) >= start_year,1);
-j1 = find(co2_combine(:,1) >= end_year);
+j1 = find(co2_combine(:,1) >= end_year,1);
 co2_trunc = co2_combine(i1:j1,:);
 
 %% Calculate change in atmospheric concentration

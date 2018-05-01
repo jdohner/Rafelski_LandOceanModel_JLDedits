@@ -11,7 +11,7 @@ clear all
 
 %prompt = 'Which case would you like to retrieve fitted parameters for? Please use the form XXX-X with single quotes.  ';
 %inputStr = input(prompt);
-inputStr = 'CHM-V';
+inputStr = 'CHH-V';
 
 % high land use: LUlevel = 1
 % low land use: LUlevel = 2
@@ -81,12 +81,6 @@ addpath(genpath(...
 addpath(genpath('/Users/juliadohner/Documents/MATLAB/Rafelski_LandOceanModel_JLDedits/co2_forward/co2_forward_data'));
 
 
-% load land_temp.mat % land temperature records
-% load npp_T.mat % NPP-weighted temperature record
-% load landwt_T_2011.mat % land temperature anomaly
-
-
-
 %[dtdelpCO2a,dpCO2a,CO2a] = MLOinterpolate_increment2(ts,start_year,end_year); 
 [dtdelpCO2a,dpCO2a,~,~,CO2a] = getObservedCO2_2(ts,start_year,end_year);
 
@@ -98,23 +92,23 @@ X = temp_anom(:,:);
 
 %% fitting parameters for cases
 
-    
+%fas until 2010
+
 % scaling ocean uptake
-%[fas, ff, LU, LUex] = getSourceSink3(year2, ts);
-FF_data = csvread('dataFF_Boden_2016.csv'); % in gigatons/year
-LU_data = csvread('dataLU_Houghton_2016.csv'); % in gigatons/year
-[ff,LU] = getSourceData(year2,ts,FF_data,LU_data);
+[~, ff, LU, LUex] = getSourceSink3(year2, ts);
+%[~, ~, LU, LUex] = getSourceSink3(year2, ts);
+% FF_data = csvread('dataFF_Boden_2016.csv'); % in gigatons/year
+% LU_data = csvread('dataLU_Houghton_2016.csv'); % in gigatons/year
+% [ff,~] = getSourceData(year2,ts,FF_data,LU_data);
 [fas] = jooshildascale_annotate2(start_year,end_year,ts);
-i3 = find(fas(:,1) >= start_year,1);
-j3 = find(fas(:,1) >= end_year,1);
-fas2 = fas(i3:j3,:);
+
 
 
 if oceanUptake == 1 % high ocean uptake
-    fas(:,2) = fas2(:,2)*1.3;
+    fas(:,2) = fas(:,2)*1.3;
     disp('ocean multiplied by 1.3')
 elseif oceanUptake == 3 % low ocean uptake
-        fas(:,2) = fas2(:,2)*0.7;
+        fas(:,2) = fas(:,2)*0.7;
         disp('ocean multiplied by 0.7')
 else
     disp('ocean not multiplied')
@@ -148,7 +142,7 @@ j2 = find(ff(:,1) == end_year);
 residual(:,1) = year2;
 %residual(:,2) = dtdelpCO2a(i1:j1,2) - ff(i2:j2,2)....
 %+ Aoc*fas(i3:j3,2) - LU(1:length(year2),2);
-residual(:,2) = dtdelpCO2a(:,2) - ff(:,2) + Aoc*fas2(:,2) - LU(:,2);
+residual(:,2) = dtdelpCO2a(:,2) - ff(:,2) + Aoc*fas(:,2) - LU(:,2);
 
 %else 
     
@@ -159,7 +153,7 @@ LUex(1802:length(year2),2) = 0;
 % using extratropical emissions only
 residual2(:,1) = year2;
 residual2(:,2) = dtdelpCO2a(:,2) - ff(:,2)....
-+ Aoc*fas2(:,2) - LUex(:,2);
++ Aoc*fas(:,2) - LUex(:,2);
 
 %end
 
@@ -382,7 +376,7 @@ j4 = find(fas(:,1) == end_year);
 
 if(LUlevel==1)
     newat(:,1) = year2;
-    newat(:,2) =  ff(:,2) - Aoc*fas2(:,2) + LU(:,2) + delCdt(:,2);
+    newat(:,2) =  ff(:,2) - Aoc*fas(:,2) + LU(:,2) + delCdt(:,2);
     
     % JLD code below:
 %     newat(:,2) =  ff(i2:j2,2)....
@@ -392,7 +386,7 @@ elseif(LUlevel==2)
     
     % 1850 to 2005  --- units on this?
     newat(:,1) = year2;
-newat(:,2) =  ff(:,2) - Aoc*fas2(:,2) + LUex(:,2) + delCdt(:,2);
+newat(:,2) =  ff(:,2) - Aoc*fas(:,2) + LUex(:,2) + delCdt(:,2);
 %JLD 3/13/18 changed from delCdt(:,2) to delCdt(1:1867,2)
 %JLD 3/21/18 this case will continue past where LR plots it- should match
 %up to 2005.5
