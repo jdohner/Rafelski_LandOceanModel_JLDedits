@@ -1,4 +1,4 @@
-% getSourceSink2.m
+% getSourceSink3.m
 %
 % author: Lauren Rafelski, modified by Julia Dohner
 % January 23, 2018

@@ -56,8 +56,10 @@ end
 ts = 12; % timesteps per year
 dt = 1/ts;
 start_year = 1850;
-end_year = 2009+(7/12); %2006;
+end_year = 2011;%2009+(7/12); %2006;2015.5; %
 year2 = (start_year:(1/ts):end_year)';
+
+save('yearInfo','start_year','end_year','ts','year2');
 
 % define cases (nitrogen, filter, tropical vs extratrop lu)
 nitrogen = 0; % 1 = yes, 0 = no; account for nitrogen fertilization?
@@ -100,7 +102,7 @@ X = temp_anom(:,:);
 % FF_data = csvread('dataFF_Boden_2016.csv'); % in gigatons/year
 % LU_data = csvread('dataLU_Houghton_2016.csv'); % in gigatons/year
 % [ff,~] = getSourceData(year2,ts,FF_data,LU_data);
-[fas] = jooshildascale_annotate2(start_year,end_year,ts);
+[fas] = jooshildascale_annotate2(start_year,end_year,ts,ff);
 
 
 
