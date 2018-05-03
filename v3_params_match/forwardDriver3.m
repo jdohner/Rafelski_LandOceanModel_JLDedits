@@ -11,7 +11,7 @@ clear all
 
 %prompt = 'Which case would you like to retrieve fitted parameters for? Please use the form XXX-X with single quotes.  ';
 %inputStr = input(prompt);
-inputStr = 'CHH-V';
+inputStr = 'CHM-V';
 
 % high land use: LUlevel = 1
 % low land use: LUlevel = 2
@@ -56,7 +56,7 @@ end
 ts = 12; % timesteps per year
 dt = 1/ts;
 start_year = 1850;
-end_year = 2011;%2009+(7/12); %2006;2015.5; %
+end_year = 2015.5;%2009+(7/12);%2015.5;%2011.5;%2009+(7/12); %2006;2015.5; %
 year2 = (start_year:(1/ts):end_year)';
 
 save('yearInfo','start_year','end_year','ts','year2');
@@ -238,6 +238,9 @@ else % co2-fertilization case
     Q1 = betahat(2)%4.91;
     Q2 = 1;%betahat(2)
 end
+
+% epsilon = 0.7743;
+% Q1 = 5.8901;
 
 
 %year2 = year2';
@@ -423,14 +426,14 @@ obsCalcDiff(:,2) = atmcalc2(:,1) - CO2_2016mo(:,2);
 
 
 figure('Name','Modeled vs. Observed CO2')
-subplot(2,1,1)
+subplot(3,1,1)
 plot(CO2_2016mo(:,1), CO2_2016mo(:,2),year2,atmcalc2);
 xlabel('year')
 ylabel('ppm CO2')
 title('Atmospheric CO2 history')
 legend('Observations','Temperature-dependent model','location','northwest');
 grid
-subplot(2,1,2)
+subplot(3,1,2)
 plot(obsCalcDiff(:,1),obsCalcDiff(:,2));
 line([year2(1),year2(end)],[0,0],'linestyle','--');
 grid
@@ -438,6 +441,14 @@ legend('Modeled - observed CO2','location','northeast')
 xlabel('year')
 ylabel('ppm CO2')
 title('Deviation from Observed CO2')
+subplot(3,1,3)
+plot(temp_anom(:,1),temp_anom(:,2))
+grid
+legend('Temperature anomaly','location','northeast')
+xlabel('year')
+ylabel('deg C')
+title('Temperature anomaly')
+
 
 saveas(gcf,'CO2recordsFig.fig') 
 
