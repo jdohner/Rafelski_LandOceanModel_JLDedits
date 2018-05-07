@@ -64,7 +64,7 @@ save('yearInfo','start_year','end_year','ts','year2');
 % define cases (nitrogen, filter, tropical vs extratrop lu)
 nitrogen = 0; % 1 = yes, 0 = no; account for nitrogen fertilization?
 filter = 1; % filter the data? 1 = 10 year filter; 2 = unfiltered
-tropicalLU = 1; % 1 = use tropical LU, 0 = extratropical LU
+tropicalLU = 0; % 1 = use tropical LU, 0 = extratropical LU
 
 beta = [0.5;2]; % initial guesses for model fit (epsilon, q10)
 Aoc = 3.62E14; % surface area of ocean, m^2, from Joos 1996
@@ -94,8 +94,13 @@ X = temp_anom(:,:);
 
 %% fitting parameters for cases
 
-%[~, ff, LU, LUex] = getSourceSink3(year2, ts); % for LR record
-[ff, LU] = getSourceSink4(year2, ts); % for trying different LU
+[~, ff, LU, LUex] = getSourceSink3(year2, ts); % for LR record
+%[ff, LU] = getSourceSink4(year2, ts); % for trying different LU
+
+if tropicalLU == 0
+    LU = LUex;
+end
+
 [fas] = jooshildascale_annotate2(start_year,end_year,ts,ff);
 
 
@@ -419,7 +424,7 @@ meandiff = mean(co2_diff(i6:j6,2)); % mean difference over 1959-1979
 atmcalc2 = atmcalc(:,2)+meandiff;
 
 obsCalcDiff(:,1) = year2;
-obsCalcDiff(:,2) = atmcalc2(:,1) - CO2_2016mo(:,2);
+obsCalcDiff(:,2) = CO2_2016mo(:,2) - atmcalc2(:,1); 
 
 
 figure('Name','Modeled vs. Observed CO2')
@@ -434,10 +439,10 @@ subplot(3,1,2)
 plot(obsCalcDiff(:,1),obsCalcDiff(:,2));
 line([year2(1),year2(end)],[0,0],'linestyle','--');
 grid
-legend('Modeled - observed CO2','location','northeast')
+legend('Observed - modeled CO2','location','northeast')
 xlabel('year')
 ylabel('ppm CO2')
-title('Deviation from Observed CO2')
+title('Observed CO2 Deviation from Modeled CO2')
 subplot(3,1,3)
 plot(temp_anom(:,1),temp_anom(:,2))
 grid
