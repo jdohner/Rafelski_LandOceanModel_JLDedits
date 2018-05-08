@@ -19,6 +19,12 @@ if varSST == 1
     sstmo(1:i-1,2) = 0; % fill in values before 1850
     %sstmo(:,2) = sstmo(:,2) + meanSST;
     T = sstmo;
+    
+    figure
+    plot(T(:,1),T(:,2));
+    xlabel('year');
+    ylabel('degree C');
+    title('sst anomaly record');
 end
 
 for m = 1:(length(yearOcean)-1)

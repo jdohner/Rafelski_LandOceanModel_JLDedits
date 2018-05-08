@@ -37,10 +37,15 @@ for n = 1:length(yearOcean)
      end
 end
 
+
+
 %% calculate ocean uptake
 [fas,dpCO2s] = joos_general_fast_annotate2(yearOcean,dpCO2a,c,h,kg,Tconst,Aoc,r,dt,varSST); 
 
 i3 = find(fas(:,1) >= start_year,1);
 j3 = find(fas(:,1) >= end_year,1);
 fas = fas(i3:j3,:);
+
+
+
 end
