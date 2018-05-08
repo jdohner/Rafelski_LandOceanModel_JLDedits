@@ -9,8 +9,7 @@ clear all
 
 %% define time frame, cases
 
-varSST = 1; %1 if variable sst, 0 if fixed sst
-Tconst = 18.2; % surface temperature, deg C, from Joos 1996
+varSST
 ts = 12; % timesteps per year
 dt = 1/ts;
 start_year = 1850;
@@ -107,8 +106,8 @@ if tropicalLU == 0
     LU = LUex;
 end
 
-[fas] = jooshildascale_annotate2(start_year,end_year,ts,ff,varSST,Tconst);
-%[fas] = joosHILDAvarT_scale_JLD(start_year,end_year,ts,ff,varSST);
+%[fas] = jooshildascale_annotate2(start_year,end_year,ts,ff);
+[fas] = joosHILDAvarT_scale_JLD(start_year,end_year,ts,ff);
 
 % scaling ocean uptake
 if oceanUptake == 1 % high ocean uptake
