@@ -56,7 +56,7 @@ end
 ts = 12; % timesteps per year
 dt = 1/ts;
 start_year = 1850;
-end_year = 2015.5;%2009+(7/12);%2015.5;%2011.5;%2009+(7/12); %2006;2015.5; %
+end_year = 2010; %2015.5;%2009+(7/12);%2015.5;%2011.5;%2009+(7/12); %2006;2015.5; %
 year2 = (start_year:(1/ts):end_year)';
 
 save('yearInfo','start_year','end_year','ts','year2');
@@ -76,6 +76,8 @@ addpath(genpath(...
     '/Users/juliadohner/Documents/MATLAB/JLDedits_Rafelski_LandOceanModel/co2_forward/co2_forward_data'));
 addpath(genpath(...
     '/Users/juliadohner/Documents/MATLAB/JLDedits_Rafelski_LandOceanModel/co2_forward/co2_forward_data_2016'));
+addpath(genpath(...
+    '/Users/juliadohner/Documents/MATLAB/JLDedits_Rafelski_LandOceanModel/v3_params_match/sst_data'));
 
 
 
@@ -101,8 +103,8 @@ if tropicalLU == 0
     LU = LUex;
 end
 
-[fas] = jooshildascale_annotate2(start_year,end_year,ts,ff);
-
+%[fas] = jooshildascale_annotate2(start_year,end_year,ts,ff);
+[fas] = joosHILDAvarT_scale_JLD(start_year,end_year,ts,ff);
 
 % scaling ocean uptake
 if oceanUptake == 1 % high ocean uptake
