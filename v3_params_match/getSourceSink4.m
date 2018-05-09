@@ -66,7 +66,7 @@ FF_2016 = csvread('fossilFuel_1959-2016.csv'); % in gigatons/year
 %Houghton_LU.csv
 %LR_LU.csv
 %LR_LUex.csv
-LU_2016 = csvread('Houghton_LU.csv');
+LU_2016 = csvread('GCB_LU.csv');
 
 % fossil fuel 2016 to monthly (arrives as 1959-2016)
 month_2016 = 1959:(1/12):2016;
