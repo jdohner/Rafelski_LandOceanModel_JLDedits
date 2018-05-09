@@ -9,7 +9,7 @@ clear all
 
 %% define time frame, cases
 
-varSST = 1; %1 if variable sst, 0 if fixed sst
+varSST = 0; %1 if variable sst, 0 if fixed sst
 Tconst = 18.2; % surface temperature, deg C, from Joos 1996
 ts = 12; % timesteps per year
 dt = 1/ts;
@@ -107,7 +107,7 @@ if tropicalLU == 0
     LU = LUex;
 end
 
-[fas] = jooshildascale_annotate2(start_year,end_year,ts,ff,varSST,Tconst);
+[fas,sstAnom] = jooshildascale_annotate2(start_year,end_year,ts,ff,varSST,Tconst);
 %[fas] = joosHILDAvarT_scale_JLD(start_year,end_year,ts,ff,varSST);
 
 % scaling ocean uptake
@@ -432,32 +432,69 @@ atmcalc2 = atmcalc(:,2)+meandiff;
 obsCalcDiff(:,1) = year2;
 obsCalcDiff(:,2) = CO2_2016mo(:,2) - atmcalc2(:,1); 
 
+if varSST == 1
+    
+    figure('Name','Modeled vs. Observed CO2')
+    subplot(4,1,1)
+    plot(CO2_2016mo(:,1), CO2_2016mo(:,2),year2,atmcalc2);
+    xlabel('year')
+    ylabel('ppm CO2')
+    title('Atmospheric CO2 history')
+    legend('Observations','Temperature-dependent model','location','northwest');
+    grid
+    subplot(4,1,2)
+    plot(obsCalcDiff(:,1),obsCalcDiff(:,2));
+    line([year2(1),year2(end)],[0,0],'linestyle','--');
+    grid
+    legend('Observed - modeled CO2','location','northeast')
+    xlabel('year')
+    ylabel('ppm CO2')
+    title('Observed CO2 Deviation from Modeled CO2')
+    subplot(4,1,3)
+    plot(temp_anom(:,1),temp_anom(:,2))
+    line([year2(1),year2(end)],[0,0],'linestyle','--');
+    grid
+    legend('Temperature anomaly','location','northeast')
+    xlabel('year')
+    ylabel('deg C')
+    title('Temperature anomaly')
+    subplot(4,1,4)
+    plot(sstAnom(:,1),sstAnom(:,2))
+    line([year2(1),year2(end)],[0,0],'linestyle','--');
+    grid
+    legend('SST anomaly','location','northeast')
+    xlabel('year')
+    ylabel('deg C')
+    title('SST anomaly')
+    
+else
+    
 
-figure('Name','Modeled vs. Observed CO2')
-subplot(3,1,1)
-plot(CO2_2016mo(:,1), CO2_2016mo(:,2),year2,atmcalc2);
-xlabel('year')
-ylabel('ppm CO2')
-title('Atmospheric CO2 history')
-legend('Observations','Temperature-dependent model','location','northwest');
-grid
-subplot(3,1,2)
-plot(obsCalcDiff(:,1),obsCalcDiff(:,2));
-line([year2(1),year2(end)],[0,0],'linestyle','--');
-grid
-legend('Observed - modeled CO2','location','northeast')
-xlabel('year')
-ylabel('ppm CO2')
-title('Observed CO2 Deviation from Modeled CO2')
-subplot(3,1,3)
-plot(temp_anom(:,1),temp_anom(:,2))
-grid
-legend('Temperature anomaly','location','northeast')
-xlabel('year')
-ylabel('deg C')
-title('Temperature anomaly')
+    figure('Name','Modeled vs. Observed CO2')
+    subplot(3,1,1)
+    plot(CO2_2016mo(:,1), CO2_2016mo(:,2),year2,atmcalc2);
+    xlabel('year')
+    ylabel('ppm CO2')
+    title('Atmospheric CO2 history')
+    legend('Observations','Temperature-dependent model','location','northwest');
+    grid
+    subplot(3,1,2)
+    plot(obsCalcDiff(:,1),obsCalcDiff(:,2));
+    line([year2(1),year2(end)],[0,0],'linestyle','--');
+    grid
+    legend('Observed - modeled CO2','location','northeast')
+    xlabel('year')
+    ylabel('ppm CO2')
+    title('Observed CO2 Deviation from Modeled CO2')
+    subplot(3,1,3)
+    plot(temp_anom(:,1),temp_anom(:,2))
+    grid
+    legend('Temperature anomaly','location','northeast')
+    xlabel('year')
+    ylabel('deg C')
+    title('Temperature anomaly')
 
-
+end
 saveas(gcf,'CO2recordsFig.fig') 
 
 figure('Name','Land Uptake')

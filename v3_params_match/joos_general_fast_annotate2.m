@@ -1,7 +1,7 @@
 % Pulse response model using response function "r"
 % 7/15/09: add "dpCO2s" to output
 
-function [fas,dpCO2s]= joos_general_fast_annotate2(yearOcean,dpCO2a,c,h,kg,Tconst,Aoc,r,dt,varSST)
+function [fas,dpCO2s,T]= joos_general_fast_annotate2(yearOcean,dpCO2a,c,h,kg,Tconst,Aoc,r,dt,varSST)
 
 dpCO2s = zeros(length(dpCO2a),2); % dissolved CO2
 dpCO2s(:,1) = dpCO2a(:,1);
@@ -64,3 +64,7 @@ delDIC(zero1,1) = NaN;
 
 zero2 = find(dpCO2s(:,2) == 0);
 dpCO2s(zero2,2)  = NaN;
+
+if varSST == 0
+    T = Tconst;
+end

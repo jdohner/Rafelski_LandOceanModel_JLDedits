@@ -2,7 +2,7 @@
 
 
 
-function [fas] = jooshildascale_annotate2(start_year,end_year,ts,ff,varSST,Tconst);
+function [fas,sstAnom] = jooshildascale_annotate2(start_year,end_year,ts,ff,varSST,Tconst);
 
 ts = 12; % number of data points/year
 start_yearOcean = 1800;
@@ -37,10 +37,15 @@ for n = 1:length(yearOcean)
      end
 end
 
+if varSST == 0
+    T = Tconst;
+end
+
+
 
 
 %% calculate ocean uptake
-[fas,dpCO2s] = joos_general_fast_annotate2(yearOcean,dpCO2a,c,h,kg,Tconst,Aoc,r,dt,varSST); 
+[fas,dpCO2s,sstAnom] = joos_general_fast_annotate2(yearOcean,dpCO2a,c,h,kg,Tconst,Aoc,r,dt,varSST); 
 
 i3 = find(fas(:,1) >= start_year,1);
 j3 = find(fas(:,1) >= end_year,1);
