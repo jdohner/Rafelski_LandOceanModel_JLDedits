@@ -50,7 +50,12 @@ for ii = 1:length(year)
     
     % fast box (equation (3) in Rafelski 2009
     % calculate land uptake by fast box
+    
+    % nonlinear
+    % need log of current co2 / preindustrial - load co2a and co2_preind as
+    % vars
     C1dt(ii,2) = Ka1*(Catm + eps*dpCO2a(ii,2)) - K1a*Q1a^((T(ii,2)-T0)/10)*(C1 + delC1(ii,2)); % temperature-dependent respiration
+    %C1dt(ii,2) = Ka1*(Catm + eps*dpCO2a(ii,2)) - K1a*Q1a^((T(ii,2)-T0)/10)*(C1 + delC1(ii,2)); % temperature-dependent respiration
         
    % C1dt(i,2) = Ka1*(Catm + eps*dpCO2a(i,2))*(1 + Q1a*(T(i,2)-T0)) - K1a*(C1 + delC1(i,2)); % temperature-dependent photosynthesis
     
