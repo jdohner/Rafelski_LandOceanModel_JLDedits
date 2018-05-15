@@ -19,7 +19,7 @@ Tconst = 18.2; % surface temperature, deg C, from Joos 1996
 ts = 12; % timesteps per year
 dt = 1/ts;
 start_year = 1850;
-end_year = 2015.5;%2009+(7/12);%2015.5;%2011.5;%2009+(7/12); %2006;2015.5; %
+end_year = 2015.5;%2009+(7/12);
 year2 = (start_year:(1/ts):end_year)';
 beta = [0.5;2]; % initial guesses for model fit (epsilon, q10)
 Aoc = 3.62E14; % surface area of ocean, m^2, from Joos 1996
@@ -78,12 +78,14 @@ end
 %% load data
 
 % give access to data files in co2_forward_data folder
+
+
 addpath(genpath(...
-    '/Users/juliadohner/Documents/MATLAB/JLDedits_Rafelski_LandOceanModel/co2_forward/co2_forward_data'));
-addpath(genpath(...
-    '/Users/juliadohner/Documents/MATLAB/JLDedits_Rafelski_LandOceanModel/co2_forward/co2_forward_data_2016'));
-addpath(genpath(...
-    '/Users/juliadohner/Documents/MATLAB/JLDedits_Rafelski_LandOceanModel/v3_params_match/sst_data'));
+    '/Users/juliadohner/Documents/MATLAB/JLDedits_Rafelski_LandOceanModel/v3_params_match/necessary_data'))';
+% addpath(genpath(...
+%     '/Users/juliadohner/Documents/MATLAB/JLDedits_Rafelski_LandOceanModel/co2_forward/co2_forward_data_2016'));
+% addpath(genpath(...
+%     '/Users/juliadohner/Documents/MATLAB/JLDedits_Rafelski_LandOceanModel/v3_params_match/sst_data'));
 
 
 
@@ -378,67 +380,46 @@ legend('Residual uptake','land uptake with T effects')
 grid
 end
 
-    
 
-
-% Do "reverse deconvolution" to calculate modeled atmospheric change in
-% CO2
+% Do "reverse deconvolution" to calculate modeled CO2 change
 i4 = find(fas(:,1) == start_year);
 j4 = find(fas(:,1) == end_year);
 
-%i5 = find(fas(:,1) == start_year);
-%j5 = find(fas(:,1) == end_year);
 
 if(LUlevel==1)
     newat(:,1) = year2;
     newat(:,2) =  ff(:,2) - Aoc*fas(:,2) + LU(:,2) + delCdt(:,2);
-    
-    % JLD code below:
-%     newat(:,2) =  ff(i2:j2,2)....
-%     - Aoc*fas(i3:j3,2) + LU(1:length(year2),2) + delCdt(:,2) ;
 
 elseif(LUlevel==2)
     
     % 1850 to 2005  --- units on this?
     newat(:,1) = year2;
 newat(:,2) =  ff(:,2) - Aoc*fas(:,2) + LUex(:,2) + delCdt(:,2);
-%JLD 3/13/18 changed from delCdt(:,2) to delCdt(1:1867,2)
-%JLD 3/21/18 this case will continue past where LR plots it- should match
-%up to 2005.5
 
-    % JLD code below:
-%     newat(:,1) = year2;
-%     newat(:,2) =  ff(i2:j2,2)....
-%     - Aoc*fas(i3:j3,2) + LUex(1:length(year2),2) + delCdt(:,2) ;
 end
 
-
-
-CO2_2016 = csvread('mergedCO2_2016.csv');
-CO2_2016mo(:,1) = year2;
-CO2_2016mo(:,2) = (interp1(CO2_2016(:,1),CO2_2016(:,2),year2)).';
     
-co2_preind = mean(CO2_2016(1:1000,2));
+co2_preind = 600/2.12; % around 283 ppm (preindustrial)
 
 atmcalc(:,1) = year2;
 atmcalc(:,2) = cumsum(newat(:,2)/12);
 atmcalc(:,2) = atmcalc(:,2)+co2_preind;
 
 co2_diff(:,1) = year2;
-co2_diff(:,2) = CO2_2016mo(:,2)-atmcalc(:,2);
+co2_diff(:,2) = CO2a(:,2)-atmcalc(:,2);
 i6 = find(co2_diff(:,1) == 1959);
 j6 = find(co2_diff(:,1) == 1979);
 meandiff = mean(co2_diff(i6:j6,2)); % mean difference over 1959-1979
 atmcalc2 = atmcalc(:,2)+meandiff;
 
 obsCalcDiff(:,1) = year2;
-obsCalcDiff(:,2) = CO2_2016mo(:,2) - atmcalc2(:,1); 
+obsCalcDiff(:,2) = CO2a(:,2) - atmcalc2(:,1); 
 
 if varSST == 1
     
     figure('Name','Modeled vs. Observed CO2')
     subplot(4,1,1)
-    plot(CO2_2016mo(:,1), CO2_2016mo(:,2),year2,atmcalc2);
+    plot(CO2a(:,1), CO2a(:,2),year2,atmcalc2);
     xlabel('year')
     ylabel('ppm CO2')
     title('Atmospheric CO2 history')
@@ -474,7 +455,7 @@ else
 
     figure('Name','Modeled vs. Observed CO2')
     subplot(3,1,1)
-    plot(CO2_2016mo(:,1), CO2_2016mo(:,2),year2,atmcalc2);
+    plot(CO2a(:,1), CO2a(:,2),year2,atmcalc2);
     xlabel('year')
     ylabel('ppm CO2')
     title('Atmospheric CO2 history')
