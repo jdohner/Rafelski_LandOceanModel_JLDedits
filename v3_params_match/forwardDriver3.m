@@ -9,7 +9,7 @@ clear all
 
 %% define time frame, cases
 
-varSST = 1; %1 if variable sst, 0 if fixed sst
+varSST = 0; %1 if variable sst, 0 if fixed sst
 nitrogen = 0; % 1 = yes, 0 = no; account for nitrogen fertilization?
 filter = 1; % filter the data? 1 = 10 year filter; 2 = unfiltered
 tropicalLU = 1; % 1 = use tropical LU, 0 = extratropical LU
@@ -19,7 +19,7 @@ Tconst = 18.2; % surface temperature, deg C, from Joos 1996
 ts = 12; % timesteps per year
 dt = 1/ts;
 start_year = 1850;
-end_year = 2015.5;%2009+(7/12);
+end_year = 2014.5;%2009+(7/12);
 year2 = (start_year:(1/ts):end_year)';
 beta = [0.5;2]; % initial guesses for model fit (epsilon, q10)
 Aoc = 3.62E14; % surface area of ocean, m^2, from Joos 1996
@@ -89,8 +89,8 @@ addpath(genpath(...
 
 
 
-% loading temp data
-addpath(genpath('/Users/juliadohner/Documents/MATLAB/Rafelski_LandOceanModel_JLDedits/co2_forward/co2_forward_data'));
+% % loading temp data
+% addpath(genpath('/Users/juliadohner/Documents/MATLAB/Rafelski_LandOceanModel_JLDedits/co2_forward/co2_forward_data'));
 
 
 %[dtdelpCO2a,dpCO2a,CO2a] = MLOinterpolate_increment2(ts,start_year,end_year); 
@@ -105,7 +105,8 @@ X = temp_anom(:,:);
 %% fitting parameters for cases
 
 %[~, ff, LU, LUex] = getSourceSink3(year2, ts); % for LR record
-[ff, LU] = getSourceSink4(year2, ts); % for trying different LU
+%[ff, LU] = getSourceSink4(year2, ts); % for trying different LU
+[ff, LU] = getSourceSink5(year2, ts); % for updated FF & LU
 
 if tropicalLU == 0
     LU = LUex;

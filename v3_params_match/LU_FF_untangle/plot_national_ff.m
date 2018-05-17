@@ -22,6 +22,8 @@
 %Emissions from gas flaring	Per capita CO2 emissions (metric tons of carbon)	
 %Emissions from bunker fuels (not included in the totals)
 
+clear all
+
 addpath(genpath(...
     '/Users/juliadohner/Documents/MATLAB/JLDedits_Rafelski_LandOceanModel/v3_params_match/LU_FF_untangle/nationalFFdata'));
 % top 10: 1. china, 2. usa, 3. india, 4. russia, 5. japan, 6. germany

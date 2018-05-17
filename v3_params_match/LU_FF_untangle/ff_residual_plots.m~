@@ -50,28 +50,21 @@ usa_tot_n = [usa_total(:,1) usa_total(:,2)./max(usa_total(:,2))];
 india_tot_n = [india_total(:,1) india_total(:,2)./max(india_total(:,2))];
 russia_tot_n = [russia_total(:,1) russia_total(:,2)./max(russia_total(:,2))];
 
-figure
-plot(hough_norm(:,1),hough_norm(:,2),china_tot_n(:,1),china_tot_n(:,2),usa_tot_n(:,1),...
-    usa_tot_n(:,2),india_tot_n(:,1),india_tot_n(:,2),russia_tot_n(:,1),russia_tot_n(:,2));
-title('normalized national emissions with residual overlaid')
-legend('residual','china','usa','india','russia')
+% figure
+% plot(hough_norm(:,1),hough_norm(:,2),china_tot_n(:,1),china_tot_n(:,2),usa_tot_n(:,1),...
+%     usa_tot_n(:,2),india_tot_n(:,1),india_tot_n(:,2),russia_tot_n(:,1),russia_tot_n(:,2));
+% title('normalized national emissions with residual overlaid')
 
 load updatedFF;
 load updatedLU;
 
 
 % plot derivatives of residuals
-yearUpdated = updatedFFLU_resid(:,1);
-updatedResid_ddt = diff([eps;updatedFFLU_resid(:,2)])./diff([eps;updatedFFLU_resid(:,1)]);
+dydx = diff([eps; y(:)])./diff([eps; x(:)]);
+updatedResid_ddt = diff(updatedFFLU_resid(:,2))./diff(updatedFFLU_resid(:,1));
 updatedResid_smooth = smooth(updatedFFLU_resid(:,2),15);
-updatedResidsm_ddt = diff([eps;updatedResid_smooth])./diff([eps;updatedFFLU_resid(:,1)]);
-
+updatedResidsm_ddt = diff(updatedResid_smooth)./diff(updatedFFLU_resid(:,1));
+%hough_boxcar = l_boxcar(updatedFFLU_resid,10,12,1,length(updatedFFLU_resid),1,2);
 
 figure
-subplot(2,1,1)
-plot(yearUpdated,updatedResid_ddt)
-title('derivate of residual using updated ff and lu');
-
-subplot(2,1,2)
-plot(yearUpdated,updatedResidsm_ddt)
-title('derivate of smoothed residual using updated ff and lu');
+plot(updatedResid_ddt(:,1),updatedResid_ddt(:,2))
