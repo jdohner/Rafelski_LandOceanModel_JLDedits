@@ -17,6 +17,9 @@ month_2016 = (1959:(1/12):2016)';
 
 addpath(genpath(...
     '/Users/juliadohner/Documents/MATLAB/JLDedits_Rafelski_LandOceanModel/v3_params_match/LU_data'));
+addpath(genpath(...
+    '/Users/juliadohner/Documents/MATLAB/JLDedits_Rafelski_LandOceanModel/v3_params_match/necessary_data'));
+
 
 % historical LU 1800-1960
 hist = csvread('Historical_LU.csv');
@@ -65,7 +68,7 @@ xlabel('year')
 %CLASS-CTEM_LU.csv
 % global carbon project
 GCB = csvread('GCB_LU.csv');
-Hough = csvread('Houghton_LU.csv');
+Hough = csvread('Houghton_global_2015.csv');
 BLUE = csvread('BLUE_LU.csv');
 CABLE = csvread('CABLE_LU.csv');
 CLASS = csvread('CLASS-CTEM_LU.csv');
