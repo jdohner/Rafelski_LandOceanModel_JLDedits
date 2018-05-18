@@ -104,9 +104,9 @@ X = temp_anom(:,:);
 
 %% fitting parameters for cases
 
-%[~, ff, LU, LUex] = getSourceSink3(year2, ts); % for LR record
+[~, ff, LU, LUex] = getSourceSink3(year2, ts); % for LR record
 %[ff, LU] = getSourceSink4(year2, ts); % for trying different LU
-[ff, LU] = getSourceSink5(year2, ts); % for updated FF & LU
+%[ff, LU] = getSourceSink5(year2, ts); % for updated FF & LU
 
 if tropicalLU == 0
     LU = LUex;
