@@ -52,15 +52,10 @@ load LR_LU_LUex2016.mat; % land use records used in Rafelski 2009
 % plot all LU cases over one another
 figure
 subplot(2,2,[1 2])
+title('land use cases', 'FontSize', 24)
 plot(LUhoughmo(:,1),LUhoughmo(:,2),LUhansismo(:,1),LUhansismo(:,2), ...
     LUhistmo(:,1),LUhistmo(:,2),LU(:,1),LU(:,2), LUex(:,1),LUex(:,2))
-grid
-title('Land Use Datasets', 'FontSize', 24)
-legend({'Houghton et al. 2015','Hansis et al. 2017',...
-    'Global Carbon Project Average','Rafelski 2009 High',...
-    'Rafelski 2009 Low'}, 'location','northwest','FontSize', 14)
-xlabel('year', 'FontSize', 24)
-ylabel('ppm', 'FontSize', 24)
+legend({'houghton','hansis','GCP','LR high','LR low'}, 'FontSize', 14)
 
 % load residuals from driver using most recent ff data, all different lu
 % cases 5 total - all for CHM-V with constant SST
@@ -87,10 +82,9 @@ subplot(2,2,3)
 plot(year2,CO2a(:,2),year2,hough_co2,year2,hansis_co2,year2,gcp_co2,year2,...
     LRLU_co2,year2,LRLUex_co2)
 grid
-title('Modeled and Observed CO_2 Records', 'FontSize', 24)
-legend({'Observed CO2','Houghton et al. 2015','Hansis et al. 2017',...
-    'Global Carbon Project Average','Rafelski 2009 High',...
-    'Rafelski 2009 Low'}, 'location','northwest','FontSize', 14)
+title('modeled and observed co2 records', 'FontSize', 24)
+legend({'observed co2','houghton','hansis','GCP','LR high','LR low'},...
+    'location','northwest', 'FontSize', 14)
 xlabel('year', 'FontSize', 24)
 ylabel('ppm', 'FontSize', 24)
 
@@ -98,14 +92,9 @@ ylabel('ppm', 'FontSize', 24)
 subplot(2,2,4)
 plot(year2,hough_resid(:,2),year2,hansis_resid(:,2),year2,gcp_resid(:,2),...
     year2,LRLU_resid(:,2),year2,LRLUex_resid(:,2))
-grid
-title('Observed - Modeled CO_2', 'FontSize', 24)
-legend({'Houghton et al. 2015','Hansis et al. 2017',...
-    'Global Carbon Project Average','Rafelski 2009 High',...
-    'Rafelski 2009 Low'}, 'FontSize', 14)
-line([year2(1),year2(end)],[0,0],'linestyle','--');
-xlabel('year', 'FontSize', 24)
-ylabel('ppm', 'FontSize', 24)
+legend({'houghton','hansis','gcp','Rafelski 09 high','Rafelski 09 low'},...
+    'FontSize', 14)
+
 
 
 % smooth residual of Houghton

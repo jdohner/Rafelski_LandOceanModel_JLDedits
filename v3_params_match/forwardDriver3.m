@@ -19,7 +19,7 @@ Tconst = 18.2; % surface temperature, deg C, from Joos 1996
 ts = 12; % timesteps per year
 dt = 1/ts;
 start_year = 1850;
-end_year = 2014.5;%2009+(7/12);
+end_year = 2015.5;%2009+(7/12);
 year2 = (start_year:(1/ts):end_year)';
 beta = [0.5;2]; % initial guesses for model fit (epsilon, q10)
 Aoc = 3.62E14; % surface area of ocean, m^2, from Joos 1996
@@ -78,22 +78,10 @@ end
 %% load data
 
 % give access to data files in co2_forward_data folder
-
-
 addpath(genpath(...
     '/Users/juliadohner/Documents/MATLAB/JLDedits_Rafelski_LandOceanModel/v3_params_match/necessary_data'))';
-% addpath(genpath(...
-%     '/Users/juliadohner/Documents/MATLAB/JLDedits_Rafelski_LandOceanModel/co2_forward/co2_forward_data_2016'));
-% addpath(genpath(...
-%     '/Users/juliadohner/Documents/MATLAB/JLDedits_Rafelski_LandOceanModel/v3_params_match/sst_data'));
 
 
-
-% % loading temp data
-% addpath(genpath('/Users/juliadohner/Documents/MATLAB/Rafelski_LandOceanModel_JLDedits/co2_forward/co2_forward_data'));
-
-
-%[dtdelpCO2a,dpCO2a,CO2a] = MLOinterpolate_increment2(ts,start_year,end_year); 
 [dtdelpCO2a,dpCO2a,~,~,CO2a] = getObservedCO2_2(ts,start_year,end_year);
 
 
@@ -104,9 +92,9 @@ X = temp_anom(:,:);
 
 %% fitting parameters for cases
 
-[~, ff, LU, LUex] = getSourceSink3(year2, ts); % for LR record
+%[~, ff, LU, LUex] = getSourceSink3(year2, ts); % for LR record
 %[ff, LU] = getSourceSink4(year2, ts); % for trying different LU
-%[ff, LU] = getSourceSink5(year2, ts); % for updated FF & LU
+[ff, LU] = getSourceSink5(year2, ts); % for updated FF & LU
 
 if tropicalLU == 0
     LU = LUex;
