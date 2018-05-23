@@ -123,32 +123,16 @@ LRLUex_resid_sm0 = smooth(LRLUex_resid(:,2),59);
 % rloess smoothing
 hough_resid_rloess0 = smooth(hough_resid(:,1),hough_resid(:,2),0.3,'rloess');
 hansis_resid_rloess0 = smooth(hansis_resid(:,1),hansis_resid(:,2),0.3,'rloess');
-gcp_resid_rloess0 = smooth(gcp_resid(:,1),gcp_resid(:,2),0.3,'rloess');
-LRLU_resid_rloess0 = smooth(LRLU_resid(:,1),LRLU_resid(:,2),0.3,'rloess');
-LRLUex_resid_rloess0 = smooth(LRLUex_resid(:,1),LRLUex_resid(:,2),0.3,'rloess');
+gcp_resid_sm0 = smooth(gcp_resid(:,1),gcp_resid(:,2),0.3,'rloes
 
 % smoothed residuals as fluxes - taking annual differences (Jan - Jan)
-hough_resid_sm1 = hough_resid_sm0(1:12:end);
 hansis_resid_sm1 = hansis_resid_sm0(1:12:end);
-gcp_resid_sm1 = gcp_resid_sm0(1:12:end);
-LRLU_resid_sm1 = LRLU_resid_sm0(1:12:end);
-LRLUex_resid_sm1 = LRLUex_resid_sm0(1:12:end);
-
-hough_resid_rloess1 = hough_resid_rloess0(1:12:end);
 hansis_resid_rloess1 = hansis_resid_rloess0(1:12:end);
-gcp_resid_rloess1 = gcp_resid_rloess0(1:12:end);
-LRLU_resid_rloess1 = LRLU_resid_rloess0(1:12:end);
-LRLUex_resid_rloess1 = LRLUex_resid_rloess0(1:12:end);
-year_sm = year2(1:12:end);
+year_sm = hansis_resid(1:12:end,1);
 
-for i = 1:length(year_sm)-1
+for i = 1:length(hansis_resid_sm1)-1
     
-    hough_resid_ddt(i,1) = year_sm(i);
     hansis_resid_ddt(i,1) = year_sm(i);
-    gcp_resid_ddt(i,1) = year_sm(i);
-    LRLU_resid_ddt(i,1) = year_sm(i);
-    LRLUex_resid_ddt(i,1) = year_sm(i);
-    
     hansis_resid_ddt(i,2) = hansis_resid_sm1(i+1)-hansis_resid_sm1(i);
     
     hansis_residrloess_ddt(i,1) = year_sm(i);

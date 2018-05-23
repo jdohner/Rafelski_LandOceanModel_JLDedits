@@ -479,8 +479,22 @@ xlabel('year')
 ylabel('ppm / year')
 grid
 
-
 saveas(gcf,'landFluxFig.fig')
+
+atmos_smooth = smooth(CO2a(:,2),5);
+dtdelpCO2a_sm = smooth(dtdelpCO2a(:,2),29); %~ 5 yr running mean. boxcar of 59 months
+imbalance = 0;
+
+% sources and sinks plot in fluxes
+figure('Name','Sources and Sinks')
+plot(ff(:,1),ff(:,2),year2,-dtdelpCO2a_sm,fas(:,1),...
+    -Aoc*fas(:,2),delC10(:,1),yhat2,LU(:,1),LU(:,2))
+line([year2(1),year2(end)],[0,0],'linestyle',':');
+set(gca,'Xlim',[1900 2010]) 
+legend('fossil fuel','atmosphere','ocean','land','land use','Location','SouthWest')
+
+
+
 
 
 elseif strcmpi('no',inputStr2)
