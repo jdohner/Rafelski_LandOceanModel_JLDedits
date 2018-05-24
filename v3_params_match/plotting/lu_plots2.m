@@ -141,41 +141,118 @@ LRLU_resid_rloess1 = LRLU_resid_rloess0(1:12:end);
 LRLUex_resid_rloess1 = LRLUex_resid_rloess0(1:12:end);
 year_sm = year2(1:12:end);
 
+blankVec(:,1) = year_sm;
+blankVec(:,2) = 0;
+hough_resid_ddt = blankVec;
+hansis_resid_ddt = blankVec;
+gcp_resid_ddt = blankVec;
+LRLU_resid_ddt = blankVec;
+LRLUex_resid_ddt = blankVec;
+
+blankVec2(:,1) = year_sm;
+blankVec2(:,2) = 0;
+hough_residrloess_ddt = blankVec2;
+hansis_residrloess_ddt = blankVec2;
+gcp_residrloess_ddt = blankVec2;
+LRLU_residrloess_ddt = blankVec2;
+LRLUex_residrloess_ddt = blankVec2;
+
+% calculating derivative as Jan value - Jan value from previous year
 for i = 1:length(year_sm)-1
     
-    hough_resid_ddt(i,1) = year_sm(i);
-    hansis_resid_ddt(i,1) = year_sm(i);
-    gcp_resid_ddt(i,1) = year_sm(i);
-    LRLU_resid_ddt(i,1) = year_sm(i);
-    LRLUex_resid_ddt(i,1) = year_sm(i);
-    
+    hough_resid_ddt(i,2) = hough_resid_sm1(i+1)-hough_resid_sm1(i);
     hansis_resid_ddt(i,2) = hansis_resid_sm1(i+1)-hansis_resid_sm1(i);
+    gcp_resid_ddt(i,2) = gcp_resid_sm1(i+1)-gcp_resid_sm1(i);
+    LRLU_resid_ddt(i,2) = LRLU_resid_sm1(i+1)-LRLU_resid_sm1(i);
+    LRLUex_resid_ddt(i,2) = LRLUex_resid_sm1(i+1)-LRLUex_resid_sm1(i);
     
-    hansis_residrloess_ddt(i,1) = year_sm(i);
+    
+    hough_residrloess_ddt(i,2) = hough_resid_rloess1(i+1)-hough_resid_rloess1(i);
     hansis_residrloess_ddt(i,2) = hansis_resid_rloess1(i+1)-hansis_resid_rloess1(i);
+    gcp_residrloess_ddt(i,2) = gcp_resid_rloess1(i+1)-gcp_resid_rloess1(i);
+    LRLU_residrloess_ddt(i,2) = LRLU_resid_rloess1(i+1)-LRLU_resid_rloess1(i);
+    LRLUex_residrloess_ddt(i,2) = LRLUex_resid_rloess1(i+1)-LRLUex_resid_rloess1(i);
 
 end
 
 figure
-subplot(2,1,1)
-plot(year2,hansis_resid_sm0,year2,hansis_resid_rloess0)
-legend('hansis smoothed default','hansis smoothed rloess')
+subplot(3,2,[1 2])
+h1a = plot(year2,hansis_resid_sm0);
+hold on;
+h1b = plot(year2,hansis_resid_rloess0);
+h2a = plot(year2, hough_resid_sm0);
+h2b = plot(year2,hough_resid_rloess0);
+h3a = plot(year2, gcp_resid_sm0);
+h3b = plot(year2,gcp_resid_rloess0);
+h4a = plot(year2, LRLU_resid_sm0);
+h4b = plot(year2,LRLU_resid_rloess0);
+h5a = plot(year2, LRLUex_resid_sm0);
+h5b = plot(year2,LRLUex_resid_rloess0);
+% plot(year2,hansis_resid_sm0,year2,hansis_resid_rloess0,...
+%     year2, hough_resid_sm0,year2,hough_resid_rloess0,...
+%     year2, gcp_resid_sm0,year2,gcp_resid_rloess0,...
+%     year2, LRLU_resid_sm0,year2,LRLU_resid_rloess0,...
+%     year2, LRLUex_resid_sm0,year2,LRLUex_resid_rloess0)
 line([year2(1),year2(end)],[0,0],'linestyle','--');
+title('Smoothed residuals (obs-calc) of land use cases (default, rloess smoothing)',...
+    'FontSize', 18);
+legend([h1a h3a h2a  h4a h5a],{'hansis','GCP','houghton','Rafelski high','Rafelski low'},...
+    'FontSize', 12);
+% legend('hansis smoothed','','houghton smoothed','','gcp smoothed','',...
+%     'Rafelski high LU smoothed','','Rafelski low LU smoothed','',...
+%     'location','northwest')
 grid
-xlabel('year')
-ylabel('GtC')
-subplot(2,1,2)
+xlabel('year','FontSize', 18)
+ylabel('GtC','FontSize', 18)
+subplot(3,2,3)
+plot(hough_resid_ddt(:,1),hough_resid_ddt(:,2),...
+    hough_residrloess_ddt(:,1),hough_residrloess_ddt(:,2))
+line([year2(1),year2(end)],[0,0],'linestyle','--');
+title('Houghton - Derivative of residuals (default smooth, rloess)',...
+    'FontSize', 18);
+% legend('Houghton - derivative of defalt smoothed residuals',...
+%     'Houghton - derivative of rloess smoothed residuals','location',...
+%     'northwest')
+grid
+xlabel('year','FontSize', 18)
+ylabel('GtC/year','FontSize', 18)
+subplot(3,2,4)
 plot(hansis_resid_ddt(:,1),hansis_resid_ddt(:,2),...
     hansis_residrloess_ddt(:,1),hansis_residrloess_ddt(:,2))
-legend('derivative of defalt smoothed hansis residuals',...
-    'derivative of rloess smoothed hansis residuals')
 line([year2(1),year2(end)],[0,0],'linestyle','--');
+title('Hansis - Derivative of residuals (default smooth, rloess)',...
+    'FontSize', 18);
+% legend('Hansis - derivative of defalt smoothed residuals',...
+%     'Hansis - derivative of rloess smoothed residuals','location',...
+%     'northwest')
 grid
-xlabel('year')
-ylabel('GtC/year')
-
-
-
-% smooth residual of Houghton
-
-% plot derivative
+xlabel('year','FontSize', 18)
+ylabel('GtC/year','FontSize', 18)
+subplot(3,2,5)
+plot(gcp_resid_ddt(:,1),gcp_resid_ddt(:,2),...
+    gcp_residrloess_ddt(:,1),gcp_residrloess_ddt(:,2))
+line([year2(1),year2(end)],[0,0],'linestyle','--');
+title('GCP - Derivative of residuals (default smooth, rloess',...
+    'FontSize', 18);
+% legend('GCP - derivative of defalt smoothed residuals',...
+%     'GCP - derivative of rloess smoothed residuals','location',...
+%     'northwest')
+grid
+xlabel('year','FontSize', 18)
+ylabel('GtC/year','FontSize', 18)
+subplot(3,2,6)
+plot(LRLU_resid_ddt(:,1),LRLU_resid_ddt(:,2),...
+    LRLU_residrloess_ddt(:,1),LRLU_residrloess_ddt(:,2),...
+    LRLUex_resid_ddt(:,1),LRLUex_resid_ddt(:,2),...
+    LRLUex_residrloess_ddt(:,1),LRLUex_residrloess_ddt(:,2))
+line([year2(1),year2(end)],[0,0],'linestyle','--');
+title('LR high and low - Derivative of residuals (default smooth, rloess)',...
+    'FontSize', 18);
+% legend('LR high - derivative of defalt smoothed residuals',...
+%     'LR high - derivative of rloess smoothed residuals', ...
+%     'LR low - derivative of defalt smoothed residuals',...
+%     'LR low - derivative of rloess smoothed residuals','location',...
+%     'northwest')
+grid
+xlabel('year','FontSize', 18)
+ylabel('GtC/year','FontSize', 18)
