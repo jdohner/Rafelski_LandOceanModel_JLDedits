@@ -141,8 +141,8 @@ LRLU_resid_rloess1 = LRLU_resid_rloess0(1:12:end);
 LRLUex_resid_rloess1 = LRLUex_resid_rloess0(1:12:end);
 year_sm = year2(1:12:end);
 
-blankVec(:,1) = year_sm;
-blankVec(:,2) = 0;
+blankVec(:,1) = year_sm(1:end-1);
+blankVec(:,2) = zeros(length(year_sm)-1,1);
 hough_resid_ddt = blankVec;
 hansis_resid_ddt = blankVec;
 gcp_resid_ddt = blankVec;
