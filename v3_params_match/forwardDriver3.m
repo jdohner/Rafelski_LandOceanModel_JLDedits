@@ -13,20 +13,19 @@ varSST = 0; %1 if variable sst, 0 if fixed sst
 nitrogen = 0; % 1 = yes, 0 = no; account for nitrogen fertilization?
 filter = 1; % filter the data? 1 = 10 year filter; 2 = unfiltered
 tropicalLU = 1; % 1 = use tropical LU, 0 = extratropical LU
-inputStr = 'CHM-V';
+inputStr = 'CHM-C';
 
 Tconst = 18.2; % surface temperature, deg C, from Joos 1996
 ts = 12; % timesteps per year
 dt = 1/ts;
 start_year = 1850;
-end_year = 2015.5;%2009+(7/12);
+end_year = 2015.5;%2009+(7/12);%
 year2 = (start_year:(1/ts):end_year)';
 beta = [0.5;2]; % initial guesses for model fit (epsilon, q10)
 Aoc = 3.62E14; % surface area of ocean, m^2, from Joos 1996
 
 
 save('yearInfo','start_year','end_year','ts','year2');
-
 
 
 %% fitting parameters
@@ -44,10 +43,14 @@ save('yearInfo','start_year','end_year','ts','year2');
 %
 % temperature dependent: tempDep = 1
 % temperature independent: tempDep = 2
-if inputStr == 'CHH-V'
+if inputStr == 'CHM-C'
     LUlevel = 1;
-    oceanUptake = 1;
-    tempDep = 1;
+    oceanUptake = 2;
+    tempDep = 0;
+    elseif inputStr == 'CHH-V'
+        LUlevel = 1;
+        oceanUptake = 1;
+        tempDep = 1;
     elseif inputStr == 'CLH-V'
         LUlevel = 2;
         oceanUptake = 1;
@@ -73,6 +76,9 @@ if inputStr == 'CHH-V'
         inputStr = input(prompt2);
 end
 
+if tempDep == 0
+    beta = [0.5,1]
+end
 
 
 %% load data
@@ -82,7 +88,7 @@ addpath(genpath(...
     '/Users/juliadohner/Documents/MATLAB/JLDedits_Rafelski_LandOceanModel/v3_params_match/necessary_data'))';
 
 
-[dtdelpCO2a,dpCO2a,~,~,CO2a] = getObservedCO2_2(ts,start_year,end_year);
+[dtdelpCO2a_obs,dpCO2a_obs,~,~,CO2a_obs] = getObservedCO2_2(ts,start_year,end_year);
 
 
 %% get temp record
@@ -120,8 +126,8 @@ end
 % using high land use emissions
 % i = length(year2);
 
-i1 = find(dtdelpCO2a(:,1) >= start_year,1);
-j1 = find(dtdelpCO2a(:,1) >= end_year);
+i1 = find(dtdelpCO2a_obs(:,1) >= start_year,1);
+j1 = find(dtdelpCO2a_obs(:,1) >= end_year);
 % i1 = find(floor(100*dtdelpCO2a(:,1)) == floor(100*(start_year+(1/24))));
 % j1 = find(floor(100*dtdelpCO2a(:,1)) == floor(100*(end_year+(1/24))));
 
@@ -145,7 +151,7 @@ j2 = find(ff(:,1) == end_year);
 residual(:,1) = year2;
 %residual(:,2) = dtdelpCO2a(i1:j1,2) - ff(i2:j2,2)....
 %+ Aoc*fas(i3:j3,2) - LU(1:length(year2),2);
-residual(:,2) = dtdelpCO2a(:,2) - ff(:,2) + Aoc*fas(:,2) - LU(:,2);
+residual(:,2) = dtdelpCO2a_obs(:,2) - ff(:,2) + Aoc*fas(:,2) - LU(:,2);
 
 %else 
     
@@ -155,7 +161,7 @@ LUex(1802:length(year2),2) = 0;
 
 % using extratropical emissions only
 residual2(:,1) = year2;
-residual2(:,2) = dtdelpCO2a(:,2) - ff(:,2)....
+residual2(:,2) = dtdelpCO2a_obs(:,2) - ff(:,2)....
 + Aoc*fas(:,2) - LUex(:,2);
 
 %end
@@ -217,6 +223,7 @@ end
 covariance = inv(J(1:1177,:)'*J(1:1177,:))*sum(resid(1:1177,:).^2)/(N-P) 
 
 [isize,jsize] = size(covariance);
+
 for k=1:isize
     for j=1:jsize
         correlation(k,j) = covariance(k,j)/sqrt(covariance(k,k)*covariance(j,j));
@@ -255,7 +262,7 @@ if strcmpi('yes',inputStr2)
 % Run the best fit values in the model again to plot
 
 
-[C1dt,C2dt,delCdt,delC1,delC2] = bioboxtwo_sub10_annotate(epsilon,Q1,Q2,ts,year2,dpCO2a,temp_anom); 
+[C1dt,C2dt,delCdt,delC1,delC2] = bioboxtwo_sub10_annotate(epsilon,Q1,Q2,ts,year2,dpCO2a_obs,temp_anom); 
  
 %%% Nitrogen%%%
 
@@ -395,20 +402,20 @@ atmcalc(:,2) = cumsum(newat(:,2)/12);
 atmcalc(:,2) = atmcalc(:,2)+co2_preind;
 
 co2_diff(:,1) = year2;
-co2_diff(:,2) = CO2a(:,2)-atmcalc(:,2);
+co2_diff(:,2) = CO2a_obs(:,2)-atmcalc(:,2);
 i6 = find(co2_diff(:,1) == 1959);
 j6 = find(co2_diff(:,1) == 1979);
 meandiff = mean(co2_diff(i6:j6,2)); % mean difference over 1959-1979
 atmcalc2 = atmcalc(:,2)+meandiff;
 
 obsCalcDiff(:,1) = year2;
-obsCalcDiff(:,2) = CO2a(:,2) - atmcalc2(:,1); 
+obsCalcDiff(:,2) = CO2a_obs(:,2) - atmcalc2(:,1); 
 
 if varSST == 1
     
     figure('Name','Modeled vs. Observed CO2')
     subplot(4,1,1)
-    plot(CO2a(:,1), CO2a(:,2),year2,atmcalc2);
+    plot(CO2a_obs(:,1), CO2a_obs(:,2),year2,atmcalc2);
     xlabel('year')
     ylabel('ppm CO2')
     title('Atmospheric CO2 history')
@@ -444,7 +451,7 @@ else
 
     figure('Name','Modeled vs. Observed CO2')
     subplot(3,1,1)
-    plot(CO2a(:,1), CO2a(:,2),year2,atmcalc2);
+    plot(CO2a_obs(:,1), CO2a_obs(:,2),year2,atmcalc2);
     xlabel('year')
     ylabel('ppm CO2')
     title('Atmospheric CO2 history')
@@ -481,8 +488,8 @@ grid
 
 saveas(gcf,'landFluxFig.fig')
 
-atmos_smooth = smooth(CO2a(:,2),5);
-dtdelpCO2a_sm = smooth(dtdelpCO2a(:,2),29); %~ 5 yr running mean. boxcar of 59 months
+atmos_smooth = smooth(CO2a_obs(:,2),5);
+dtdelpCO2a_sm = smooth(dtdelpCO2a_obs(:,2),29); %~ 5 yr running mean. boxcar of 59 months
 imbalance = 0;
 
 % sources and sinks plot in fluxes
@@ -491,7 +498,7 @@ plot(ff(:,1),ff(:,2),year2,-dtdelpCO2a_sm,fas(:,1),...
     -Aoc*fas(:,2),delC10(:,1),yhat2,LU(:,1),LU(:,2))
 line([year2(1),year2(end)],[0,0],'linestyle',':');
 set(gca,'Xlim',[1900 2010]) 
-legend('fossil fuel','atmosphere','ocean','land','land use','Location','SouthWest')
+legend('fossil fuel','observed atmosphere','ocean','modeled land','land use','Location','SouthWest')
 
 
 
