@@ -24,7 +24,7 @@ d2 = 1e-6;
 load obsCO2_record.mat;
 CO2a(:,2) = CO2a(:,2)*d; % convert to PgC
 
-load top4emitters_vars.mat;
+%load top4emitters_vars.mat;
 %load china_total2; %last half year cut off
 load ffdata_total; % 
 load LU_records_monthly; % land use datasets at monthly resolution
