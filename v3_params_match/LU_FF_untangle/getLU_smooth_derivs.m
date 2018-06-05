@@ -9,7 +9,7 @@
 
 clear all
 
-tempDep = 0; % indicate whether tempDep (1) or tempIndep (0)
+tempDep = 1; % indicate whether tempDep (1) or tempIndep (0)
 d = 2.31; % ppm to PgC conversion factor (formerly 1/2.31 opp direction)
 d1 = 0.001; % teragram to petagram conversion factor
 
