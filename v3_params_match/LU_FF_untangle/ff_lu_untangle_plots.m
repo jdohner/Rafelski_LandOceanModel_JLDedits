@@ -7,7 +7,7 @@
 
 clear all
 
-tempDep = 1; % temp dep runs (1) or temp independent runs (0)
+tempDep = 0; % temp dep runs (1) or temp independent runs (0)
 
 addpath(genpath(...
     '/Users/juliadohner/Documents/MATLAB/JLDedits_Rafelski_LandOceanModel/v3_params_match/LU_FF_untangle'));
@@ -31,12 +31,14 @@ load top4emitters_vars.mat;
 load china_total2; %last half year cut off
 
 load LU_records_monthly; % land use datasets at monthly resolution
-load LU_resids_co2.mat; % residuals and calculated co2 records for each LU case
+
 %load lu_resids_smoothed; % residuals smoothed using default
 %load lu_resids_rloess; % residuals smoothed using rloess
 
 if tempDep == 1
     % temperature-dependent runs
+    load LU_resids_co2_tempDep.mat; % residuals and calculated co2 records for each LU case
+    
     load lu_tempDep_resids_sm;
     load lu_tempDep_resids_rloess;
     
@@ -44,6 +46,8 @@ if tempDep == 1
     load lu_tempDep_residFluxes_rloess;
 else
     % temperature-independent runs
+    load LU_resids_co2_tempIndep.mat; % residuals and calculated co2 records for each LU case
+    
     load lu_tempIndep_resids_sm;
     load lu_tempIndep_resids_rloess;
     
@@ -75,7 +79,11 @@ subplot(2,2,3)
 plot(year,CO2a(:,2),year,hough_co2,year,hansis_co2,year,gcp_co2,year,...
     LRLU_co2,year,LRLUex_co2)
 grid
-title('Modeled and Observed CO_2 Records', 'FontSize', 24)
+if tempDep == 1
+    title('Temp-dependent: Modeled and Observed CO_2 Records', 'FontSize', 24)
+else
+    title('Temp-independent: Modeled and Observed CO_2 Records', 'FontSize', 24)
+end
 legend({'Observed CO2','Houghton et al. 2015','Hansis et al. 2017',...
     'Global Carbon Project Average','Rafelski 2009 High',...
     'Rafelski 2009 Low'}, 'location','northwest','FontSize', 14)
@@ -87,7 +95,11 @@ subplot(2,2,4)
 plot(year,hough_resid(:,2),year,hansis_resid(:,2),year,gcp_resid(:,2),...
     year,LRLU_resid(:,2),year,LRLUex_resid(:,2))
 grid
-title('Observed - Modeled CO_2', 'FontSize', 24)
+if tempDep ==1 
+    title('Temp-dependent: Observed - Modeled CO_2', 'FontSize', 24)
+else
+    title('Temp-independent: Observed - Modeled CO_2', 'FontSize', 24)
+end
 legend({'Houghton et al. 2015','Hansis et al. 2017',...
     'Global Carbon Project Average','Rafelski 2009 High',...
     'Rafelski 2009 Low'}, 'FontSize', 14)
@@ -116,8 +128,13 @@ h5b = plot(year,LRLUex_resid_rloess0);
 %     year, LRLU_resid_sm0,year,LRLU_resid_rloess0,...
 %     year, LRLUex_resid_sm0,year,LRLUex_resid_rloess0)
 line([year(1),year(end)],[0,0],'linestyle','--');
-title('Smoothed residuals (obs-calc) of land use cases (default, rloess smoothing)',...
-    'FontSize', 18);
+if tempDep == 1
+    title('Temp-dep: Smoothed residuals (obs-calc) of land use cases (default, rloess smoothing)',...
+        'FontSize', 18);
+else
+    title('Temp-indep: Smoothed residuals (obs-calc) of land use cases (default, rloess smoothing)',...
+        'FontSize', 18);
+end
 legend([h1a h3a h2a  h4a h5a],{'hansis','GCP','houghton','Rafelski high','Rafelski low'},...
     'FontSize', 12);
 % legend('hansis smoothed','','houghton smoothed','','gcp smoothed','',...
@@ -184,11 +201,11 @@ ylabel('GtC/year','FontSize', 18)
 
 figure
 plot(china_total(:,1),d2*china_total(:,2),'.',usa_total(:,1),d2*usa_total(:,2),'.', ...
-    india_total(:,1),d2*india_total(:,2),'.',russia_total(:,1),d2*russia_total(:,2),'.');
-title('total emissions by nation');
+    russia_total(:,1),d2*russia_total(:,2),'.');
+title('Total Emissions by Nation');
 
 ylabel('GtC/year');
-xlabel('year');
+xlabel('Year');
 xlim([1800 2020])
 grid
 
@@ -202,7 +219,7 @@ plot(hough_resid_ddt(:,1),hough_resid_ddt(:,2),hansis_resid_ddt(:,1),...
     LRLU_resid_ddt(:,1),LRLU_resid_ddt(:,2),LRLUex_resid_ddt(:,1),...
     LRLUex_resid_ddt(:,2));
 
-legend('china','usa','india','russia','houghton','hansis','Rafelski high',...
+legend('China','USA','Russia','Houghton','Hansis','GCP','Rafelski high',...
     'Rafelski low','location','northwest');
 
 
@@ -211,11 +228,11 @@ legend('china','usa','india','russia','houghton','hansis','Rafelski high',...
 figure
 subplot(3,1,1)
 plot(china_total(:,1),d2*china_total(:,2),usa_total(:,1),d2*usa_total(:,2), ...
-    india_total(:,1),d2*india_total(:,2),russia_total(:,1),d2*russia_total(:,2));
-title('total emissions by nation');
+    russia_total(:,1),d2*russia_total(:,2));
+title('Total Emissions by Nation');
 line([1840,2020],[0,0],'linestyle','--');
-legend('china','usa','india','russia','location','northwest')
-xlabel('year')
+legend('China','USA','Russia','location','northwest')
+xlabel('Year')
 ylabel('GtC/yr')
 xlim([1840 2020])
 ylim([0 6])
@@ -227,10 +244,15 @@ plot(hough_resid_ddt(:,1),hough_resid_ddt(:,2),hansis_resid_ddt(:,1),...
     LRLU_resid_ddt(:,1),LRLU_resid_ddt(:,2),LRLUex_resid_ddt(:,1),...
     LRLUex_resid_ddt(:,2));
 line([1840,2020],[0,0],'linestyle','--');
-title('model residual fluxes (obs-modeled)');
-legend('houghton','hansis','gcp','Rafelski high',...
+if tempDep == 1
+    title('Temp-dependent: Model Residual Fluxes (Obs-Modeled)');
+else
+    title('Temp-independent: Model Residual Fluxes (Obs-Modeled)');
+end
+
+legend('Houghton','Hansis','GCP','Rafelski high',...
     'Rafelski low','location','northwest');
-xlabel('year')
+xlabel('Year')
 ylabel('GtC/yr')
 xlim([1840 2020])
 ylim([-3 3])
@@ -240,8 +262,8 @@ subplot(3,1,3)
 plot(LUhoughmo(:,1),LUhoughmo(:,2),LUhansismo(:,1),LUhansismo(:,2),...
     LUgcpmo(:,1),LUgcpmo(:,2),LU(:,1),LU(:,2),LUex(:,1),LUex(:,2))
 line([1840,2020],[0,0],'linestyle','--');
-title('land use records');
-legend('houghton','hansis','gcp','rafelski high','rafelski low','location',...
+title('Land Use Records');
+legend('Houghton','Hansis','GCP','Rafelski high','Rafelski low','location',...
     'northwest')
 xlabel('year')
 ylabel('GtC/yr')
@@ -249,3 +271,47 @@ xlim([1840 2020])
 ylim([-2 4])
 grid
 
+%% t-dep vs. t-indep comparison figure
+
+if tempDep == 1
+    hough_co2_tempDep = hough_co2;
+    hough_resid_tempDep = hough_resid;
+    load LU_resids_co2_tempIndep;
+    hough_co2_tempIndep = hough_co2;
+    hough_resid_tempIndep = hough_resid;
+else
+    hough_co2_tempIndep = hough_co2;
+    hough_resid_tempIndep = hough_resid;
+    load LU_resids_co2_tempDep;
+    hough_co2_tempDep = hough_co2;
+    hough_resid_tempDep = hough_resid;
+end
+
+tempRuns_diff = hough_co2_tempDep - hough_co2_tempIndep;
+
+figure
+subplot(3,1,1)
+plot(year,hough_co2_tempDep,year,hough_co2_tempIndep)
+title('Temp-dependent & Temp-independent runs of Houghton Land Use - Modeled CO_2')
+legend('Hough CO_2 T-dependent','Hough CO_2 T-independent')
+xlabel('Year')
+ylabel('GtC')
+grid
+
+subplot(3,1,2)
+plot(year,tempRuns_diff)
+line([1840,2020],[0,0],'linestyle','--');
+title('Difference between T-dep and T-indep modeled CO_2 using Houghton Land Use')
+legend('Temp-dep - Temp-indep Predicted CO_2')
+xlabel('Year')
+ylabel('GtC')
+grid
+
+subplot(3,1,3)
+plot(year,hough_resid_tempDep(:,2),year,hough_resid_tempIndep(:,2))
+line([1840,2020],[0,0],'linestyle','--');
+title('Temp-dep & Temp-indep runs of Houghton Land Use - Observed-Modeled CO_2 residuals')
+legend('Hough residual T-dependent','Hough residual T-independent')
+xlabel('Year')
+ylabel('GtC')
+grid

@@ -9,7 +9,7 @@
 
 clear all
 
-tempDep = 1; % indicate whether tempDep (1) or tempIndep (0)
+tempDep = 0; % indicate whether tempDep (1) or tempIndep (0)
 d = 2.31; % ppm to PgC conversion factor (formerly 1/2.31 opp direction)
 d1 = 0.001; % teragram to petagram conversion factor
 
@@ -24,26 +24,52 @@ load LU_records_monthly; % load LU records at monthly resolution
 load obsCO2_record.mat;
 CO2a(:,2) = CO2a(:,2)*d;
 load updatedYear_vec.mat; % gives year2 vector
-load updatedHough_outputvars.mat;
-hough_co2 = atmcalc2*d;
-hough_resid = [obsCalcDiff(:,1) obsCalcDiff(:,2)*d];
-load updatedhansis_outputvars.mat;
-hansis_co2 = atmcalc2*d;
-hansis_resid = [obsCalcDiff(:,1) obsCalcDiff(:,2)*d];
-load updatedGCPhist_outputvars.mat;
-gcp_co2 = atmcalc2*d;
-gcp_resid = [obsCalcDiff(:,1) obsCalcDiff(:,2)*d];
-load updatedLRLU_outputvars.mat;
-LRLU_co2 = atmcalc2*d;
-LRLU_resid = [obsCalcDiff(:,1) obsCalcDiff(:,2)*d];
-load updatedLRLUex_outputvars.mat;
-LRLUex_co2 = atmcalc2*d;
-LRLUex_resid = [obsCalcDiff(:,1) obsCalcDiff(:,2)*d];
 
-% save the co2 residuals for each lu record along with modeled co2 record
-% for each (saving second time so all have appropriate variable names)
-save('LU_resids_co2','hough_co2','hough_resid','hansis_co2','hansis_resid',...
-    'gcp_co2','gcp_resid','LRLU_co2','LRLU_resid','LRLUex_co2','LRLUex_resid')
+if tempDep == 1
+    load hough_co2_resid_Tdep.mat;
+    hough_co2 = atmcalc2*d;
+    hough_resid = [obsCalcDiff(:,1) obsCalcDiff(:,2)*d];
+    load hansis_co2_resid_Tdep.mat;
+    hansis_co2 = atmcalc2*d;
+    hansis_resid = [obsCalcDiff(:,1) obsCalcDiff(:,2)*d];
+    load GCP_co2_resid_Tdep.mat;
+    gcp_co2 = atmcalc2*d;
+    gcp_resid = [obsCalcDiff(:,1) obsCalcDiff(:,2)*d];
+    load LRLU_co2_resid_Tdep.mat;
+    LRLU_co2 = atmcalc2*d;
+    LRLU_resid = [obsCalcDiff(:,1) obsCalcDiff(:,2)*d];
+    load LRLUex_co2_resid_Tdep.mat;
+    LRLUex_co2 = atmcalc2*d;
+    LRLUex_resid = [obsCalcDiff(:,1) obsCalcDiff(:,2)*d];
+
+    % save the co2 residuals for each lu record along with modeled co2 record
+    % for each (saving second time so all have appropriate variable names)
+    save('LU_resids_co2_tempDep','hough_co2','hough_resid','hansis_co2','hansis_resid',...
+        'gcp_co2','gcp_resid','LRLU_co2','LRLU_resid','LRLUex_co2','LRLUex_resid')
+else
+    load hough_co2_resid_Tindep.mat;
+    hough_co2 = atmcalc2*d;
+    hough_resid = [obsCalcDiff(:,1) obsCalcDiff(:,2)*d];
+    load hansis_co2_resid_Tindep.mat;
+    hansis_co2 = atmcalc2*d;
+    hansis_resid = [obsCalcDiff(:,1) obsCalcDiff(:,2)*d];
+    load GCP_co2_resid_Tindep.mat;
+    gcp_co2 = atmcalc2*d;
+    gcp_resid = [obsCalcDiff(:,1) obsCalcDiff(:,2)*d];
+    load LRLU_co2_resid_Tindep.mat;
+    LRLU_co2 = atmcalc2*d;
+    LRLU_resid = [obsCalcDiff(:,1) obsCalcDiff(:,2)*d];
+    load LRLUex_co2_resid_Tindep.mat;
+    LRLUex_co2 = atmcalc2*d;
+    LRLUex_resid = [obsCalcDiff(:,1) obsCalcDiff(:,2)*d];
+
+    % save the co2 residuals for each lu record along with modeled co2 record
+    % for each (saving second time so all have appropriate variable names)
+    save('LU_resids_co2_tempIndep','hough_co2','hough_resid','hansis_co2','hansis_resid',...
+        'gcp_co2','gcp_resid','LRLU_co2','LRLU_resid','LRLUex_co2','LRLUex_resid')
+
+end
+
 
 % smoothed residuals
 
