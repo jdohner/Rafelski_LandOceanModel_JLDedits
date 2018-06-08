@@ -25,19 +25,23 @@ FF_2016mo(:,2) = FF_2016mo_0*d; %convert to pp
 %LU_2016 = csvread('GCPv1.3_historicalLU2016.csv');
 %LU_2016 = csvread('Pongratz2016_GCP_meanPasture_peat.csv'); %Hansis GCP
 %LU_2016 = csvread('LR_LU.csv'); %Rafelski 2009 high land use
-LU_2016 = csvread('LR_LUex.csv'); %Rafelski 2009 low land use
-luYear = LU_2016(1,1):(1/ts):LU_2016(end,1);
-LU_2016mo_0 = (interp1(LU_2016(:,1),LU_2016(:,2),luYear)).';
-LU_2016mo(:,1) = luYear;
-LU_2016mo(:,2) = LU_2016mo_0*d; % convert from PgC to ppm
-
-% %if using Houghton:
-% LU_2016 = csvread('HoughLU_perscomm_2016.csv'); 
+%LU_2016 = csvread('LR_LUex.csv'); %Rafelski 2009 low land use
 % luYear = LU_2016(1,1):(1/ts):LU_2016(end,1);
 % LU_2016mo_0 = (interp1(LU_2016(:,1),LU_2016(:,2),luYear)).';
 % LU_2016mo(:,1) = luYear;
-% %TgC to ppm (d1) only for Houghton
-% LU_2016mo(:,2) = LU_2016mo_0*d*d1; %convert from TgC to PgC to ppm
+% LU_2016mo(:,2) = LU_2016mo_0*d; % convert from PgC to ppm
+
+
+%if using Houghton:
+LU_2016 = csvread('HoughLU_perscomm_2016.csv'); 
+luYear = LU_2016(1,1):(1/ts):LU_2016(end,1);
+LU_2016mo_0 = (interp1(LU_2016(:,1),LU_2016(:,2),luYear)).';
+LU_2016mo(:,1) = luYear;
+%TgC to ppm (d1) only for Houghton
+LU_2016mo(:,2) = LU_2016mo_0*d*d1; %convert from TgC to PgC to ppm
+
+const = [LU_2016mo(1,1) LU_2016mo(1,2) ; LU_2016mo(end,1) LU_2016mo(end,2)];
+LU_2016mo(:,2) = (interp1(const(:,1),const(:,2),luYear)).';
 
 
 % shorten datasets to match time frame of year vector
