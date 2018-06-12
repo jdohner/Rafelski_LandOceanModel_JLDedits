@@ -9,7 +9,7 @@
 
 clear all
 
-tempDep = 1; % indicate whether tempDep (1) or tempIndep (0)
+tempDep = 0; % indicate whether tempDep (1) or tempIndep (0)
 d = 2.31; % ppm to PgC conversion factor (formerly 1/2.31 opp direction)
 d1 = 0.001; % teragram to petagram conversion factor
 
@@ -41,7 +41,7 @@ if tempDep == 1
     load LRLUex_co2_resid_Tdep.mat;
     LRLUex_co2 = atmcalc2*d;
     LRLUex_resid = [obsCalcDiff(:,1) obsCalcDiff(:,2)*d];
-    load constLU_hough_outputvars.mat;
+    load constLU_co2_resid_Tdep.mat;
     constLU_co2 = atmcalc2*d;
     constLU_resid = [obsCalcDiff(:,1) obsCalcDiff(:,2)*d];
 
@@ -66,11 +66,15 @@ else
     load LRLUex_co2_resid_Tindep.mat;
     LRLUex_co2 = atmcalc2*d;
     LRLUex_resid = [obsCalcDiff(:,1) obsCalcDiff(:,2)*d];
+    load constLU_co2_resid_Tindep.mat;
+    constLU_co2 = atmcalc2*d;
+    constLU_resid = [obsCalcDiff(:,1) obsCalcDiff(:,2)*d];
 
     % save the co2 residuals for each lu record along with modeled co2 record
     % for each (saving second time so all have appropriate variable names)
     save('LU_resids_co2_tempIndep','hough_co2','hough_resid','hansis_co2','hansis_resid',...
-        'gcp_co2','gcp_resid','LRLU_co2','LRLU_resid','LRLUex_co2','LRLUex_resid')
+        'gcp_co2','gcp_resid','LRLU_co2','LRLU_resid','LRLUex_co2','LRLUex_resid',...
+        'constLU_co2','constLU_resid')
 
 end
 
@@ -90,7 +94,7 @@ if tempDep == 1
         'gcp_resid_sm0','LRLU_resid_sm0','LRLUex_resid_sm0','constLU_resid_sm0')
 else 
     save('lu_tempIndep_resids_sm','hough_resid_sm0','hansis_resid_sm0',...
-    'gcp_resid_sm0','LRLU_resid_sm0','LRLUex_resid_sm0')
+    'gcp_resid_sm0','LRLU_resid_sm0','LRLUex_resid_sm0','constLU_resid_sm0')
 end
 
 % rloess smoothing
@@ -107,7 +111,8 @@ if tempDep == 1
     'constLU_resid_rloess0')
 else
     save('lu_tempIndep_resids_rloess','hough_resid_rloess0','hansis_resid_rloess0',...
-        'gcp_resid_rloess0','LRLU_resid_rloess0','LRLUex_resid_rloess0')
+        'gcp_resid_rloess0','LRLU_resid_rloess0','LRLUex_resid_rloess0',...
+        'constLU_resid_rloess0')
 end
 
 % smoothed residuals as fluxes - taking annual differences (Jan - Jan)
@@ -174,10 +179,11 @@ if tempDep == 1
     
 else % tempDep == 0 (tempIndep)
     save('lu_tempIndep_residFluxes_sm','hough_resid_ddt','hansis_resid_ddt',...
-        'gcp_resid_ddt','LRLU_resid_ddt','LRLUex_resid_ddt')
+        'gcp_resid_ddt','LRLU_resid_ddt','LRLUex_resid_ddt','constLU_resid_ddt')
 
     save('lu_tempIndep_residFluxes_rloess','hough_residrloess_ddt','hansis_residrloess_ddt',...
-        'gcp_residrloess_ddt','LRLU_residrloess_ddt','LRLUex_residrloess_ddt')
+        'gcp_residrloess_ddt','LRLU_residrloess_ddt','LRLUex_residrloess_ddt',...
+        'constLU_residrloess_ddt')
         
 end
   

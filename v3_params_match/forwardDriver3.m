@@ -9,11 +9,11 @@ clear all
 
 %% define time frame, cases
 
-varSST = 0; %1 if variable sst, 0 if fixed sst
+varSST = 1; %1 if variable sst, 0 if fixed sst
 nitrogen = 0; % 1 = yes, 0 = no; account for nitrogen fertilization?
 filter = 1; % filter the data? 1 = 10 year filter; 2 = unfiltered
 tropicalLU = 1; % 1 = use tropical LU, 0 = extratropical LU
-inputStr = 'CHM-V';
+inputStr = 'CHM-C';
 
 Tconst = 18.2; % surface temperature, deg C, from Joos 1996
 ts = 12; % timesteps per year
@@ -77,7 +77,7 @@ if inputStr == 'CHM-C'
 end
 
 if tempDep == 0
-    beta = [0.5,1]
+    beta = [0.5,1];
 end
 
 
@@ -390,7 +390,7 @@ elseif(LUlevel==2)
     
     % 1850 to 2005  --- units on this?
     newat(:,1) = year2;
-newat(:,2) =  ff(:,2) - Aoc*fas(:,2) + LUex(:,2) + delCdt(:,2);
+    newat(:,2) =  ff(:,2) - Aoc*fas(:,2) + LUex(:,2) + delCdt(:,2);
 
 end
 

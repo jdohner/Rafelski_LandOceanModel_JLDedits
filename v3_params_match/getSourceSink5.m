@@ -40,8 +40,11 @@ LU_2016mo(:,1) = luYear;
 %TgC to ppm (d1) only for Houghton
 LU_2016mo(:,2) = LU_2016mo_0*d*d1; %convert from TgC to PgC to ppm
 
+% to use a constant land use
 const = [LU_2016mo(1,1) LU_2016mo(1,2) ; LU_2016mo(end,1) LU_2016mo(end,2)];
 LU_2016mo(:,2) = (interp1(const(:,1),const(:,2),luYear)).';
+i = find(LU_2016mo(:,1) == 1920);
+LU_2016mo(i:end,2) = LU_2016mo(i,2);
 
 
 % shorten datasets to match time frame of year vector
