@@ -46,6 +46,8 @@ if tempDep == 1
     
     load lu_tempDep_residFluxes_sm; % smoothed residuals as fluxes
     load lu_tempDep_residFluxes_rloess;
+    
+    load lu_tempDep_residFlux_unfilt; % unsmoothed houghton residual as flux
 else
     % temperature-independent runs
     load LU_resids_co2_tempIndep.mat; % residuals and calculated co2 records for each LU case
@@ -55,6 +57,8 @@ else
     
     load lu_tempIndep_residFluxes_sm; % smoothed residuals as fluxes
     load lu_tempIndep_residFluxes_rloess;
+    
+    load lu_tempIndep_residFlux_unfilt; % unsmoothed houghton residual as flux
 end
 
 if tempDep == 1
@@ -75,9 +79,12 @@ if tempDep == 1
     LRLUex_ddt_tempDep = LRLUex_resid_ddt;
     constLU_ddt_tempDep = constLU_resid_ddt;
     
+    hough_unfiltddt_tempDep = hough_ddt_unfilt;
+    
     
     load LU_resids_co2_tempIndep;
     load lu_tempIndep_residFluxes_sm;
+    load lu_tempIndep_residFlux_unfilt; % unsmoothed houghton residual as flux
     
     hough_co2_tempIndep = hough_co2;
     hough_resid_tempIndep = hough_resid;
@@ -95,6 +102,8 @@ if tempDep == 1
     LRLU_ddt_tempIndep = LRLU_resid_ddt;
     LRLUex_ddt_tempIndep = LRLUex_resid_ddt;
     constLU_ddt_tempIndep = constLU_resid_ddt;
+    
+    hough_unfiltddt_tempIndep = hough_ddt_unfilt;
     
 else
     hough_co2_tempIndep = hough_co2;
@@ -114,8 +123,11 @@ else
     LRLUex_ddt_tempIndep = LRLUex_resid_ddt;
     constLU_ddt_tempIndep = constLU_resid_ddt;
     
+    hough_unfiltddt_tempIndep = hough_ddt_unfilt;
+    
     load LU_resids_co2_tempDep;
     load lu_tempDep_residFluxes_sm;
+    load lu_tempDep_residFlux_unfilt; % unsmoothed houghton residual as flux
     
     hough_co2_tempDep = hough_co2;
     hough_resid_tempDep = hough_resid;
@@ -133,6 +145,9 @@ else
     LRLU_ddt_tempDep = LRLU_resid_ddt;
     LRLUex_ddt_tempDep = LRLUex_resid_ddt;
     constLU_ddt_tempDep = constLU_resid_ddt;
+    
+    hough_unfiltddt_tempDep = hough_ddt_unfilt;
+    
 end
 
 
@@ -376,7 +391,6 @@ end
 tempRuns_diff = hough_ddt_tempDep(:,2) - hough_ddt_tempIndep(:,2);
 
 figure
-h=figure; 
 subplot(3,1,1)
 plot(year,hough_co2_tempDep,year,hough_co2_tempIndep, CO2a(:,1),CO2a(:,2),...
     '--')
@@ -437,7 +451,7 @@ line([1840,2016],[0,0],'linestyle','--');
 legend({'Houghton','Hansis','Rafelski high',...
     'Rafelski low','Constant','China','USA','Russia',...
     'Western Europe & Japan','All other emissions',},...
-    'Location','Northwest','FontSize', 16, 'NumColumns',2)
+    'Location','Northwest','FontSize', 16);%, 'NumColumns',2)
 xlabel('Year','FontSize', 18)
 set(gca,'FontSize',18)
 ylabel('GtC/yr','FontSize', 18)
@@ -526,4 +540,160 @@ xlim([1840 2016])
 ylim([-3 3])
 grid
 
+%% smoothed and unsmoothed derivative flux
 
+figure
+subplot(3,1,1)
+plot(LUhoughmo(:,1),LUhoughmo(:,2),...
+    LUhansismo(:,1),LUhansismo(:,2),...
+    LU(:,1),LU(:,2),LUex(:,1),LUex(:,2),...
+    constLU_hough(:,1),constLU_hough(:,2)*d,...
+    china_totalann(:,1),d2*china_totalann(:,2),'-.',...
+    usa_totalann(:,1),d2*usa_totalann(:,2),'-.', ...
+    russia_totalann(:,1),d2*russia_totalann(:,2),'-.',...
+    WE_japan_total(:,1),d2*WE_japan_total(:,2),'-.',...
+    everythingElse(:,1),d2*everythingElse(:,2),'--')
+
+title('Fossil Fuel & Land Use Change Emissions','FontSize', 22);
+line([1840,2016],[0,0],'linestyle','--');
+legend({'Houghton','Hansis','Rafelski high',...
+    'Rafelski low','Constant','China','USA','Russia',...
+    'Western Europe & Japan','All other emissions'},...
+    'Location','Northwest','FontSize', 16);%, 'NumColumns',2)
+xlabel('Year','FontSize', 18)
+set(gca,'FontSize',18)
+ylabel('GtC/yr','FontSize', 18)
+set(gca,'FontSize',18)
+xlim([1840 2016])
+ylim([0 6])
+grid
+
+subplot(3,1,2)
+plot(hough_ddt_tempDep(:,1),hough_ddt_tempDep(:,2),...
+    hough_unfiltddt_tempDep(:,1),hough_unfiltddt_tempDep(:,2));
+line([1840,2016],[0,0],'linestyle','--');
+
+title('Variable T: Obs-Modeled CO_2 - Houghton','FontSize', 22);
+
+legend({'Smoothed','Unsmoothed'},'location','northwest','FontSize', 18);
+xlabel('Year','FontSize', 18)
+set(gca,'FontSize',18)
+ylabel('GtC/yr','FontSize', 18)
+set(gca,'FontSize',18)
+xlim([1840 2016])
+ylim([-3 3])
+grid
+
+subplot(3,1,3)
+plot(hough_ddt_tempIndep(:,1),hough_ddt_tempIndep(:,2),...
+    hough_unfiltddt_tempIndep(:,1),hough_unfiltddt_tempIndep(:,2));
+line([1840,2016],[0,0],'linestyle','--');
+
+title('Fixed T: Obs-Modeled CO_2 - Houghton','FontSize', 22);
+
+legend({'Smoothed','Unsmoothed'},'location','northwest','FontSize', 18);
+xlabel('Year','FontSize', 18)
+set(gca,'FontSize',18)
+ylabel('GtC/yr','FontSize', 18)
+set(gca,'FontSize',18)
+xlim([1840 2016])
+ylim([-3 3])
+grid
+
+%% cutting out 10 years of data
+
+% load timeframe_presentC;
+% Cpresent_co2 = atmcalc2;
+% Cpresent_resid = obsCalcDiff;
+% Cpresent_q10 = Q1;
+% Cpresent_eps = epsilon;
+% Cpresent_year = year2;
+% 
+% load timeframe_2005C;
+% C2005_co2 = atmcalc2;
+% C2005_resid = obsCalcDiff;
+% C2005_q10 = Q1;
+% C2005_eps = epsilon;
+% C2005_year = year2;
+% 
+% load timeframe_presentV;
+% Vpresent_co2 = atmcalc2;
+% Vpresent_resid = obsCalcDiff;
+% Vpresent_q10 = Q1;
+% Vpresent_eps = epsilon;
+% Vpresent_year = year2;
+% 
+% load timeframe_2005V;
+% V2005_co2 = atmcalc2;
+% V2005_resid = obsCalcDiff;
+% V2005_q10 = Q1;
+% V2005_eps = epsilon;
+% V2005_year = year2;
+% 
+% save('presentand2005_vars','Cpresent_co2','Cpresent_resid',...
+%     'Cpresent_q10','Cpresent_eps','Cpresent_year','C2005_co2',...
+%     'C2005_resid','C2005_q10','C2005_eps','C2005_year','Vpresent_co2',...
+%     'Vpresent_resid','Vpresent_q10','Vpresent_eps','Vpresent_year',...
+%     'V2005_co2','V2005_resid','V2005_q10','V2005_eps','V2005_year')
+
+load presentand2005_vars;
+load presentand2005_ddt;
+
+figure
+subplot(2,2,1)
+plot(Vpresent_year,Vpresent_resid(:,2),V2005_year,V2005_resid(:,2))
+title('Residuals of Different Time Frames - TempDep','FontSize', 22);
+line([1840,2016],[0,0],'linestyle','--');
+legend({'Houghton thru 2015.5','Houghton thru 2005.5'},...
+    'Location','Northwest','FontSize', 16);%, 'NumColumns',2)
+xlabel('Year','FontSize', 18)
+set(gca,'FontSize',18)
+ylabel('GtC','FontSize', 18)
+set(gca,'FontSize',18)
+xlim([1840 2016])
+ylim([-2 8])
+grid
+
+subplot(2,2,3)
+plot(Vpresent_resid_ddt(:,1),Vpresent_resid_ddt(:,2),...
+    V2005_resid_ddt(:,1),V2005_resid_ddt(:,2))
+title('Residual Flux of Different Time Frames - TempDep','FontSize', 22);
+line([1840,2016],[0,0],'linestyle','--');
+legend({'Houghton thru 2015.5','Houghton thru 2005.5'},...
+    'Location','Northwest','FontSize', 16);%, 'NumColumns',2)
+xlabel('Year','FontSize', 18)
+set(gca,'FontSize',18)
+ylabel('GtC/yr','FontSize', 18)
+set(gca,'FontSize',18)
+xlim([1840 2016])
+ylim([-1 1])
+grid
+
+subplot(2,2,2)
+plot(Cpresent_year,Cpresent_resid(:,2),C2005_year,C2005_resid(:,2))
+title('Residuals of Different Time Frames - TempIndep','FontSize', 22);
+line([1840,2016],[0,0],'linestyle','--');
+legend({'Houghton thru 2015.5','Houghton thru 2005.5'},...
+    'Location','Northwest','FontSize', 16);%, 'NumColumns',2)
+xlabel('Year','FontSize', 18)
+set(gca,'FontSize',18)
+ylabel('GtC','FontSize', 18)
+set(gca,'FontSize',18)
+xlim([1840 2016])
+ylim([-2 8])
+grid
+
+subplot(2,2,4)
+plot(Cpresent_resid_ddt(:,1),Cpresent_resid_ddt(:,2),...
+    V2005_resid_ddt(:,1),V2005_resid_ddt(:,2))
+title('Residual Flux of Different Time Frames - TempIndep','FontSize', 22);
+line([1840,2016],[0,0],'linestyle','--');
+legend({'Houghton thru 2015.5','Houghton thru 2005.5'},...
+    'Location','Northwest','FontSize', 16);%, 'NumColumns',2)
+xlabel('Year','FontSize', 18)
+set(gca,'FontSize',18)
+ylabel('GtC/yr','FontSize', 18)
+set(gca,'FontSize',18)
+xlim([1840 2016])
+ylim([-1 1])
+grid

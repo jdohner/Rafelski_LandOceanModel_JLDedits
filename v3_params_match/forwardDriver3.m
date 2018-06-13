@@ -9,17 +9,20 @@ clear all
 
 %% define time frame, cases
 
-varSST = 1; %1 if variable sst, 0 if fixed sst
+landusedata = 'hough'; %hough, hansis, gcp, lr_high, lr_low, const;
+    
+
+varSST = 0; %1 if variable sst, 0 if fixed sst
 nitrogen = 0; % 1 = yes, 0 = no; account for nitrogen fertilization?
 filter = 1; % filter the data? 1 = 10 year filter; 2 = unfiltered
 tropicalLU = 1; % 1 = use tropical LU, 0 = extratropical LU
-inputStr = 'CHM-C';
+inputStr = 'CHM-V';
 
 Tconst = 18.2; % surface temperature, deg C, from Joos 1996
 ts = 12; % timesteps per year
 dt = 1/ts;
 start_year = 1850;
-end_year = 2015.5;%2009+(7/12);%
+end_year = 2005.5;%2009+(7/12);%
 year2 = (start_year:(1/ts):end_year)';
 beta = [0.5;2]; % initial guesses for model fit (epsilon, q10)
 Aoc = 3.62E14; % surface area of ocean, m^2, from Joos 1996
@@ -100,7 +103,7 @@ X = temp_anom(:,:);
 
 %[~, ff, LU, LUex] = getSourceSink3(year2, ts); % for LR record
 %[ff, LU] = getSourceSink4(year2, ts); % for trying different LU
-[ff, LU] = getSourceSink5(year2, ts); % for updated FF & LU
+[ff, LU] = getSourceSink5(year2, ts,landusedata); % for updated FF & LU
 
 if tropicalLU == 0
     LU = LUex;
@@ -507,3 +510,30 @@ legend('fossil fuel','observed atmosphere','ocean','modeled land','land use','Lo
 elseif strcmpi('no',inputStr2)
     disp('all done!')
 end
+
+if strcmp(landusedata,'hough')
+    if tempDep == 1
+        if end_year == 2015.5
+            save('timeframe_presentV','obsCalcDiff','atmcalc2','Q1','epsilon','year2')
+        elseif end_year == 2005.5
+            save('timeframe_2005V','obsCalcDiff','atmcalc2','Q1','epsilon','year2')
+        elseif end_year == 1995.5
+            save('timeframe_1995V','obsCalcDiff','atmcalc2','Q1','epsilon','year2')
+        elseif end_year == 1975.5
+            save('timeframe_1975V','obsCalcDiff','atmcalc2','Q1','epsilon','year2')
+        end
+    elseif tempDep == 0
+        if end_year == 2015.5
+            save('timeframe_presentC','obsCalcDiff','atmcalc2','Q1','epsilon','year2')
+        elseif end_year == 2005.5
+            save('timeframe_2005C','obsCalcDiff','atmcalc2','Q1','epsilon','year2')
+        elseif end_year == 1995.5
+            save('timeframe_1995C','obsCalcDiff','atmcalc2','Q1','epsilon','year2')
+        elseif end_year == 1975.5
+            save('timeframe_1975C','obsCalcDiff','atmcalc2','Q1','epsilon','year2')
+        end
+    end
+        
+end
+
+    
