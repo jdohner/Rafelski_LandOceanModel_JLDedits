@@ -7,8 +7,6 @@
 
 clear all
 
-tempDep = 1; % temp dep runs (1) or temp independent runs (0)
-
 addpath(...
     '/Users/juliadohner/Documents/MATLAB/JLDedits_Rafelski_LandOceanModel/v3_params_match/LU_FF_untangle/matlab_variables');
 addpath(genpath(...
@@ -34,121 +32,63 @@ load LU_records_monthly; % land use datasets at monthly resolution
 load constLU_hough;
 constLU_hough = LU;
 
-%load lu_resids_smoothed; % residuals smoothed using default
-%load lu_resids_rloess; % residuals smoothed using rloess
+load presentand2005_vars;
+load presentand2005_ddt;
 
-if tempDep == 1
-    % temperature-dependent runs
-    load LU_resids_co2_tempDep.mat; % residuals and calculated co2 records for each LU case
-    
-    load lu_tempDep_resids_sm;
-    load lu_tempDep_resids_rloess;
-    
-    load lu_tempDep_residFluxes_sm; % smoothed residuals as fluxes
-    load lu_tempDep_residFluxes_rloess;
-    
-    load lu_tempDep_residFlux_unfilt; % unsmoothed houghton residual as flux
-else
-    % temperature-independent runs
-    load LU_resids_co2_tempIndep.mat; % residuals and calculated co2 records for each LU case
-    
-    load lu_tempIndep_resids_sm;
-    load lu_tempIndep_resids_rloess;
-    
-    load lu_tempIndep_residFluxes_sm; % smoothed residuals as fluxes
-    load lu_tempIndep_residFluxes_rloess;
-    
-    load lu_tempIndep_residFlux_unfilt; % unsmoothed houghton residual as flux
-end
 
-if tempDep == 1
-    hough_co2_tempDep = hough_co2;
-    hough_resid_tempDep = hough_resid;
-    hansis_co2_tempDep = hansis_co2;
-    hansis_resid_tempDep = hansis_resid;
-    LRLU_co2_tempDep = LRLU_co2;
-    LRLU_resid_tempDep = LRLU_resid;
-    LRLUex_co2_tempDep = LRLUex_co2;
-    LRLUex_resid_tempDep = LRLUex_resid;
-    const_co2_tempDep = constLU_co2;
-    const_resid_tempDep = constLU_resid;
-    
-    hough_ddt_tempDep = hough_resid_ddt;
-    hansis_ddt_tempDep = hansis_resid_ddt;
-    LRLU_ddt_tempDep = LRLU_resid_ddt;
-    LRLUex_ddt_tempDep = LRLUex_resid_ddt;
-    constLU_ddt_tempDep = constLU_resid_ddt;
-    
-    hough_unfiltddt_tempDep = hough_ddt_unfilt;
-    
-    
-    load LU_resids_co2_tempIndep;
-    load lu_tempIndep_residFluxes_sm;
-    load lu_tempIndep_residFlux_unfilt; % unsmoothed houghton residual as flux
-    
-    hough_co2_tempIndep = hough_co2;
-    hough_resid_tempIndep = hough_resid;
-    hansis_co2_tempIndep = hansis_co2;
-    hansis_resid_tempIndep = hansis_resid;
-    LRLU_co2_tempIndep = LRLU_co2;
-    LRLU_resid_tempIndep = LRLU_resid;
-    LRLUex_co2_tempIndep = LRLUex_co2;
-    LRLUex_resid_tempIndep = LRLUex_resid;
-    const_co2_tempIndep = constLU_co2;
-    const_resid_tempIndep = constLU_resid;
-    
-    hough_ddt_tempIndep = hough_resid_ddt;
-    hansis_ddt_tempIndep = hansis_resid_ddt;
-    LRLU_ddt_tempIndep = LRLU_resid_ddt;
-    LRLUex_ddt_tempIndep = LRLUex_resid_ddt;
-    constLU_ddt_tempIndep = constLU_resid_ddt;
-    
-    hough_unfiltddt_tempIndep = hough_ddt_unfilt;
-    
-else
-    hough_co2_tempIndep = hough_co2;
-    hough_resid_tempIndep = hough_resid;
-    hansis_co2_tempIndep = hansis_co2;
-    hansis_resid_tempIndep = hansis_resid;
-    LRLU_co2_tempIndep = LRLU_co2;
-    LRLU_resid_tempIndep = LRLU_resid;
-    LRLUex_co2_tempIndep = LRLUex_co2;
-    LRLUex_resid_tempIndep = LRLUex_resid;
-    const_co2_tempIndep = constLU_co2;
-    const_resid_tempIndep = constLU_resid;
-    
-    hough_ddt_tempIndep = hough_resid_ddt;
-    hansis_ddt_tempIndep = hansis_resid_ddt;
-    LRLU_ddt_tempIndep = LRLU_resid_ddt;
-    LRLUex_ddt_tempIndep = LRLUex_resid_ddt;
-    constLU_ddt_tempIndep = constLU_resid_ddt;
-    
-    hough_unfiltddt_tempIndep = hough_ddt_unfilt;
-    
-    load LU_resids_co2_tempDep;
-    load lu_tempDep_residFluxes_sm;
-    load lu_tempDep_residFlux_unfilt; % unsmoothed houghton residual as flux
-    
-    hough_co2_tempDep = hough_co2;
-    hough_resid_tempDep = hough_resid;
-    hansis_co2_tempDep = hansis_co2;
-    hansis_resid_tempDep = hansis_resid;
-    LRLU_co2_tempDep = LRLU_co2;
-    LRLU_resid_tempDep = LRLU_resid;
-    LRLUex_co2_tempDep = LRLUex_co2;
-    LRLUex_resid_tempDep = LRLUex_resid;
-    const_co2_tempDep = constLU_co2;
-    const_resid_tempDep = constLU_resid;
-    
-    hough_ddt_tempDep = hough_resid_ddt;
-    hansis_ddt_tempDep = hansis_resid_ddt;
-    LRLU_ddt_tempDep = LRLU_resid_ddt;
-    LRLUex_ddt_tempDep = LRLUex_resid_ddt;
-    constLU_ddt_tempDep = constLU_resid_ddt;
-    
-    hough_unfiltddt_tempDep = hough_ddt_unfilt;
-    
-end
+load LU_resids_co2_tempDep.mat; % residuals and calculated co2 records for each LU case
+load lu_tempDep_resids_sm;
+load lu_tempDep_resids_rloess;
+load lu_tempDep_residFluxes_sm; % smoothed residuals as fluxes
+load lu_tempDep_residFluxes_rloess;
+load lu_tempDep_residFlux_unfilt; % unsmoothed houghton residual as flux
+
+hough_co2_tempDep = hough_co2;
+hough_resid_tempDep = hough_resid;
+hansis_co2_tempDep = hansis_co2;
+hansis_resid_tempDep = hansis_resid;
+LRLU_co2_tempDep = LRLU_co2;
+LRLU_resid_tempDep = LRLU_resid;
+LRLUex_co2_tempDep = LRLUex_co2;
+LRLUex_resid_tempDep = LRLUex_resid;
+const_co2_tempDep = constLU_co2;
+const_resid_tempDep = constLU_resid;
+
+hough_ddt_tempDep = hough_resid_ddt;
+hansis_ddt_tempDep = hansis_resid_ddt;
+LRLU_ddt_tempDep = LRLU_resid_ddt;
+LRLUex_ddt_tempDep = LRLUex_resid_ddt;
+constLU_ddt_tempDep = constLU_resid_ddt;
+
+hough_unfiltddt_tempDep = hough_ddt_unfilt;
+
+
+
+load LU_resids_co2_tempIndep.mat; % residuals and calculated co2 records for each LU case
+load lu_tempIndep_resids_sm;
+load lu_tempIndep_resids_rloess;
+load lu_tempIndep_residFluxes_sm; % smoothed residuals as fluxes
+load lu_tempIndep_residFluxes_rloess;
+load lu_tempIndep_residFlux_unfilt; % unsmoothed houghton residual as flux
+
+hough_co2_tempIndep = hough_co2;
+hough_resid_tempIndep = hough_resid;
+hansis_co2_tempIndep = hansis_co2;
+hansis_resid_tempIndep = hansis_resid;
+LRLU_co2_tempIndep = LRLU_co2;
+LRLU_resid_tempIndep = LRLU_resid;
+LRLUex_co2_tempIndep = LRLUex_co2;
+LRLUex_resid_tempIndep = LRLUex_resid;
+const_co2_tempIndep = constLU_co2;
+const_resid_tempIndep = constLU_resid;
+
+hough_ddt_tempIndep = hough_resid_ddt;
+hansis_ddt_tempIndep = hansis_resid_ddt;
+LRLU_ddt_tempIndep = LRLU_resid_ddt;
+LRLUex_ddt_tempIndep = LRLUex_resid_ddt;
+constLU_ddt_tempIndep = constLU_resid_ddt;
+
+hough_unfiltddt_tempIndep = hough_ddt_unfilt;
 
 
 
@@ -471,11 +411,9 @@ plot(hough_ddt_tempDep(:,1),hough_ddt_tempDep(:,2),...
     LRLUex_ddt_tempDep(:,1),LRLUex_ddt_tempDep(:,2),...
     constLU_ddt_tempDep(:,1), constLU_ddt_tempDep(:,2))
 line([1840,2016],[0,0],'linestyle','--');
-if tempDep == 1
-    title('Variable T: Obs-Modeled CO_2','FontSize', 22);
-else
-    title('Fixed T: Obs-Modeled CO_2','FontSize', 22);
-end
+
+title('Variable T: Obs-Modeled CO_2','FontSize', 22);
+
 
 legend({'Houghton','Hansis','Rafelski high',...
     'Rafelski low','Constant LU'},'location','northwest','FontSize', 18);
@@ -642,8 +580,6 @@ grid
 %     'Vpresent_resid','Vpresent_q10','Vpresent_eps','Vpresent_year',...
 %     'V2005_co2','V2005_resid','V2005_q10','V2005_eps','V2005_year')
 
-load presentand2005_vars;
-load presentand2005_ddt;
 
 figure
 subplot(2,2,1)
@@ -702,4 +638,67 @@ ylabel('GtC/yr','FontSize', 18)
 set(gca,'FontSize',18)
 xlim([1840 2016])
 ylim([-1 1])
+grid
+
+%% 3-panel summary plot
+figure
+subplot(3,1,1)
+plot(LUhoughmo(:,1),LUhoughmo(:,2),...
+    LUhansismo(:,1),LUhansismo(:,2),...
+    LU(:,1),LU(:,2),LUex(:,1),LUex(:,2),...
+    constLU_hough(:,1),constLU_hough(:,2)*d,...
+    china_totalann(:,1),d2*china_totalann(:,2),'-.',...
+    usa_totalann(:,1),d2*usa_totalann(:,2),'-.', ...
+    russia_totalann(:,1),d2*russia_totalann(:,2),'-.',...
+    WE_japan_total(:,1),d2*WE_japan_total(:,2),'-.',...
+    everythingElse(:,1),d2*everythingElse(:,2),'--')
+
+title('Fossil Fuel & Land Use Change Emissions','FontSize', 40);
+line([1840,2016],[0,0],'linestyle','--');
+legend({'Houghton','Hansis','Rafelski high',...
+    'Rafelski low','Constant','China','USA','Russia',...
+    'Western Europe & Japan','All other emissions',},...
+    'Location','Northwest','FontSize', 20, 'NumColumns',2)
+xlabel('Year','FontSize', 18)
+set(gca,'FontSize',18)
+ylabel('GtC/yr','FontSize', 18)
+set(gca,'FontSize',18)
+xlim([1840 2016])
+ylim([0 6])
+grid
+
+subplot(3,1,2)
+plot(hough_ddt_tempDep(:,1),hough_ddt_tempDep(:,2),hansis_ddt_tempDep(:,1),...
+    hansis_ddt_tempDep(:,2), ...
+    LRLU_ddt_tempDep(:,1),LRLU_ddt_tempDep(:,2),LRLUex_ddt_tempDep(:,1),...
+    LRLUex_ddt_tempDep(:,2),constLU_ddt_tempDep(:,1),constLU_ddt_tempDep(:,2));
+line([1840,2016],[0,0],'linestyle','--');
+
+title('Variable T: Obs-Modeled CO_2','FontSize', 40);
+
+legend({'Houghton','Hansis','Rafelski high',...
+    'Rafelski low','Constant LU'},'location','northwest','FontSize',20);
+xlabel('Year','FontSize', 18)
+set(gca,'FontSize',18)
+ylabel('GtC/yr','FontSize', 18)
+set(gca,'FontSize',18)
+xlim([1840 2016])
+ylim([-3 3])
+grid
+
+
+subplot(3,1,3)
+plot(hough_ddt_tempDep(:,1),hough_ddt_tempDep(:,2),...
+    hough_unfiltddt_tempDep(:,1),hough_unfiltddt_tempDep(:,2));
+line([1840,2016],[0,0],'linestyle','--');
+
+title('Variable T: Obs-Modeled CO_2 - Houghton','FontSize', 40);
+
+legend({'Smoothed','Unsmoothed'},'location','northwest','FontSize', 20);
+xlabel('Year','FontSize', 18)
+set(gca,'FontSize',18)
+ylabel('GtC/yr','FontSize', 18)
+set(gca,'FontSize',18)
+xlim([1840 2016])
+ylim([-3 3])
 grid
