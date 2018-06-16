@@ -7,9 +7,10 @@
 %
 % updated script using only full records (no appended)
 
+
 clear all
 
-tempDep = 1; % indicate whether tempDep (1) or tempIndep (0)
+tempDep = 0; % indicate whether tempDep (1) or tempIndep (0)
 d = 2.31; % ppm to PgC conversion factor (formerly 1/2.31 opp direction)
 d1 = 0.001; % teragram to petagram conversion factor
 
@@ -205,9 +206,17 @@ blankVec3(:,1) = hough_resid(:,1);
 blankVec3(:,2) = 0;
 
 hough_ddt_unfilt = blankVec3;
+hansis_ddt_unfilt = blankVec3;
+LRLU_ddt_unfilt = blankVec3;
+LRLUex_ddt_unfilt = blankVec3;
+constLU_ddt_unfilt = blankVec3;
 
 for i = 1:length(hough_resid(:,1))-12
     hough_ddt_unfilt(i,2) = hough_resid(i+12,2)-hough_resid(i,2);
+    hansis_ddt_unfilt(i,2) = hansis_resid(i+12,2)-hansis_resid(i,2);
+    LRLU_ddt_unfilt(i,2) = LRLU_resid(i+12,2)-LRLU_resid(i,2);
+    LRLUex_ddt_unfilt(i,2) = LRLUex_resid(i+12,2)-LRLUex_resid(i,2);    
+    constLU_ddt_unfilt(i,2) = constLU_resid(i+12,2)-constLU_resid(i,2);    
 end
 
 if tempDep == 1
@@ -219,7 +228,8 @@ if tempDep == 1
         'gcp_residrloess_ddt','LRLU_residrloess_ddt','LRLUex_residrloess_ddt',...
         'constLU_residrloess_ddt')
     
-    save('lu_tempDep_residFlux_unfilt','hough_ddt_unfilt')
+    save('lu_tempDep_residFlux_unfilt','hough_ddt_unfilt','hansis_ddt_unfilt',....
+        'LRLU_ddt_unfilt','LRLUex_ddt_unfilt','constLU_ddt_unfilt')
     
     
 else % tempDep == 0 (tempIndep)
@@ -231,10 +241,13 @@ else % tempDep == 0 (tempIndep)
         'gcp_residrloess_ddt','LRLU_residrloess_ddt','LRLUex_residrloess_ddt',...
         'constLU_residrloess_ddt')
     
-    save('lu_tempIndep_residFlux_unfilt','hough_ddt_unfilt')
+    save('lu_tempIndep_residFlux_unfilt','hough_ddt_unfilt','hansis_ddt_unfilt',....
+        'LRLU_ddt_unfilt','LRLUex_ddt_unfilt','constLU_ddt_unfilt')
         
 end
 
 save('presentand2005_ddt','Vpresent_resid_ddt','Cpresent_resid_ddt',...
     'V2005_resid_ddt','C2005_resid_ddt')
+
+
   
