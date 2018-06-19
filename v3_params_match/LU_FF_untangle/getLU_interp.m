@@ -44,7 +44,7 @@ LUgcpmo(:,2) = LUgcpmo_0;
 
 % load LR high & low land use 
 load LR_LU_LUex2016.mat; % land use records used in Rafelski 2009
-LU(:,2) = LU(:,2)*d; % convert from ppm to PgC
-LUex(:,2) = LUex(:,2)*d; % convert from ppm to PgC
+LUhough03mo(:,2) = LU(:,2)*d; % convert from ppm to PgC
+%LUex(:,2) = LUex(:,2)*d; % convert from ppm to PgC
 
-save('LU_records_monthly','LUhansismo','LUgcpmo','LUhoughmo','LU','LUex','year');
+save('LU_records_monthly','LUhansismo','LUgcpmo','LUhoughmo','LUhough03mo','year');

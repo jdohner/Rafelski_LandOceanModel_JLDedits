@@ -4,10 +4,16 @@
 %
 % julia dohner
 
+
+
 %% load data
 
 addpath(...
+    '/Users/juliadohner/Documents/MATLAB/JLDedits_Rafelski_LandOceanModel/v3_params_match/LU_FF_untangle');
+addpath(...
     '/Users/juliadohner/Documents/MATLAB/JLDedits_Rafelski_LandOceanModel/v3_params_match/LU_FF_untangle/matlab_variables');
+
+clear all
 
 load tempDep;
 load tempIndep;
@@ -50,16 +56,16 @@ Cconst_RMSEfull = sqrt(mean(CconstLU_ddt(:,2).^2));
 j = find(Vhough_unfiltddt(:,1) == 1900);
 
 Vhough_unfilt_RMSEopt = sqrt(mean(Vhough_unfiltddt(j:end,2).^2));
-Vhansis_unfilt_RMSEpot = sqrt(mean(Vhansis_unfiltddt(j:end,2).^2));
-VLRLU_unfilt_RMSEpot = sqrt(mean(VLRLU_unfiltddt(j:end,2).^2));
-VLRLUex_unfilt_RMSEpot = sqrt(mean(VLRLUex_unfiltddt(j:end,2).^2));
-Vconst_unfilt_RMSEpot = sqrt(mean(Vconst_unfiltddt(j:end,2).^2));
+Vhansis_unfilt_RMSEopt = sqrt(mean(Vhansis_unfiltddt(j:end,2).^2));
+VLRLU_unfilt_RMSEopt = sqrt(mean(VLRLU_unfiltddt(j:end,2).^2));
+VLRLUex_unfilt_RMSEopt = sqrt(mean(VLRLUex_unfiltddt(j:end,2).^2));
+Vconst_unfilt_RMSEopt = sqrt(mean(Vconst_unfiltddt(j:end,2).^2));
 
 Chough_unfilt_RMSEopt = sqrt(mean(Chough_unfiltddt(j:end,2).^2));
-Chansis_unfilt_RMSEpot = sqrt(mean(Chansis_unfiltddt(j:end,2).^2));
-CLRLU_unfilt_RMSEpot = sqrt(mean(CLRLU_unfiltddt(j:end,2).^2));
-CLRLUex_unfilt_RMSEpot = sqrt(mean(CLRLUex_unfiltddt(j:end,2).^2));
-Cconst_unfilt_RMSEpot = sqrt(mean(Cconst_unfiltddt(j:end,2).^2));
+Chansis_unfilt_RMSEopt = sqrt(mean(Chansis_unfiltddt(j:end,2).^2));
+CLRLU_unfilt_RMSEopt = sqrt(mean(CLRLU_unfiltddt(j:end,2).^2));
+CLRLUex_unfilt_RMSEopt = sqrt(mean(CLRLUex_unfiltddt(j:end,2).^2));
+Cconst_unfilt_RMSEopt = sqrt(mean(Cconst_unfiltddt(j:end,2).^2));
 
 
 Vhough_unfilt_RMSEfull = sqrt(mean(Vhough_unfiltddt(:,2).^2));
@@ -82,10 +88,17 @@ VrmseOpt_table = {'Vhough','Vhansis','VLR_high','VLR_low','VconstLU'; ...
     Vhough_RMSEopt, Vhansis_RMSEopt, VLRLU_RMSEopt, VLRLUex_RMSEopt, Vconst_RMSEopt}
 
 CrmseOpt_table = {'Chough','Chansis','CLR_high','CLR_low','CconstLU'; ...
-    Chough_RMSEopt, Chansis_RMSEopt, CLRLU_RMSEopt, CLRLUex_RMSEopt, Cconst_RMSEopt};
+    Chough_RMSEopt, Chansis_RMSEopt, CLRLU_RMSEopt, CLRLUex_RMSEopt, Cconst_RMSEopt}
 
-VrmseOpt_unfilt_table = {'Vhough_unfilt'; Vhough_unfilt_RMSEopt};
-CrmseOpt_unfilt_table = {'Chough_unfilt'; Chough_unfilt_RMSEopt};
+VrmseOpt_unfilt_table = ...
+    {'Vhough_unfilt','Vhansis_unfilt','VLRLU_unfilt','VLRLUex_unfilt','Vconst_unfilt'; 
+    Vhough_unfilt_RMSEopt, Vhansis_unfilt_RMSEopt,...
+    VLRLU_unfilt_RMSEopt, VLRLUex_unfilt_RMSEopt, Vconst_unfilt_RMSEopt}
+
+CrmseOpt_unfilt_table = ...
+    {'Chough_unfilt','Chansis_unfilt','CLRLU_unfilt','CLRLUex_unfilt','Cconst_unfilt'; 
+    Chough_unfilt_RMSEopt, Chansis_unfilt_RMSEopt,...
+    CLRLU_unfilt_RMSEopt, CLRLUex_unfilt_RMSEopt, Cconst_unfilt_RMSEopt}
 
 
 % rmse over full period (1850-2015.5)

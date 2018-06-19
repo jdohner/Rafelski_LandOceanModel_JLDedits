@@ -23,6 +23,7 @@ ts = 12; % timesteps per year
 dt = 1/ts;
 start_year = 1850;
 end_year = 2005.5;%2009+(7/12);%
+end_year_plot = 2015.5;
 year2 = (start_year:(1/ts):end_year)';
 beta = [0.5;2]; % initial guesses for model fit (epsilon, q10)
 Aoc = 3.62E14; % surface area of ocean, m^2, from Joos 1996
@@ -256,16 +257,24 @@ end
 
 %year2 = year2';
 
-%% plotting 
+%% plotting // fixing params here
 %prompt = 'Plot? Write "yes" or "no" with single quotes.  ';
 %inputStr2 = input(prompt);
 inputStr2 = 'yes';
 
-if strcmpi('yes',inputStr2)
+
+
+% get all records again for new end_year (for full plot)
+year3 = (start_year:(1/ts):end_year_plot)';
+[dtdelpCO2a_obs,dpCO2a_obs,~,~,CO2a_obs] = getObservedCO2_2(ts,start_year,end_year_plot);
+[temp_anom, ~] = tempRecord2(start_year,end_year_plot,dt);
+[ff, LU] = getSourceSink5(year3, ts,landusedata); % for updated FF & LU
+[fas,sstAnom] = jooshildascale_annotate2(start_year,end_year_plot,ts,ff,varSST,Tconst);
+
 % Run the best fit values in the model again to plot
 
 
-[C1dt,C2dt,delCdt,delC1,delC2] = bioboxtwo_sub10_annotate(epsilon,Q1,Q2,ts,year2,dpCO2a_obs,temp_anom); 
+[C1dt,C2dt,delCdt,delC1,delC2] = bioboxtwo_sub10_annotate(epsilon,Q1,Q2,ts,year3,dpCO2a_obs,temp_anom); 
  
 %%% Nitrogen%%%
 
@@ -277,107 +286,12 @@ delCdt(:,2) = -delCdt(:,2);
 % 10 year moving boxcar average of model result
 [delC10] = l_boxcar(delCdt,10,12,1,length(delCdt),1,2);
 
-% Quantify how good the fit is using the mean squared error (MSE)       
-% Use filtered or unfiltered yhat
-%----------------------------------------------------------------%
-%
-% Filtered
-%
-%------------------------------------------------
-
-if(filter == 1)
-
-yhat2 = delC10(:,2);
-
-%yhat2 = yhat2 + (0 - yhat2(1));
-% JLD code below:
-% % i5 = find(year2 == 1855);
-% %     
-% %     e = delC10(i5:end,2) - residual10(i5:end,2); % look at MSE for 1855 to 2000
-% %     
-% %     misfit = e'*e/length(delC10(i5:end,2));  
-% %     
-% %     % 1900 to 2005
-% %     i6 = find(year2 == 1900);
-% %     e2 = delC10(i6:end,2) - residual10(i6:end,2); % look at MSE for 1900 to 2000
-% %     misfit2 = e2'*e2/length(delC10(i6:end,2));  
-% % 
-% % 
-% %    error1 = betahat(1)-ci(1);
-
-e = delC10(61:1806,2) - residual10(61:1806,2); % look at MSE for 1855 to 2000
-
-misfit = e'*e/length(delC10(61:1806,2));  
-
-e2 = delC10(601:1806,2) - residual10(601:1806,2); % look at MSE for 1900 to 2000
-misfit2 = e2'*e2/length(delC10(601:1806,2));  
-
-
-error1 = betahat(1)-ci(1);
-   
-%   error2= betahat(2)-ci(2)
-
-%   error3= betahat(3)-ci(3)
-%    
-%   figure
-% plot(decon(:,1),decon(:,2),delCdt(:,1),yhat2)
-% xlabel('year')
-% ylabel('ppm CO2/year')
-% title('land uptake')
-% legend('Residual uptake','land uptake without T effects','land uptake with T effects')
-
-   
-    C = cov(residual10(601:(end-1),2),yhat2(601:(end-1),1));
-%    
-   [R,P,RLO,RUP] = corrcoef(yhat2(601:(end-1),1),residual10(601:(end-1),2));
-%   
-   R(1,2)^2;
-
-% figure
-% plot(residual10(:,1),residual10(:,2),delC10(:,1),yhat2)
-% xlabel('year')
-% ylabel('ppm CO2/year')
-% title('land uptake')
-% legend('Residual uptake','land uptake with T effects')
-% set(gca,'Xlim',[1850 2010])  
-% grid
-
-%----------------------------------------------------------------%
-%
-% Unfiltered
-%
-%----------------------------------------------------------------%
-elseif(filter == 2)
-
-yhat2 = delCdt(:,2);    
-  
-      e = delCdt(61:1806,2) - decon(61:1806,2); % look at MSE for 1855-2000
-    
-   % misfit = e'*e/length(delCdt(61:1806,2))  
-    
-    e2 = delCdt(601:1806,2) - decon(601:1806,2); % look at MSE for 1900-2000
-    
-   % misfit2 = e2'*e2/length(delCdt(601:1806,2))   
-
-    e3 = delCdt(1309:(end-1),2) - decon(1309:(end-1),2); % look at MSE from 1958-present
-    misfit3 = e3'*e3/length(delCdt(1309:(end-1),2));  
-    
-      C = cov(decon(1309:(end-1),2),yhat2(1309:(end-1),1));
-   
-  [R,P,RLO,RUP] = corrcoef(yhat2(1297:(end-1),1),decon(1297:(end-1),2));
-  
-  %R(1,2)^2
-
-  error1= betahat(1)-ci(1);
-    
-figure
-plot(decon(:,1),decon(:,2),delCdt(:,1),yhat2)
-xlabel('year')
-ylabel('ppm CO2/year')
-title('land uptake')
-legend('Residual uptake','land uptake with T effects')
-grid
+if filter == 1 
+    yhat2 = delC10(:,2);
+else
+    yhat2 = delCdt(:,2);   
 end
+
 
 
 % Do "reverse deconvolution" to calculate modeled CO2 change
@@ -386,13 +300,13 @@ j4 = find(fas(:,1) == end_year);
 
 
 if(LUlevel==1)
-    newat(:,1) = year2;
+    newat(:,1) = year3;
     newat(:,2) =  ff(:,2) - Aoc*fas(:,2) + LU(:,2) + delCdt(:,2);
 
 elseif(LUlevel==2)
     
     % 1850 to 2005  --- units on this?
-    newat(:,1) = year2;
+    newat(:,1) = year3;
     newat(:,2) =  ff(:,2) - Aoc*fas(:,2) + LUex(:,2) + delCdt(:,2);
 
 end
@@ -400,18 +314,18 @@ end
     
 co2_preind = 600/2.12; % around 283 ppm (preindustrial)
 
-atmcalc(:,1) = year2;
+atmcalc(:,1) = year3;
 atmcalc(:,2) = cumsum(newat(:,2)/12);
 atmcalc(:,2) = atmcalc(:,2)+co2_preind;
 
-co2_diff(:,1) = year2;
+co2_diff(:,1) = year3;
 co2_diff(:,2) = CO2a_obs(:,2)-atmcalc(:,2);
 i6 = find(co2_diff(:,1) == 1959);
 j6 = find(co2_diff(:,1) == 1979);
 meandiff = mean(co2_diff(i6:j6,2)); % mean difference over 1959-1979
 atmcalc2 = atmcalc(:,2)+meandiff;
 
-obsCalcDiff(:,1) = year2;
+obsCalcDiff(:,1) = year3;
 obsCalcDiff(:,2) = CO2a_obs(:,2) - atmcalc2(:,1); 
 
 if varSST == 1
@@ -426,7 +340,7 @@ if varSST == 1
     grid
     subplot(4,1,2)
     plot(obsCalcDiff(:,1),obsCalcDiff(:,2));
-    line([year2(1),year2(end)],[0,0],'linestyle','--');
+    line([year3(1),year3(end)],[0,0],'linestyle','--');
     grid
     legend('Observed - modeled CO2','location','northeast')
     xlabel('year')
@@ -434,7 +348,7 @@ if varSST == 1
     title('Observed CO2 Deviation from Modeled CO2')
     subplot(4,1,3)
     plot(temp_anom(:,1),temp_anom(:,2))
-    line([year2(1),year2(end)],[0,0],'linestyle','--');
+    line([year3(1),year3(end)],[0,0],'linestyle','--');
     grid
     legend('Temperature anomaly','location','northeast')
     xlabel('year')
@@ -442,7 +356,7 @@ if varSST == 1
     title('Temperature anomaly')
     subplot(4,1,4)
     plot(sstAnom(:,1),sstAnom(:,2))
-    line([year2(1),year2(end)],[0,0],'linestyle','--');
+    line([year3(1),year3(end)],[0,0],'linestyle','--');
     grid
     legend('SST anomaly','location','northeast')
     xlabel('year')
@@ -454,7 +368,7 @@ else
 
     figure('Name','Modeled vs. Observed CO2')
     subplot(3,1,1)
-    plot(CO2a_obs(:,1), CO2a_obs(:,2),year2,atmcalc2);
+    plot(CO2a_obs(:,1), CO2a_obs(:,2),year3,atmcalc2);
     xlabel('year')
     ylabel('ppm CO2')
     title('Atmospheric CO2 history')
@@ -462,7 +376,7 @@ else
     grid
     subplot(3,1,2)
     plot(obsCalcDiff(:,1),obsCalcDiff(:,2));
-    line([year2(1),year2(end)],[0,0],'linestyle','--');
+    line([year3(1),year3(end)],[0,0],'linestyle','--');
     grid
     legend('Observed - modeled CO2','location','northeast')
     xlabel('year')
@@ -481,7 +395,7 @@ saveas(gcf,'CO2recordsFig.fig')
 
 figure('Name','Land Uptake')
 plot(residual10(:,1),residual10(:,2),delC10(:,1),yhat2,LU(:,1), LU(:,2),'-.')
-line([year2(1),year2(end)],[0,0],'linestyle',':');
+line([year3(1),year3(end)],[0,0],'linestyle',':');
 set(gca,'Xlim',[1850 2010]) 
 title('Residual Land Flux')
 legend('Residual land flux','Residual land flux (model)','Land use emissions','location','northwest')
@@ -497,9 +411,9 @@ imbalance = 0;
 
 % sources and sinks plot in fluxes
 figure('Name','Sources and Sinks')
-plot(ff(:,1),ff(:,2),year2,-dtdelpCO2a_sm,fas(:,1),...
+plot(ff(:,1),ff(:,2),year3,-dtdelpCO2a_sm,fas(:,1),...
     -Aoc*fas(:,2),delC10(:,1),yhat2,LU(:,1),LU(:,2))
-line([year2(1),year2(end)],[0,0],'linestyle',':');
+line([year3(1),year3(end)],[0,0],'linestyle',':');
 set(gca,'Xlim',[1900 2010]) 
 legend('fossil fuel','observed atmosphere','ocean','modeled land','land use','Location','SouthWest')
 
@@ -507,9 +421,7 @@ legend('fossil fuel','observed atmosphere','ocean','modeled land','land use','Lo
 
 
 
-elseif strcmpi('no',inputStr2)
-    disp('all done!')
-end
+
 
 if strcmp(landusedata,'hough')
     if tempDep == 1
