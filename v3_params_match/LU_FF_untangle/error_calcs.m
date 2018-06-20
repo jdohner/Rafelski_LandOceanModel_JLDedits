@@ -44,6 +44,20 @@ C2005_hansis_RMSEopt = sqrt(mean(C2005_hansis_ddt(i:end,2).^2));
 C2005_hough03_RMSEopt = sqrt(mean(C2005_hough03_ddt(i:end,2).^2));
 C2005_const_RMSEopt = sqrt(mean(C2005_const_ddt(i:end,2).^2));
 
+
+% quick Peters comparison stuff
+% j = find(CconstLU_ddt(:,1) == 1959);
+% Vhough_RMSEopt = sqrt(mean(Vhough_ddt(j:end,2).^2));
+% Vhansis_RMSEopt = sqrt(mean(Vhansis_ddt(j:end,2).^2));
+% VLRLU_RMSEopt = sqrt(mean(VLRLU_ddt(j:end,2).^2));
+% VLRLUex_RMSEopt = sqrt(mean(VLRLUex_ddt(j:end,2).^2));
+% Vconst_RMSEopt = sqrt(mean(VconstLU_ddt(j:end,2).^2));
+% 
+% meanbud_hough = mean(Vhough_ddt(j:end,2));
+% meanbud_hansis = mean(Vhansis_ddt(j:end,2));
+% meanbud_hough03 = mean(VLRLU_ddt(j:end,2));
+% meanbud_const = mean(VconstLU_ddt(j:end,2));
+
 %% 1850 - present
 
 Vhough_RMSEfull = sqrt(mean(Vhough_ddt(:,2).^2));
