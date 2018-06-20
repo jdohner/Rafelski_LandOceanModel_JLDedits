@@ -10,7 +10,7 @@
 
 clear all
 
-tempDep = 0; % indicate whether tempDep (1) or tempIndep (0)
+tempDep = 1; % indicate whether tempDep (1) or tempIndep (0)
 d = 2.31; % ppm to PgC conversion factor (formerly 1/2.31 opp direction)
 d1 = 0.001; % teragram to petagram conversion factor
 
@@ -18,7 +18,7 @@ addpath(genpath(...
     '/Users/juliadohner/Documents/MATLAB/JLDedits_Rafelski_LandOceanModel/v3_params_match'));
 
 load LU_records_monthly; % load LU records at monthly resolution
-load presentand2005_vars; % load output for houghton run thru present and 2005
+load timeframe2005_vars; % load output for houghton run thru present and 2005
 
 % load residuals from driver using most recent ff data, all different lu
 % cases 5 total - all for CHM-V with constant SST
@@ -90,19 +90,25 @@ LRLU_resid_sm0 = smooth(LRLU_resid(:,2),59);
 LRLUex_resid_sm0 = smooth(LRLUex_resid(:,2),59);
 constLU_resid_sm0 = smooth(constLU_resid(:,2),59);
 
-Cpresent_resid_sm0 = smooth(Cpresent_resid(:,2),59);
-Vpresent_resid_sm0 = smooth(Vpresent_resid(:,2),59);
-C2005_resid_sm0 = smooth(C2005_resid(:,2),59);
-V2005_resid_sm0 = smooth(V2005_resid(:,2),59);
+% Cpresent_resid_sm0 = smooth(Cpresent_resid(:,2),59);
+% Vpresent_resid_sm0 = smooth(Vpresent_resid(:,2),59);
+C2005_hough_sm0 = smooth(C2005_hough_resid(:,2).*d,59);
+V2005_hough_sm0 = smooth(V2005_hough_resid(:,2).*d,59);
+C2005_hansis_sm0 = smooth(C2005_hansis_resid(:,2).*d,59);
+V2005_hansis_sm0 = smooth(V2005_hansis_resid(:,2).*d,59);
+C2005_hough03_sm0 = smooth(C2005_hough03_resid(:,2).*d,59);
+V2005_hough03_sm0 = smooth(V2005_hough03_resid(:,2).*d,59);
+C2005_const_sm0 = smooth(C2005_constant_resid(:,2).*d,59);
+V2005_const_sm0 = smooth(V2005_constant_resid(:,2).*d,59);
 
 if tempDep == 1
     save('lu_tempDep_resids_sm','hough_resid_sm0','hansis_resid_sm0',...
         'gcp_resid_sm0','LRLU_resid_sm0','LRLUex_resid_sm0',...
-        'constLU_resid_sm0','Vpresent_resid_sm0','V2005_resid_sm0')
+        'constLU_resid_sm0')
 else 
     save('lu_tempIndep_resids_sm','hough_resid_sm0','hansis_resid_sm0',...
     'gcp_resid_sm0','LRLU_resid_sm0','LRLUex_resid_sm0',...
-    'constLU_resid_sm0','Cpresent_resid_sm0','C2005_resid_sm0')
+    'constLU_resid_sm0')
 end
 
 % rloess smoothing
@@ -131,10 +137,16 @@ gcp_resid_sm1 = gcp_resid_sm0(1:12:end);
 LRLU_resid_sm1 = LRLU_resid_sm0(1:12:end);
 LRLUex_resid_sm1 = LRLUex_resid_sm0(1:12:end);
 constLU_resid_sm1 = constLU_resid_sm0(1:12:end);
-Vpresent_resid_sm1 = Vpresent_resid_sm0(1:12:end);
-Cpresent_resid_sm1 = Cpresent_resid_sm0(1:12:end);
-V2005_resid_sm1 = V2005_resid_sm0(1:12:end);
-C2005_resid_sm1 = C2005_resid_sm0(1:12:end);
+% Vpresent_resid_sm1 = Vpresent_resid_sm0(1:12:end);
+% Cpresent_resid_sm1 = Cpresent_resid_sm0(1:12:end);
+V2005_hough_sm1 = V2005_hough_sm0(1:12:end);
+C2005_hough_sm1 = C2005_hough_sm0(1:12:end);
+V2005_hansis_sm1 = V2005_hansis_sm0(1:12:end);
+C2005_hansis_sm1 = C2005_hansis_sm0(1:12:end);
+V2005_hough03_sm1 = V2005_hough03_sm0(1:12:end);
+C2005_hough03_sm1 = C2005_hough03_sm0(1:12:end);
+V2005_const_sm1 = V2005_const_sm0(1:12:end);
+C2005_const_sm1 = C2005_const_sm0(1:12:end);
 
 hough_resid_rloess1 = hough_resid_rloess0(1:12:end);
 hansis_resid_rloess1 = hansis_resid_rloess0(1:12:end);
@@ -143,7 +155,7 @@ LRLU_resid_rloess1 = LRLU_resid_rloess0(1:12:end);
 LRLUex_resid_rloess1 = LRLUex_resid_rloess0(1:12:end);
 constLU_resid_rloess1 = constLU_resid_rloess0(1:12:end);
 year_sm = year2(1:12:end);
-year_sm_2005 = V2005_resid(1:12:end,1);
+year_sm_2005 = V2005_hough_resid(1:12:end,1);
 
 blankVec(:,1) = year_sm(1:end-1);
 blankVec(:,2) = zeros(length(year_sm)-1,1);
@@ -153,10 +165,15 @@ gcp_resid_ddt = blankVec;
 LRLU_resid_ddt = blankVec;
 LRLUex_resid_ddt = blankVec;
 constLU_resid_ddt = blankVec;
-Vpresent_resid_ddt = blankVec;
-Cpresent_resid_ddt = blankVec;
-%V2005_resid_ddt = blankVec;
-%C2005_resid_ddt = blankVec;
+V2005_hough_ddt = blankVec;
+C2005_hough_ddt = blankVec;
+V2005_hansis_ddt = blankVec;
+C2005_hansis_ddt = blankVec;
+V2005_hough03_ddt = blankVec;
+C2005_hough03_ddt = blankVec;
+V2005_const_ddt = blankVec;
+C2005_const_ddt = blankVec;
+
 
 blankVec2(:,1) = year_sm;
 blankVec2(:,2) = 0;
@@ -176,11 +193,16 @@ for i = 1:length(year_sm)-1
     LRLU_resid_ddt(i,2) = LRLU_resid_sm1(i+1)-LRLU_resid_sm1(i);
     LRLUex_resid_ddt(i,2) = LRLUex_resid_sm1(i+1)-LRLUex_resid_sm1(i);
     constLU_resid_ddt(i,2) = constLU_resid_sm1(i+1)-constLU_resid_sm1(i);
-    Vpresent_resid_ddt(i,2) = Vpresent_resid_sm1(i+1)-Vpresent_resid_sm1(i);
-    Cpresent_resid_ddt(i,2) = Cpresent_resid_sm1(i+1)-Cpresent_resid_sm1(i);
-    %V2005_resid_ddt(i,2) = V2005_resid_sm1(i+1)-V2005_resid_sm1(i);
-    %C2005_resid_ddt(i,2) = C2005_resid_sm1(i+1)-C2005_resid_sm1(i);
-    
+    %Vpresent_resid_ddt(i,2) = Vpresent_resid_sm1(i+1)-Vpresent_resid_sm1(i);
+    %Cpresent_resid_ddt(i,2) = Cpresent_resid_sm1(i+1)-Cpresent_resid_sm1(i);
+    V2005_hough_ddt(i,2) = V2005_hough_sm1(i+1)-V2005_hough_sm1(i);
+    C2005_hough_ddt(i,2) = C2005_hough_sm1(i+1)-C2005_hough_sm1(i);
+    V2005_hansis_ddt(i,2) = V2005_hansis_sm1(i+1)-V2005_hansis_sm1(i);
+    C2005_hansis_ddt(i,2) = C2005_hansis_sm1(i+1)-C2005_hansis_sm1(i);
+    V2005_hough03_ddt(i,2) = V2005_hough03_sm1(i+1)-V2005_hough03_sm1(i);
+    C2005_hough03_ddt(i,2) = C2005_hough03_sm1(i+1)-C2005_hough03_sm1(i);
+    V2005_const_ddt(i,2) = V2005_const_sm1(i+1)-V2005_const_sm1(i);
+    C2005_const_ddt(i,2) = C2005_const_sm1(i+1)-C2005_const_sm1(i);
     
     hough_residrloess_ddt(i,2) = hough_resid_rloess1(i+1)-hough_resid_rloess1(i);
     hansis_residrloess_ddt(i,2) = hansis_resid_rloess1(i+1)-hansis_resid_rloess1(i);
@@ -191,15 +213,16 @@ for i = 1:length(year_sm)-1
     
 end
 
-blankVec4(:,1) = year_sm_2005; 
-blankVec4(:,2) = 0;
-V2005_resid_ddt = blankVec4;
-C2005_resid_ddt = blankVec4;
-% 2005 runs shorter than all the rest, which are 2015.5
-for i = 1:length(V2005_resid_sm1)-1
-    V2005_resid_ddt(i,2) = V2005_resid_sm1(i+1)-V2005_resid_sm1(i);
-    C2005_resid_ddt(i,2) = C2005_resid_sm1(i+1)-C2005_resid_sm1(i);
-end
+% below no longer necessary because fit thru 2005 but plot thru 2015
+% blankVec4(:,1) = year_sm_2005; 
+% blankVec4(:,2) = 0;
+% V2005_resid_ddt = blankVec4;
+% C2005_resid_ddt = blankVec4;
+% % 2005 runs shorter than all the rest, which are 2015.5
+% for i = 1:length(V2005_resid_sm1)-1
+%     V2005_resid_ddt(i,2) = V2005_resid_sm1(i+1)-V2005_resid_sm1(i);
+%     C2005_resid_ddt(i,2) = C2005_resid_sm1(i+1)-C2005_resid_sm1(i);
+% end
 
 
 blankVec3(:,1) = hough_resid(:,1);
@@ -210,6 +233,14 @@ hansis_ddt_unfilt = blankVec3;
 LRLU_ddt_unfilt = blankVec3;
 LRLUex_ddt_unfilt = blankVec3;
 constLU_ddt_unfilt = blankVec3;
+V2005_hough_ddtUnfilt = blankVec3;
+C2005_hough_ddtUnfilt = blankVec3;
+V2005_hansis_ddtUnfilt = blankVec3;
+C2005_hansis_ddtUnfilt = blankVec3;
+V2005_hough03_ddtUnfilt = blankVec3;
+C2005_hough03_ddtUnfilt = blankVec3;
+V2005_const_ddtUnfilt = blankVec3;
+C2005_const_ddtUnfilt = blankVec3;
 
 for i = 1:length(hough_resid(:,1))-12
     hough_ddt_unfilt(i,2) = hough_resid(i+12,2)-hough_resid(i,2);
@@ -217,12 +248,20 @@ for i = 1:length(hough_resid(:,1))-12
     LRLU_ddt_unfilt(i,2) = LRLU_resid(i+12,2)-LRLU_resid(i,2);
     LRLUex_ddt_unfilt(i,2) = LRLUex_resid(i+12,2)-LRLUex_resid(i,2);    
     constLU_ddt_unfilt(i,2) = constLU_resid(i+12,2)-constLU_resid(i,2);    
+    V2005_hough_ddtUnfilt(i,2) = (V2005_hough_resid(i+12,2)-V2005_hough_resid(i,2)).*d;
+    C2005_hough_ddtUnfilt(i,2) = (C2005_hough_resid(i+12,2)-V2005_hough_resid(i,2)).*d;
+    V2005_hansis_ddtUnfilt(i,2) = (V2005_hansis_resid(i+12,2)-V2005_hansis_resid(i,2)).*d;
+    C2005_hansis_ddtUnfilt(i,2) = (C2005_hansis_resid(i+12,2)-V2005_hansis_resid(i,2)).*d;
+    V2005_hough03_ddtUnfilt(i,2) = (V2005_hough03_resid(i+12,2)-V2005_hough03_resid(i,2)).*d;
+    C2005_hough03_ddtUnfilt(i,2) = (C2005_hough03_resid(i+12,2)-V2005_hough03_resid(i,2)).*d;
+    V2005_const_ddtUnfilt(i,2) = (V2005_constant_resid(i+12,2)-V2005_constant_resid(i,2)).*d;
+    C2005_const_ddtUnfilt(i,2) = (C2005_constant_resid(i+12,2)-V2005_constant_resid(i,2)).*d;
 end
 
 if tempDep == 1
     save('lu_tempDep_residFluxes_sm','hough_resid_ddt','hansis_resid_ddt',...
         'gcp_resid_ddt','LRLU_resid_ddt','LRLUex_resid_ddt',...
-        'constLU_resid_ddt','Vpresent_resid_ddt','V2005_resid_ddt')
+        'constLU_resid_ddt')
 
     save('lu_tempDep_residFluxes_rloess','hough_residrloess_ddt','hansis_residrloess_ddt',...
         'gcp_residrloess_ddt','LRLU_residrloess_ddt','LRLUex_residrloess_ddt',...
@@ -234,8 +273,8 @@ if tempDep == 1
     
 else % tempDep == 0 (tempIndep)
     save('lu_tempIndep_residFluxes_sm','hough_resid_ddt','hansis_resid_ddt',...
-        'gcp_resid_ddt','LRLU_resid_ddt','LRLUex_resid_ddt','constLU_resid_ddt',...
-        'Cpresent_resid_ddt','C2005_resid_ddt')
+        'gcp_resid_ddt','LRLU_resid_ddt','LRLUex_resid_ddt','constLU_resid_ddt')
+        
 
     save('lu_tempIndep_residFluxes_rloess','hough_residrloess_ddt','hansis_residrloess_ddt',...
         'gcp_residrloess_ddt','LRLU_residrloess_ddt','LRLUex_residrloess_ddt',...
@@ -244,10 +283,14 @@ else % tempDep == 0 (tempIndep)
     save('lu_tempIndep_residFlux_unfilt','hough_ddt_unfilt','hansis_ddt_unfilt',....
         'LRLU_ddt_unfilt','LRLUex_ddt_unfilt','constLU_ddt_unfilt')
         
+        
 end
 
-save('presentand2005_ddt','Vpresent_resid_ddt','Cpresent_resid_ddt',...
-    'V2005_resid_ddt','C2005_resid_ddt')
+save('timeframe2005_ddtvars',...
+        'V2005_hough_ddt','V2005_hansis_ddt','V2005_hough03_ddt','V2005_const_ddt',...
+        'V2005_hough_ddtUnfilt','V2005_hansis_ddtUnfilt','V2005_hough03_ddtUnfilt','V2005_const_ddtUnfilt',...
+        'C2005_hough_ddt','C2005_hansis_ddt','C2005_hough03_ddt','C2005_const_ddt',...
+        'C2005_hough_ddtUnfilt','C2005_hansis_ddtUnfilt','C2005_hough03_ddtUnfilt','C2005_const_ddtUnfilt')
 
 
   

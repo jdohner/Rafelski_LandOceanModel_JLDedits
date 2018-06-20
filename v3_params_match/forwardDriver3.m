@@ -9,14 +9,14 @@ clear all
 
 %% define time frame, cases
 
-landusedata = 'hough'; %hough, hansis, gcp, lr_high, lr_low, const;
+landusedata = 'const'; %hough, hansis, hough03, const;
     
 
 varSST = 0; %1 if variable sst, 0 if fixed sst
 nitrogen = 0; % 1 = yes, 0 = no; account for nitrogen fertilization?
 filter = 1; % filter the data? 1 = 10 year filter; 2 = unfiltered
 tropicalLU = 1; % 1 = use tropical LU, 0 = extratropical LU
-inputStr = 'CHM-V';
+inputStr = 'CHM-C';
 
 Tconst = 18.2; % surface temperature, deg C, from Joos 1996
 ts = 12; % timesteps per year
@@ -266,10 +266,12 @@ inputStr2 = 'yes';
 
 % get all records again for new end_year (for full plot)
 year3 = (start_year:(1/ts):end_year_plot)';
-[dtdelpCO2a_obs,dpCO2a_obs,~,~,CO2a_obs] = getObservedCO2_2(ts,start_year,end_year_plot);
-[temp_anom, ~] = tempRecord2(start_year,end_year_plot,dt);
-[ff, LU] = getSourceSink5(year3, ts,landusedata); % for updated FF & LU
-[fas,sstAnom] = jooshildascale_annotate2(start_year,end_year_plot,ts,ff,varSST,Tconst);
+if end_year ~= end_year_plot
+    [dtdelpCO2a_obs,dpCO2a_obs,~,~,CO2a_obs] = getObservedCO2_2(ts,start_year,end_year_plot);
+    [temp_anom, ~] = tempRecord2(start_year,end_year_plot,dt);
+    [ff, LU] = getSourceSink5(year3, ts,landusedata); % for updated FF & LU
+    [fas,sstAnom] = jooshildascale_annotate2(start_year,end_year_plot,ts,ff,varSST,Tconst);
+end
 
 % Run the best fit values in the model again to plot
 
@@ -419,33 +421,117 @@ legend('fossil fuel','observed atmosphere','ocean','modeled land','land use','Lo
 
 
 
-
-
-
-
-if strcmp(landusedata,'hough')
+if end_year == 2005.5 && end_year_plot == 2015.5
     if tempDep == 1
-        if end_year == 2015.5
-            save('timeframe_presentV','obsCalcDiff','atmcalc2','Q1','epsilon','year2')
-        elseif end_year == 2005.5
-            save('timeframe_2005V','obsCalcDiff','atmcalc2','Q1','epsilon','year2')
-        elseif end_year == 1995.5
-            save('timeframe_1995V','obsCalcDiff','atmcalc2','Q1','epsilon','year2')
-        elseif end_year == 1975.5
-            save('timeframe_1975V','obsCalcDiff','atmcalc2','Q1','epsilon','year2')
+        
+        if strcmp(landusedata,'hough')
+            V2005_hough_co2 = atmcalc2;
+            V2005_hough_resid = obsCalcDiff;
+            V2005_hough_q10 = Q1;
+            V2005_hough_eps = epsilon;
+            V2005_hough_year = year2;
+            save('timeframe_hough_2005V','V2005_hough_co2','V2005_hough_resid',...
+                'V2005_hough_q10','V2005_hough_eps','V2005_hough_year')
+            
+        elseif strcmp(landusedata,'hansis')
+            V2005_hansis_co2 = atmcalc2;
+            V2005_hansis_resid = obsCalcDiff;
+            V2005_hansis_q10 = Q1;
+            V2005_hansis_eps = epsilon;
+            V2005_hansis_year = year2;
+            save('timeframe_hansis_2005V','V2005_hansis_co2','V2005_hansis_resid',...
+                'V2005_hansis_q10','V2005_hansis_eps','V2005_hansis_year')
+
+        elseif strcmp(landusedata,'hough03')
+            V2005_hough03_co2 = atmcalc2;
+            V2005_hough03_resid = obsCalcDiff;
+            V2005_hough03_q10 = Q1;
+            V2005_hough03_eps = epsilon;
+            V2005_hough03_year = year2;
+            save('timeframe_hough03_2005V','V2005_hough03_co2','V2005_hough03_resid',...
+                'V2005_hough03_q10','V2005_hough03_eps','V2005_hough03_year')
+      
+        elseif strcmp(landusedata,'const')
+            V2005_constant_co2 = atmcalc2;
+            V2005_constant_resid = obsCalcDiff;
+            V2005_constant_q10 = Q1;
+            V2005_constant_eps = epsilon;
+            V2005_constant_year = year2;
+            save('timeframe_constant_2005V','V2005_constant_co2','V2005_constant_resid',...
+                'V2005_constant_q10','V2005_constant_eps','V2005_constant_year')
         end
     elseif tempDep == 0
-        if end_year == 2015.5
-            save('timeframe_presentC','obsCalcDiff','atmcalc2','Q1','epsilon','year2')
-        elseif end_year == 2005.5
-            save('timeframe_2005C','obsCalcDiff','atmcalc2','Q1','epsilon','year2')
-        elseif end_year == 1995.5
-            save('timeframe_1995C','obsCalcDiff','atmcalc2','Q1','epsilon','year2')
-        elseif end_year == 1975.5
-            save('timeframe_1975C','obsCalcDiff','atmcalc2','Q1','epsilon','year2')
+               
+        if strcmp(landusedata,'hough')
+            C2005_hough_co2 = atmcalc2;
+            C2005_hough_resid = obsCalcDiff;
+            C2005_hough_q10 = Q1;
+            C2005_hough_eps = epsilon;
+            C2005_hough_year = year2;
+            save('timeframe_hough_2005C','C2005_hough_co2','C2005_hough_resid',...
+                'C2005_hough_q10','C2005_hough_eps','C2005_hough_year')
+            
+        elseif strcmp(landusedata,'hansis')
+            C2005_hansis_co2 = atmcalc2;
+            C2005_hansis_resid = obsCalcDiff;
+            C2005_hansis_q10 = Q1;
+            C2005_hansis_eps = epsilon;
+            C2005_hansis_year = year2;
+            save('timeframe_hansis_2005C','C2005_hansis_co2','C2005_hansis_resid',...
+                'C2005_hansis_q10','C2005_hansis_eps','C2005_hansis_year')
+ 
+        elseif strcmp(landusedata,'hough03')
+            C2005_hough03_co2 = atmcalc2;
+            C2005_hough03_resid = obsCalcDiff;
+            C2005_hough03_q10 = Q1;
+            C2005_hough03_eps = epsilon;
+            C2005_hough03_year = year2;
+            save('timeframe_hough03_2005C','C2005_hough03_co2','C2005_hough03_resid',...
+                'C2005_hough03_q10','C2005_hough03_eps','C2005_hough03_year')
+      
+        elseif strcmp(landusedata,'const')
+            C2005_constant_co2 = atmcalc2;
+            C2005_constant_resid = obsCalcDiff;
+            C2005_constant_q10 = Q1;
+            C2005_constant_eps = epsilon;
+            C2005_constant_year = year2;
+            save('timeframe_constant_2005C','C2005_constant_co2','C2005_constant_resid',...
+                'C2005_constant_q10','C2005_constant_eps','C2005_constant_year')
         end
+
     end
-        
 end
+
+% 
+% 
+% if strcmp(landusedata,'hough')
+%     if tempDep == 1
+%         %if end_year == 2015.5
+%         %    save('timeframe_presentV','obsCalcDiff','atmcalc2','Q1','epsilon','year2')
+%         if end_year == 2005.5
+%             V2005_hough_co2 = atmcalc2;
+%             V2005_hough_resid = obsCalcDiff;
+%             V2005_hough_q10 = Q1;
+%             V2005_hough_eps = epsilon;
+%             V2005_hough_year = year2;
+%             save('timeframe_hough_2005V','obsCalcDiff','atmcalc2','Q1','epsilon','year2')
+% %         elseif end_year == 1995.5
+% %             save('timeframe_1995V','obsCalcDiff','atmcalc2','Q1','epsilon','year2')
+% %         elseif end_year == 1975.5
+% %             save('timeframe_1975V','obsCalcDiff','atmcalc2','Q1','epsilon','year2')
+%         end
+%     elseif tempDep == 0
+%         if end_year == 2015.5
+%             save('timeframe_presentC','obsCalcDiff','atmcalc2','Q1','epsilon','year2')
+%         elseif end_year == 2005.5
+%             save('timeframe_2005C','obsCalcDiff','atmcalc2','Q1','epsilon','year2')
+%         elseif end_year == 1995.5
+%             save('timeframe_1995C','obsCalcDiff','atmcalc2','Q1','epsilon','year2')
+%         elseif end_year == 1975.5
+%             save('timeframe_1975C','obsCalcDiff','atmcalc2','Q1','epsilon','year2')
+%         end
+%     end
+%         
+% end
 
     

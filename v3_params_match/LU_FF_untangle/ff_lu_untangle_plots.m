@@ -280,15 +280,16 @@ grid
 
 %% cutting out 10 years of data
 
-
+load timeframe2005_ddtvars;
 
 
 figure
 subplot(2,2,1)
-plot(Vpresent_year,Vpresent_resid(:,2),V2005_year,V2005_resid(:,2))
+plot(Vhough_resid(:,1),Vhough_resid(:,2),...
+    V2005_hough_resid(:,1),V2005_hough_resid(:,2))
 title('Residuals of Different Time Frames - TempDep','FontSize', 22);
 line([1840,2016],[0,0],'linestyle','--');
-legend({'Houghton thru 2015.5','Houghton thru 2005.5'},...
+legend({'Houghton 2017 fit thru 2015.5','Houghton 2017 fit thru 2005.5'},...
     'Location','Northwest','FontSize', 16);%, 'NumColumns',2)
 xlabel('Year','FontSize', 18)
 set(gca,'FontSize',18)
@@ -299,22 +300,22 @@ ylim([-2 8])
 grid
 
 subplot(2,2,3)
-plot(Vpresent_resid_ddt(:,1),Vpresent_resid_ddt(:,2),...
-    V2005_resid_ddt(:,1),V2005_resid_ddt(:,2))
+plot(Vhough_ddt(:,1),Vhough_ddt(:,2),...
+    V2005_hough_ddt(:,1),V2005_hough_ddt(:,2))
 title('Residual Flux of Different Time Frames - TempDep','FontSize', 22);
 line([1840,2016],[0,0],'linestyle','--');
-legend({'Houghton thru 2015.5','Houghton thru 2005.5'},...
+legend({'Houghton 2017 thru 2015.5','Houghton 2017 thru 2005.5'},...
     'Location','Northwest','FontSize', 16);%, 'NumColumns',2)
 xlabel('Year','FontSize', 18)
 set(gca,'FontSize',18)
 ylabel('GtC/yr','FontSize', 18)
 set(gca,'FontSize',18)
 xlim([1840 2016])
-ylim([-1 1])
+ylim([-3 3])
 grid
 
 subplot(2,2,2)
-plot(Cpresent_year,Cpresent_resid(:,2),C2005_year,C2005_resid(:,2))
+plot(Chough_resid(:,1),Chough_resid(:,2),C2005_hough_resid(:,1),C2005_hough_resid(:,2))
 title('Residuals of Different Time Frames - TempIndep','FontSize', 22);
 line([1840,2016],[0,0],'linestyle','--');
 legend({'Houghton 2017 thru 2015.5','Houghton 2017 thru 2005.5'},...
@@ -328,8 +329,8 @@ ylim([-2 8])
 grid
 
 subplot(2,2,4)
-plot(Cpresent_resid_ddt(:,1),Cpresent_resid_ddt(:,2),...
-    V2005_resid_ddt(:,1),V2005_resid_ddt(:,2))
+plot(Chough_ddt(:,1),Chough_ddt(:,2),...
+    C2005_hough_ddt(:,1),C2005_hough_ddt(:,2))
 title('Residual Flux of Different Time Frames - TempIndep','FontSize', 22);
 line([1840,2016],[0,0],'linestyle','--');
 legend({'Houghton 2017 thru 2015.5','Houghton 2017 thru 2005.5'},...
@@ -339,7 +340,7 @@ set(gca,'FontSize',18)
 ylabel('GtC/yr','FontSize', 18)
 set(gca,'FontSize',18)
 xlim([1840 2016])
-ylim([-1 1])
+ylim([-3 3])
 grid
 
 %% 3-panel summary plot

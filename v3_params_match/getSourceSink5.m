@@ -43,8 +43,10 @@ else
     
     elseif strcmp(landusedata,'gcp')
         LU_2016 = csvread('GCPv1.3_historicalLU2016.csv');
-    elseif strcmp(landusedata,'lr_high')
+        
+    elseif strcmp(landusedata,'hough03')
         LU_2016 = csvread('LR_LU.csv'); %Rafelski 2009 high land use
+        
     elseif strcmp(landusedata,'lr_low')
         LU_2016 = csvread('LR_LUex.csv'); %Rafelski 2009 low land use
     %elseif landusedata == 'const'
