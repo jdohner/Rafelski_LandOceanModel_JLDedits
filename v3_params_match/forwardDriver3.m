@@ -9,7 +9,7 @@ clear all
 
 %% define time frame, cases
 
-landusedata = 'hansis'; %hough, hansis, hough03, const;
+landusedata = 'const'; %hough, hansis, hough03, const;
     
 
 varSST = 0; %1 if variable sst, 0 if fixed sst
@@ -22,7 +22,7 @@ Tconst = 18.2; % surface temperature, deg C, from Joos 1996
 ts = 12; % timesteps per year
 dt = 1/ts;
 start_year = 1850;
-end_year = 2005.5;%2009+(7/12);%
+end_year = 2015.5;%2009+(7/12);%
 end_year_plot = 2015.5;
 year2 = (start_year:(1/ts):end_year)';
 beta = [0.5;2]; % initial guesses for model fit (epsilon, q10)
