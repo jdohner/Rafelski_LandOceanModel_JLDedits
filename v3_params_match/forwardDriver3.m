@@ -9,20 +9,20 @@ clear all
 
 %% define time frame, cases
 
-landusedata = 'const'; %hough, hansis, hough03, const;
+landusedata = 'hansis'; %hough, hansis, hough03, const;
     
 
 varSST = 0; %1 if variable sst, 0 if fixed sst
 nitrogen = 0; % 1 = yes, 0 = no; account for nitrogen fertilization?
 filter = 1; % filter the data? 1 = 10 year filter; 2 = unfiltered
 tropicalLU = 1; % 1 = use tropical LU, 0 = extratropical LU
-inputStr = 'CHM-C';
+inputStr = 'CHM-V';
 
 Tconst = 18.2; % surface temperature, deg C, from Joos 1996
 ts = 12; % timesteps per year
 dt = 1/ts;
 start_year = 1850;
-end_year = 2015.5;%2009+(7/12);%
+end_year = 2005.5;%2009+(7/12);%
 end_year_plot = 2015.5;
 year2 = (start_year:(1/ts):end_year)';
 beta = [0.5;2]; % initial guesses for model fit (epsilon, q10)
