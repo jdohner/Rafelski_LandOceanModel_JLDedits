@@ -410,3 +410,57 @@ set(gca,'FontSize',18)
 xlim([1840 2016])
 ylim([-3 3])
 grid
+
+%% understanding hansis q10 of 22.4
+
+figure
+plot(V2005_hansis_ddtUnfilt(:,1),V2005_hansis_ddtUnfilt(:,2))
+line([1840,2016],[0,0],'linestyle','--');
+
+title('Hansis Unfiltered fit thru 2005.5','FontSize', 40);
+
+legend({'Filtered','Unfiltered'},'location','northwest','FontSize', 20);
+xlabel('Year','FontSize', 18)
+set(gca,'FontSize',18)
+ylabel('PgC/yr','FontSize', 18)
+set(gca,'FontSize',18)
+xlim([1840 2016])
+ylim([-6 6])
+grid
+
+%% HANSIS smoothed and unsmoothed derivative flux
+
+figure
+
+
+subplot(2,1,1)
+plot(Vhansis_ddt(:,1),Vhansis_ddt(:,2),...
+    Vhansis_unfiltddt(:,1),Vhansis_unfiltddt(:,2));
+line([1840,2016],[0,0],'linestyle','--');
+
+title('Variable T Model Residuals - fit thru 2015.5','FontSize', 22);
+
+legend({'Hansis 2015 Filtered','Hansis 2015 Unfiltered'},'location','northwest','FontSize', 18);
+xlabel('Year','FontSize', 18)
+set(gca,'FontSize',18)
+ylabel('PgC/yr','FontSize', 18)
+set(gca,'FontSize',18)
+xlim([1840 2016])
+ylim([-3 3])
+grid
+
+subplot(2,1,2)
+plot(V2005_hansis_ddt(:,1),V2005_hansis_ddt(:,2),...
+    V2005_hansis_ddtUnfilt(:,1),V2005_hansis_ddtUnfilt(:,2));
+line([1840,2016],[0,0],'linestyle','--');
+
+title('Variable T Model Residuals - fit thru 2005.5','FontSize', 22);
+
+legend({'Hansis 2015 Filtered','Hansis 2015 Unfiltered'},'location','northwest','FontSize', 18);
+xlabel('Year','FontSize', 18)
+set(gca,'FontSize',18)
+ylabel('PgC/yr','FontSize', 18)
+set(gca,'FontSize',18)
+xlim([1840 2016])
+ylim([-3 3])
+grid
