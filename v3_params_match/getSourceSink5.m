@@ -21,7 +21,7 @@ FF_2016mo_0 = (interp1(FF_2016(:,1),FF_2016(:,2),ffYear)).';
 FF_2016mo(:,1) = ffYear;
 FF_2016mo(:,2) = FF_2016mo_0*d; %convert to pp
 
-if strcmp(landusedata,'hough') || strcmp(landusedata,'const')
+if strcmp(landusedata,'hough') || strcmp(landusedata,'const') || strcmp(landusedata,'const2')
     %if using Houghton:
     LU_2016 = csvread('HoughLU_perscomm_2016.csv'); 
     luYear = LU_2016(1,1):(1/ts):LU_2016(end,1);
@@ -35,7 +35,15 @@ if strcmp(landusedata,'hough') || strcmp(landusedata,'const')
         LU_2016mo(:,2) = (interp1(const(:,1),const(:,2),luYear)).';
         i = find(LU_2016mo(:,1) == 1920);
         LU_2016mo(i:end,2) = LU_2016mo(i,2);
+    elseif strcmp(landusedata,'const2')
+        const2 = [LU_2016mo(1,1) LU_2016mo(1,2) ; LU_2016mo(end,1) 2*LU_2016mo(end,2)];
+        LU_2016mo(:,2) = (interp1(const2(:,1),const2(:,2),luYear)).';
+        i = find(LU_2016mo(:,1) == 1920);
+        LU_2016mo(i:end,2) = LU_2016mo(i,2);
+        
     end
+    
+    
     
 else
     if strcmp(landusedata,'hansis')

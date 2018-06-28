@@ -9,7 +9,7 @@ clear all
 
 %% define time frame, cases
 
-landusedata = 'const'; %hough, hansis, hough03, const;
+landusedata = 'hough03'; %hough, hansis, hough03, const, const2;
     
 
 varSST = 0; %1 if variable sst, 0 if fixed sst
@@ -419,6 +419,28 @@ line([year3(1),year3(end)],[0,0],'linestyle',':');
 set(gca,'Xlim',[1900 2010]) 
 legend('fossil fuel','observed atmosphere','ocean','modeled land','land use','Location','SouthWest')
 
+if end_year == 2015.5 && end_year_plot == 2015.5 && strcmp(landusedata,'const2')
+    if tempDep == 1 
+            Vpresent_constant2_co2 = atmcalc2;
+            Vpresent_constant2_resid = obsCalcDiff;
+            Vpresent_constant2_q10 = Q1;
+            Vpresent_constant2_eps = epsilon;
+            Vpresent_constant2_year = year2;
+            save('timeframe_constant2_presentV','Vpresent_constant2_co2','Vpresent_constant2_resid',...
+                'Vpresent_constant2_q10','Vpresent_constant2_eps','Vpresent_constant2_year')
+    elseif tempDep == 0
+            Cpresent_constant2_co2 = atmcalc2;
+            Cpresent_constant2_resid = obsCalcDiff;
+            Cpresent_constant2_q10 = Q1;
+            Cpresent_constant2_eps = epsilon;
+            Cpresent_constant2_year = year2;
+            save('timeframe_constant2_presentC','Cpresent_constant2_co2','Cpresent_constant2_resid',...
+                'Cpresent_constant2_q10','Cpresent_constant2_eps','Cpresent_constant2_year')
+    end
+
+end
+        %%
+        
 
 
 if end_year == 2005.5 && end_year_plot == 2015.5
@@ -459,6 +481,17 @@ if end_year == 2005.5 && end_year_plot == 2015.5
             V2005_constant_year = year2;
             save('timeframe_constant_2005V','V2005_constant_co2','V2005_constant_resid',...
                 'V2005_constant_q10','V2005_constant_eps','V2005_constant_year')
+        
+        elseif strcmp(landusedata,'const2')
+            V2005_constant2_co2 = atmcalc2;
+            V2005_constant2_resid = obsCalcDiff;
+            V2005_constant2_q10 = Q1;
+            V2005_constant2_eps = epsilon;
+            V2005_constant2_year = year2;
+            save('timeframe_constant2_2005V','V2005_constant2_co2','V2005_constant2_resid',...
+                'V2005_constant2_q10','V2005_constant2_eps','V2005_constant2_year')
+   
+        
         end
     elseif tempDep == 0
                
@@ -497,6 +530,15 @@ if end_year == 2005.5 && end_year_plot == 2015.5
             C2005_constant_year = year2;
             save('timeframe_constant_2005C','C2005_constant_co2','C2005_constant_resid',...
                 'C2005_constant_q10','C2005_constant_eps','C2005_constant_year')
+            
+        elseif strcmp(landusedata,'const2')
+            C2005_constant2_co2 = atmcalc2;
+            C2005_constant2_resid = obsCalcDiff;
+            C2005_constant2_q10 = Q1;
+            C2005_constant2_eps = epsilon;
+            C2005_constant2_year = year2;
+            save('timeframe_constant2_2005C','C2005_constant2_co2','C2005_constant2_resid',...
+                'C2005_constant2_q10','C2005_constant2_eps','C2005_constant2_year')
         end
 
     end

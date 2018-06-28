@@ -19,6 +19,7 @@ addpath(genpath(...
 
 load LU_records_monthly; % load LU records at monthly resolution
 load timeframe2005_vars; % load output for houghton run thru present and 2005
+load timeframe_const2; % load output for const2 run (doubling the value from const)
 
 % load residuals from driver using most recent ff data, all different lu
 % cases 5 total - all for CHM-V with constant SST
@@ -101,6 +102,12 @@ V2005_hough03_sm0 = smooth(V2005_hough03_resid(:,2).*d,59);
 C2005_const_sm0 = smooth(C2005_constant_resid(:,2).*d,59);
 V2005_const_sm0 = smooth(V2005_constant_resid(:,2).*d,59);
 
+Vpresent_const2_sm0 = smooth(Vpresent_constant2_resid(:,2).*d,59);
+Cpresent_const2_sm0 = smooth(Cpresent_constant2_resid(:,2).*d,59);
+V2005_const2_sm0 = smooth(V2005_constant2_resid(:,2).*d,59);
+C2005_const2_sm0 = smooth(C2005_constant2_resid(:,2).*d,59);
+
+
 if tempDep == 1
     save('lu_tempDep_resids_sm','hough_resid_sm0','hansis_resid_sm0',...
         'gcp_resid_sm0','LRLU_resid_sm0','LRLUex_resid_sm0',...
@@ -147,6 +154,11 @@ V2005_hough03_sm1 = V2005_hough03_sm0(1:12:end);
 C2005_hough03_sm1 = C2005_hough03_sm0(1:12:end);
 V2005_const_sm1 = V2005_const_sm0(1:12:end);
 C2005_const_sm1 = C2005_const_sm0(1:12:end);
+Vpresent_const2_sm1 = Vpresent_const2_sm0(1:12:end);
+Cpresent_const2_sm1 = Cpresent_const2_sm0(1:12:end);
+V2005_const2_sm1 = V2005_const2_sm0(1:12:end);
+C2005_const2_sm1 = C2005_const2_sm0(1:12:end);
+
 
 hough_resid_rloess1 = hough_resid_rloess0(1:12:end);
 hansis_resid_rloess1 = hansis_resid_rloess0(1:12:end);
@@ -173,7 +185,10 @@ V2005_hough03_ddt = blankVec;
 C2005_hough03_ddt = blankVec;
 V2005_const_ddt = blankVec;
 C2005_const_ddt = blankVec;
-
+Vpresent_const2_ddt = blankVec;
+Cpresent_const2_ddt = blankVec;
+V2005_const2_ddt = blankVec;
+C2005_const2_ddt = blankVec;
 
 blankVec2(:,1) = year_sm;
 blankVec2(:,2) = 0;
@@ -203,6 +218,10 @@ for i = 1:length(year_sm)-1
     C2005_hough03_ddt(i,2) = C2005_hough03_sm1(i+1)-C2005_hough03_sm1(i);
     V2005_const_ddt(i,2) = V2005_const_sm1(i+1)-V2005_const_sm1(i);
     C2005_const_ddt(i,2) = C2005_const_sm1(i+1)-C2005_const_sm1(i);
+    Vpresent_const2_ddt(i,2) = Vpresent_const2_sm1(i+1)-Vpresent_const2_sm1(i);
+    Cpresent_const2_ddt(i,2) = Cpresent_const2_sm1(i+1)-Cpresent_const2_sm1(i);
+    V2005_const2_ddt(i,2) = V2005_const2_sm1(i+1)-V2005_const2_sm1(i);
+    C2005_const2_ddt(i,2) = C2005_const2_sm1(i+1)-C2005_const2_sm1(i);
     
     hough_residrloess_ddt(i,2) = hough_resid_rloess1(i+1)-hough_resid_rloess1(i);
     hansis_residrloess_ddt(i,2) = hansis_resid_rloess1(i+1)-hansis_resid_rloess1(i);
@@ -241,6 +260,10 @@ V2005_hough03_ddtUnfilt = blankVec3;
 C2005_hough03_ddtUnfilt = blankVec3;
 V2005_const_ddtUnfilt = blankVec3;
 C2005_const_ddtUnfilt = blankVec3;
+Vpresent_const2_ddtUnfilt = blankVec3;
+Cpresent_const2_ddtUnfilt = blankVec3;
+V2005_const2_ddtUnfilt = blankVec3;
+C2005_const2_ddtUnfilt = blankVec3;
 
 for i = 1:length(hough_resid(:,1))-12
     hough_ddt_unfilt(i,2) = hough_resid(i+12,2)-hough_resid(i,2);
@@ -256,6 +279,10 @@ for i = 1:length(hough_resid(:,1))-12
     C2005_hough03_ddtUnfilt(i,2) = (C2005_hough03_resid(i+12,2)-V2005_hough03_resid(i,2)).*d;
     V2005_const_ddtUnfilt(i,2) = (V2005_constant_resid(i+12,2)-V2005_constant_resid(i,2)).*d;
     C2005_const_ddtUnfilt(i,2) = (C2005_constant_resid(i+12,2)-V2005_constant_resid(i,2)).*d;
+    Vpresent_const2_ddtUnfilt(i,2) = (Vpresent_constant2_resid(i+12,2)-Vpresent_constant2_resid(i,2)).*d;
+    Cpresent_const2_ddtUnfilt(i,2) = (Cpresent_constant2_resid(i+12,2)-Cpresent_constant2_resid(i,2)).*d;
+    V2005_const2_ddtUnfilt(i,2) = (V2005_constant2_resid(i+12,2)-V2005_constant2_resid(i,2)).*d;
+    C2005_const2_ddtUnfilt(i,2) = (C2005_constant2_resid(i+12,2)-C2005_constant2_resid(i,2)).*d;
 end
 
 if tempDep == 1
@@ -292,5 +319,9 @@ save('timeframe2005_ddtvars',...
         'C2005_hough_ddt','C2005_hansis_ddt','C2005_hough03_ddt','C2005_const_ddt',...
         'C2005_hough_ddtUnfilt','C2005_hansis_ddtUnfilt','C2005_hough03_ddtUnfilt','C2005_const_ddtUnfilt')
 
-
+save('const2_ddtvars',...
+        'Vpresent_const2_ddt','Vpresent_const2_ddtUnfilt',...
+        'Cpresent_const2_ddt','Cpresent_const2_ddtUnfilt',...
+        'V2005_const2_ddt','V2005_const2_ddtUnfilt',...
+        'C2005_const2_ddt','C2005_const2_ddtUnfilt')
   
