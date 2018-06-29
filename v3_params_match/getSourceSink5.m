@@ -58,6 +58,14 @@ else
     elseif strcmp(landusedata,'lr_low')
         LU_2016 = csvread('LR_LUex.csv'); %Rafelski 2009 low land use
     %elseif landusedata == 'const'
+    
+    elseif strcmp(landusedata,'CLM')
+         CLMyear = [timeAuto; ncread(strcat('http://sccoos.org/thredds/dodsC/autoss/scripps_pier-', num2str(binomialDist), '.nc'),'time')];
+    salinityAuto = [salinityAuto; ncread(strcat('http://sccoos.org/thredds/dodsC/autoss/scripps_pier-', num2str(binomialDist), '.nc'),'salinity')];
+
+        
+        
+        
     end
 
     
