@@ -13,13 +13,23 @@ addpath(genpath(...
 
 d = 1/2.31; % gigaton to ppm conversion factor
 d1 = 0.001; % teragram to petagram conversion factor
+
+if year(end) == 2009 + (7/12)
+    load fossilFuel_1751-2009.mat;
+    FF_2009 = ff1; % already monthly resolution
+    % shortening ff vector to begin at start_year (have data back thru 1700)
+    FF_start = find(FF_2009(:,1) == year(1));
+    FF_2016mo = FF_2009(FF_start:end,:);
     
-% ff data 1750-2016, GtC/yr
-FF_2016 = csvread('GCPv1.3_FF2016.csv');
-ffYear = FF_2016(1,1):(1/ts):FF_2016(end,1);
-FF_2016mo_0 = (interp1(FF_2016(:,1),FF_2016(:,2),ffYear)).';
-FF_2016mo(:,1) = ffYear;
-FF_2016mo(:,2) = FF_2016mo_0*d; %convert to pp
+else
+    % ff data 1750-2016, GtC/yr
+    FF_2016 = csvread('GCPv1.3_FF2016.csv');
+    ffYear = FF_2016(1,1):(1/ts):FF_2016(end,1);
+    FF_2016mo_0 = (interp1(FF_2016(:,1),FF_2016(:,2),ffYear)).';
+    FF_2016mo(:,1) = ffYear;
+    FF_2016mo(:,2) = FF_2016mo_0*d; %convert to pp
+end
+    
 
 if strcmp(landusedata,'hough') || strcmp(landusedata,'const') || strcmp(landusedata,'const2')
     %if using Houghton:
